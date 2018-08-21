@@ -1,5 +1,10 @@
 all:
-	@echo "See documentation for options."
+	@echo "make make-project          | Makes CMake files"
+	@echo "make build-project         | Recompiles and links code"
+	@echo "make execute-project       | Runs binary in bin directory"
+	@echo "make build-execute-project | Runs build and execute"
+	@echo "make clean                 | Runs all clean commands like: 'clean-*'"
+	@echo "make clean-bin             | Clears binary directory"
 
 build-execute-project:
 	make build-project
