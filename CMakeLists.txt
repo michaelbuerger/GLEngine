@@ -8,7 +8,7 @@ SET (GLEngine_VERSION_PATCH 0)
 SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++17")
 
 SET (source_dir "${PROJECT_SOURCE_DIR}/src")
-SET (header_dir "${PROJECT_SOURCE_DIR}/include")
+#SET (header_dir "${PROJECT_SOURCE_DIR}/include")
 SET (test_dir "${PROJECT_SOURCE_DIR}/test")
 
 FILE (GLOB source_files "${source_dir}/*.cpp")
@@ -21,8 +21,14 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 add_subdirectory("${PROJECT_SOURCE_DIR}/glfw/")
+add_subdirectory("${PROJECT_SOURCE_DIR}/glew-2.1.0/build/cmake")
 
 ADD_EXECUTABLE (GLEngine ${source_files} ${header_files})
 
-TARGET_LINK_LIBRARIES (GLEngine glfw)
-TARGET_INCLUDE_DIRECTORIES (GLEngine PRIVATE ${header_dir})
+TARGET_LINK_LIBRARIES (GLEngine glfw glew)
+TARGET_INCLUDE_DIRECTORIES(
+	GLEngine PRIVATE
+	include
+	glfw/include
+	glew-2.1.0/include
+)
