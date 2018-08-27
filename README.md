@@ -1,7 +1,6 @@
-# Buerger Engine
+# GLEngine
 ## A complete Game Engine developed by Michael Buerger
 
-It will include:
-- A graphics engine with support for OpenGL (DirectX).
-- A physics engine with support for 3D and 2D physics.
-- A scripting engine.
+
+Trello: <https://trello.com/b/Pl9kCp8s/glengine>  
+GitHub: <https://github.com/popwser/GLEngine>
