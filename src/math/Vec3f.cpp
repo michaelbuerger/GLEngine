@@ -6,15 +6,45 @@
 
 namespace GLEngine
 {
+	Vec3f::Vec3f()
+		: x(0)
+		, y(0)
+		, z(0)
+	{ }
+
+	Vec3f::Vec3f(float x, float y, float z)
+		: x(x)
+		, y(y)
+		, z(z)
+	{ }
+
+	Vec3f::Vec3f(const Vec2f& v)
+		: x(v.x)
+		, y(v.y)
+		, z(0)
+	{ }
+
+	Vec3f::Vec3f(const Vec2f& v, float z)
+		: x(v.x)
+		, y(v.y)
+		, z(z)
+	{ }
+
+	Vec3f::Vec3f(const Vec3f& v)
+		: x(v.x)
+		, y(v.y)
+		, z(v.z)
+	{ }
+
 	float Vec3f::Magnitude()
 	{
-		return std::sqrt(pow(x, 2) + pow(y, 2));
+		return std::sqrt(pow(x, 2) + pow(y, 2) + pow(z, 2));
 	}
 
 	/* Vector Vector Add Functions */
 	Vec3f Vec3f::Add(const Vec3f& b)
 	{
-		Vec3f vec(this->x + b.x, this->y + b.y);
+		Vec3f vec(this->x + b.x, this->y + b.y, this->z + b.z);
 		return vec;
 	}
 
@@ -22,24 +52,23 @@ namespace GLEngine
 	{
 		this->x += b.x;
 		this->y += b.y;
+		this->z += b.z;
 	}
 
 	Vec3f Vec3f::operator+(const Vec3f& b)
 	{
-		Vec3f vec(this->x + b.x, this->y + b.y);
-		return vec;
+		return this->Add(b);
 	}
 
 	void Vec3f::operator+=(const Vec3f& b)
 	{
-		this->x += b.x;
-		this->y += b.y;
+		this->AddEquals(b);
 	}
 
 	/* Scalar Add Functions */
 	Vec3f Vec3f::Add(float b)
 	{
-		Vec3f vec(this->x + b, this->y + b);
+		Vec3f vec(this->x + b, this->y + b, this->z + b);
 		return vec;
 	}
 
@@ -47,24 +76,23 @@ namespace GLEngine
 	{
 		this->x += b;
 		this->y += b;
+		this->z += b;
 	}
 
 	Vec3f Vec3f::operator+(float b)
 	{
-		Vec3f vec(this->x + b, this->y + b);
-		return vec;
+		return this->Add(b);
 	}
 
 	void Vec3f::operator+=(float b)
 	{
-		this->x += b;
-		this->y += b;
+		this->AddEquals(b);
 	}
 
 	/* Vector Vector Sub Functions */
 	Vec3f Vec3f::Sub(const Vec3f& b)
 	{
-		Vec3f vec(this->x - b.x, this->y - b.y);
+		Vec3f vec(this->x - b.x, this->y - b.y, this->z - b.z);
 		return vec;
 	}
 
@@ -72,24 +100,23 @@ namespace GLEngine
 	{
 		this->x -= b.x;
 		this->y -= b.y;
+		this->z -= b.z;
 	}
 
 	Vec3f Vec3f::operator-(const Vec3f& b)
 	{
-		Vec3f vec(this->x - b.x, this->y - b.y);
-		return vec;
+		return this->Sub(b);
 	}
 
 	void Vec3f::operator-=(const Vec3f& b)
 	{
-		this->x -= b.x;
-		this->y -= b.y;
+		this->SubEquals(b);
 	}
 
 	/* Scalar Sub Functions */
 	Vec3f Vec3f::Sub(float b)
 	{
-		Vec3f vec(this->x - b, this->y - b);
+		Vec3f vec(this->x - b, this->y - b, this->z - b);
 		return vec;
 	}
 
@@ -97,24 +124,23 @@ namespace GLEngine
 	{
 		this->x -= b;
 		this->y -= b;
+		this->z -= b;
 	}
 
 	Vec3f Vec3f::operator-(float b)
 	{
-		Vec3f vec(this->x - b, this->y - b);
-		return vec;
+		return this->Sub(b);
 	}
 
 	void Vec3f::operator-=(float b)
 	{
-		this->x -= b;
-		this->y -= b;
+		this->SubEquals(b);
 	}
 
 	/* Vector Vector Mult Functions */
 	Vec3f Vec3f::Mult(const Vec3f& b)
 	{
-		Vec3f vec(this->x * b.x, this->y * b.y);
+		Vec3f vec(this->x * b.x, this->y * b.y, this->z * b.z);
 		return vec;
 	}
 
@@ -122,24 +148,23 @@ namespace GLEngine
 	{
 		this->x *= b.x;
 		this->y *= b.y;
+		this->z *= b.z;
 	}
 
 	Vec3f Vec3f::operator*(const Vec3f& b)
 	{
-		Vec3f vec(this->x * b.x, this->y * b.y);
-		return vec;
+		return this->Mult(b);
 	}
 
 	void Vec3f::operator*=(const Vec3f& b)
 	{
-		this->x *= b.x;
-		this->y *= b.y;
+		this->MultEquals(b);
 	}
 
 	/* Scalar Mult Functions */
 	Vec3f Vec3f::Mult(float b)
 	{
-		Vec3f vec(this->x * b, this->y * b);
+		Vec3f vec(this->x * b, this->y * b, this->z * b);
 		return vec;
 	}
 
@@ -147,24 +172,23 @@ namespace GLEngine
 	{
 		this->x *= b;
 		this->y *= b;
+		this->z *= b;
 	}
 
 	Vec3f Vec3f::operator*(float b)
 	{
-		Vec3f vec(this->x * b, this->y * b);
-		return vec;
+		return this->Mult(b);
 	}
 
 	void Vec3f::operator*=(float b)
 	{
-		this->x *= b;
-		this->y *= b;
+		this->MultEquals(b);
 	}
 
 	/* Vector Vector Div Functions */
 	Vec3f Vec3f::Div(const Vec3f& b)
 	{
-		Vec3f vec(this->x / b.x, this->y / b.y);
+		Vec3f vec(this->x / b.x, this->y / b.y, this->z / b.z);
 		return vec;
 	}
 
@@ -172,24 +196,23 @@ namespace GLEngine
 	{
 		this->x /= b.x;
 		this->y /= b.y;
+		this->z /= b.z;
 	}
 
 	Vec3f Vec3f::operator/(const Vec3f& b)
 	{
-		Vec3f vec(this->x / b.x, this->y / b.y);
-		return vec;
+		return this->Div(b);
 	}
 
 	void Vec3f::operator/=(const Vec3f& b)
 	{
-		this->x /= b.x;
-		this->y /= b.y;
+		this->DivEquals(b);
 	}
 
 	/* Scalar Div Functions */
 	Vec3f Vec3f::Div(float b)
 	{
-		Vec3f vec(this->x / b, this->y / b);
+		Vec3f vec(this->x / b, this->y / b, this->z / b);
 		return vec;
 	}
 
@@ -197,18 +220,17 @@ namespace GLEngine
 	{
 		this->x /= b;
 		this->y /= b;
+		this->z /= b;
 	}
 
 	Vec3f Vec3f::operator/(float b)
 	{
-		Vec3f vec(this->x / b, this->y / b);
-		return vec;
+		return this->Div(b);
 	}
 
 	void Vec3f::operator/=(float b)
 	{
-		this->x /= b;
-		this->y /= b;
+		this->DivEquals(b);
 	}
 
 	/* Misc */

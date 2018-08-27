@@ -11,9 +11,11 @@ namespace GLEngine
 	public:
 		float x, y, z;
 
+		Vec3f();
 		Vec3f(float x, float y, float z);
 		Vec3f(const Vec2f& v);
 		Vec3f(const Vec2f& v, float z);
+		Vec3f(const Vec3f& v);
 
 		float Magnitude();
 

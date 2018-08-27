@@ -6,6 +6,26 @@
 
 namespace GLEngine
 {
+	Vec2f::Vec2f()
+		: x(0)
+		, y(0)
+	{ }
+
+	Vec2f::Vec2f(float x, float y)
+		: x(x)
+		, y(y)
+	{ }
+
+	Vec2f::Vec2f(const Vec2f& v)
+		: x(v.x)
+		, y(v.y)
+	{ }
+
+	Vec2f::Vec2f(const Vec3f& v)
+		: x(v.x)
+		, y(v.y)
+	{ }
+
 	float Vec2f::Magnitude()
 	{
 		return std::sqrt(pow(x, 2) + pow(y, 2));
