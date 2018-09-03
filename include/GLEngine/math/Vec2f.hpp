@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <string>
-#include "GLEngine/math/Vec3f-fwd.hpp"
 
 namespace GLEngine
 {
@@ -14,7 +13,6 @@ namespace GLEngine
 		Vec2f();
 		Vec2f(float x, float y);
 		Vec2f(const Vec2f& v);
-		Vec2f(const Vec3f& v);
 
 		float Magnitude();
 

@@ -2,7 +2,6 @@
 #include <string>
 #include <cmath>
 #include "GLEngine/math/Vec2f.hpp"
-#include "GLEngine/math/Vec3f.hpp"
 
 namespace GLEngine
 {
@@ -17,11 +16,6 @@ namespace GLEngine
 	{ }
 
 	Vec2f::Vec2f(const Vec2f& v)
-		: x(v.x)
-		, y(v.y)
-	{ }
-
-	Vec2f::Vec2f(const Vec3f& v)
 		: x(v.x)
 		, y(v.y)
 	{ }
