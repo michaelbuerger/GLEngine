@@ -6,15 +6,24 @@
 namespace GLEngine
 {
 	Vec4f::Vec4f()
-	: x(0), y(0), z(0), w(0)
+	: x(0),
+		y(0),
+		z(0),
+		w(0)
 	{ }
 
 	Vec4f::Vec4f(float x, float y, float z, float w)
-	: x(x), y(y), z(z), w(w)
+	: x(x),
+		y(y),
+		z(z),
+		w(w)
 	{ }
 
 	Vec4f::Vec4f(const Vec4f& v)
-	: x(v.x), y(v.y), z(v.z), w(v.w)
+	: x(v.x),
+		y(v.y),
+		z(v.z),
+		w(v.w)
 	{ }
 
 	float Vec4f::Magnitude()
