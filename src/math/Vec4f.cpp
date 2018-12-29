@@ -234,7 +234,7 @@ namespace GLEngine
 	}
 
 	/* Misc */
-	std::string Vec4f::to_string()
+	std::string Vec4f::ToString()
 	{
 		return "["+std::to_string(this->x)+", "+std::to_string(this->y)+", "+std::to_string(this->z)+", "+std::to_string(this->w)+:"]";
 	}
