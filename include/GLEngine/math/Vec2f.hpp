@@ -1,4 +1,5 @@
-#pragma once
+#ifndef VEC2F_HPP
+#define VEC2F_HPP
 
 #include <iostream>
 #include <string>
@@ -61,6 +62,8 @@ namespace GLEngine
 		void operator/=(float b);
 
 		/* Misc */
-		std::string to_string();
+		std::string ToString();
 	};
 }
+
+#endif /* end of include guard VEC2F_HPP */
