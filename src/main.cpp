@@ -1,6 +1,17 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "GLEngine/math/MathFloat.hpp"
+
+/* Definitions that will turn debug logging off */
+//#define GLENGINE_DEBUG_LOG_OFF
+//#define APP_DEBUG_LOG_OFF
+
+#include "GLEngine/logging/Log.hpp"
+
+using namespace GLEngine;
+using namespace math;
+using namespace logging;
 
 // TODO: Research reentrancy
 
@@ -11,6 +22,14 @@ void GLFWErrorCallback(int error, const char* description)
 
 int main()
 {
+	/* Logging Examples */
+	GLEngine::logging::Log::Init();
+	GLE_ENGINE_TRACE("Sending trace");
+	GLE_INFO("Sending information");
+	GLE_ENGINE_WARN("Sending warning");
+	GLE_ERROR("Sending error");
+	GLE_ENGINE_CRIT("Sending critical error");
+
 	GLFWwindow* window;
 	/* Setup GLFW */
 	if (!glfwInit())
