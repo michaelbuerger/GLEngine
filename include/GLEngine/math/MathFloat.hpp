@@ -1,7 +1,7 @@
 #ifndef MATHFLOAT_HPP
 #define MATHFLOAT_HPP
 
-namespace GLEngine
+namespace GLEngine { namespace math
 {
 	/* Clamp [num] between [min] and [max] */
 	float Clampf(float num, float min, float max)
@@ -44,6 +44,5 @@ namespace GLEngine
 
 		return num_final;
 	}
-}
-
+}}
 #endif /* end of include guard:MATHFLOAT_HPP */

@@ -1,14 +1,11 @@
 #include <iostream>
 #include <string>
 
-namespace GLEngine
+namespace GLEngine { namespace test
 {
-	namespace Tests
+	struct TestOutput
 	{
-		struct TestOutput
-		{
-			std::string output = "";
-			bool result = false;
-		};
-	}
-}
+		std::string output = "";
+		bool result = false;
+	};
+}}

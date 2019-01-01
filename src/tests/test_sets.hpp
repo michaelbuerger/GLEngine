@@ -2,14 +2,11 @@
 
 #include <string>
 
-namespace GLEngine
+namespace GLEngine { namespace test
 {
-	namespace Tests
-	{
 
-		/* define useful test queries here like:
-		 * const std::string QUERY_EXAMPLE
-		 */
+/* define useful test queries here like:
+* const std::string QUERY_EXAMPLE
+*/
 
-	}
-}
+}}
