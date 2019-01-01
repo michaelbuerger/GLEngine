@@ -3,6 +3,7 @@ build/
 bin/
 *.gch
 *.o
+src/main.cpp
 
 ### Linux ###
 *~
