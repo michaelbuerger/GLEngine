@@ -29,7 +29,8 @@ add_executable (GLEngine ${source_files} ${header_files})
 target_link_libraries (GLEngine glfw glew)
 target_include_directories (
 	GLEngine PRIVATE
-	include
-	glfw/include
-	glew-2.1.0/include
+	include/
+	glfw/include/
+	glew-2.1.0/include/
+	spdlog-1.x/include/
 )
