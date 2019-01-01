@@ -3,7 +3,8 @@ all:
 	@echo "make build-project         | Recompiles and links code"
 	@echo "make execute-project       | Runs binary in bin directory"
 	@echo "make build-execute-project | Runs build and execute"
-	@echo "make line-count            | Runs cloc on code written myself"
+	@echo "make qea                   | Quick Easy All: Run make, build, then execute"
+	@echo "make line-count            | Runs cloc on GLEngine code"
 	@echo "make clean                 | Runs all clean commands like: 'clean-*'"
 	@echo "make clean-bin             | Clears binary directory"
 
@@ -20,6 +21,10 @@ build-project: # Builds project using setup cmake files
 
 execute-project: # Run generated executable
 	bin/GLEngine
+
+qea:
+	make make-project
+	make build-execute-project
 
 line-count:
 	cloc src/ include/ spike/ doc/ CMakeLists.txt makefile README.md .gitignore
