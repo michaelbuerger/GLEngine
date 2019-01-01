@@ -1,31 +1,33 @@
 cmake_minimum_required (VERSION 3.5)
 
-PROJECT (GLEngine)
-SET (GLEngine_VERSION_MAJOR 0)
-SET (GLEngine_VERSION_MINOR 0)
-SET (GLEngine_VERSION_PATCH 0)
+project (GLEngine)
+set (GLEngine_VERSION_MAJOR 0)
+set (GLEngine_VERSION_MINOR 0)
+set (GLEngine_VERSION_PATCH 0)
 
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++11")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++11")
 
-SET (source_dir "${PROJECT_SOURCE_DIR}/src")
-SET (header_dir "${PROJECT_SOURCE_DIR}/include")
-SET (test_dir "${PROJECT_SOURCE_DIR}/test")
+set (source_dir "${PROJECT_SOURCE_DIR}/src")
+set (header_dir "${PROJECT_SOURCE_DIR}/include")
+set (test_dir "${PROJECT_SOURCE_DIR}/test")
 
-FILE (GLOB_RECURSE source_files "${source_dir}/*.cpp")
-FILE (GLOB_RECURSE header_files "${header_dir}/*.hpp" "${header_dir}/*.h")
+file (GLOB_RECURSE source_files "${source_dir}/*.cpp")
+file (GLOB_RECURSE header_files "${header_dir}/*.hpp" "${header_dir}/*.h")
 
-SET (EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin")
+set (EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin")
 
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory("${PROJECT_SOURCE_DIR}/glfw/")
-add_subdirectory("${PROJECT_SOURCE_DIR}/glew-2.1.0/build/cmake")
+set (GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set (GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set (GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory ("${PROJECT_SOURCE_DIR}/glfw/")
 
-ADD_EXECUTABLE (GLEngine ${source_files} ${header_files})
+add_subdirectory ("${PROJECT_SOURCE_DIR}/glew-2.1.0/build/cmake/")
+add_subdirectory ("${PROJECT_SOURCE_DIR}/spdlog-1.x/")
 
-TARGET_LINK_LIBRARIES (GLEngine glfw glew)
-TARGET_INCLUDE_DIRECTORIES(
+add_executable (GLEngine ${source_files} ${header_files})
+
+target_link_libraries (GLEngine glfw glew)
+target_include_directories (
 	GLEngine PRIVATE
 	include
 	glfw/include
