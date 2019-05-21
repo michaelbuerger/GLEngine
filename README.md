@@ -31,6 +31,10 @@ All libraries used within the engine are self-contained in the repository except
 - ```make clean```: Runs all of the following clean commands
 - ```make clean-bin```: Clears bin directory of engine (not including sub-directories)
 
+**Developer's Note:**
+
+When adding new cpp files to the engine, re-running ```make-project``` is required for them to be built.
+
 ## Links
 **Trello**: <https://trello.com/b/Pl9kCp8s/glengine>  
 **GitHub**: <https://github.com/popwser/GLEngine>
