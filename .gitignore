@@ -1,9 +1,9 @@
 # Project specific ignores
 build/
 bin/
+/glew-2.1.0/
 *.gch
 *.o
-src/main.cpp
 
 ### Linux ###
 *~
