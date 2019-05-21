@@ -11,7 +11,7 @@ namespace GLEngine { namespace logging
 	{
 		spdlog::set_pattern("%^[%T] %n: %v%$");
 
-		s_EngineLogger = spdlog::stdout_color_mt("GLEngine");\
+		s_EngineLogger = spdlog::stdout_color_mt("GLEngine");
 		s_EngineLogger->set_level(spdlog::level::trace);
 
 		s_AppLogger = spdlog::stdout_color_mt("App");

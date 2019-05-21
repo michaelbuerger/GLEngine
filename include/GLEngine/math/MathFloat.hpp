@@ -45,4 +45,4 @@ namespace GLEngine { namespace math
 		return num_final;
 	}
 }}
-#endif /* end of include guard:MATHFLOAT_HPP */
+#endif

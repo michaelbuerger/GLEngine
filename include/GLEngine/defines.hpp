@@ -1,0 +1,7 @@
+#ifndef DEFINES_CPP
+#define DEFINES_CPP
+
+#define GLE_OPENGL_VERSION_MAJOR 3
+#define GLE_OPENGL_VERSION_MINOR 3
+
+#endif

@@ -32,7 +32,7 @@ namespace GLEngine { namespace logging
 
 #endif
 
-#ifndef APPLICATION_DEBUG_LOG_OFF
+#ifndef GLE_APPLICATION_DEBUG_LOG_OFF
 
 #define GLE_TRACE(...) GLEngine::logging::Log::GetAppLogger()->trace(__VA_ARGS__)
 #define GLE_INFO(...) GLEngine::logging::Log::GetAppLogger()->info(__VA_ARGS__)
