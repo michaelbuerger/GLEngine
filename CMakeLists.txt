@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.5)
 
 project (GLEngine)
 set (GLEngine_VERSION_MAJOR 0)
-set (GLEngine_VERSION_MINOR 0)
+set (GLEngine_VERSION_MINOR 1)
 set (GLEngine_VERSION_PATCH 0)
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -std=c++11")
