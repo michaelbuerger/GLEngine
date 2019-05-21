@@ -4,45 +4,12 @@
 namespace GLEngine { namespace math
 {
 	/* Clamp [num] between [min] and [max] */
-	float Clampf(float num, float min, float max)
-	{
-		float num_final = num;
-
-		if (num < min)
-		{
-			num_final = min;
-		} else if(num > max)
-		{
-			num_final = max;
-		}
-
-		return num_final;
-	}
+	float Clampf(float num, float min, float max);
 
 	/* Clamp [num] between [min] and INFINITY */
-	float ClampMinf(float num, float min)
-	{
-		float num_final = num;
-
-		if(num < min)
-		{
-			num_final = min;
-		}
-
-		return num_final;
-	}
+	float ClampMinf(float num, float min);
 
 	/* Clamp [num] between NEG_INFINITY and [max] */
-	float ClampMaxf(float num, float max)
-	{
-		float num_final = num;
-
-		if (num > max)
-		{
-			num_final = max;
-		}
-
-		return num_final;
-	}
+	float ClampMaxf(float num, float max);
 }}
 #endif
