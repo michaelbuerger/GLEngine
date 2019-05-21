@@ -1,3 +1,4 @@
+/* Note: Must define GLE_ENGINE_DEBUG_LOG_OFF and GLE_APPLICATION_DEBUG_LOG_OFF before inclusion of this header to use them */
 #ifndef LOG_HPP
 #define LOG_HPP
 
