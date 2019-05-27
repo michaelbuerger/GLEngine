@@ -4,6 +4,7 @@ bin/
 /glew-2.1.0/
 *.gch
 *.o
+.vscode/
 
 ### Linux ###
 *~
