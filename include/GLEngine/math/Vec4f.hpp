@@ -26,6 +26,13 @@ namespace GLEngine { namespace math {
 
     Vec4f div(const Vec4f& vec2); /* Div vec1 by vec2, return result | vec1 /= vec2 */
     static Vec4f Div(const Vec4f& vec1, const Vec4f& vec2); /* Return division of vec1 by vec2 | (vec1 / vec2) */
+
+    //static float Dot(const Vec4f& forward, const Vec4f& other); /* Dot product of forward to other */
+
+    float getMagnitude(); /* Calculate magnititude of vector */
+
+    void normalize(); /* Normalize this */
+    Vec4f Normalized(); /* Return normalized version of this */
   };
 
   inline std::ostream& operator<<(std::ostream& os, const Vec4f& vec) /* Converts Vec4f to output stream (cout-able) */

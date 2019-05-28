@@ -1,4 +1,5 @@
 #include "GLEngine/math/Vec2f.hpp"
+#include <cmath>
 
 namespace GLEngine { namespace math {
   Vec2f::Vec2f()
@@ -84,5 +85,25 @@ namespace GLEngine { namespace math {
     Vec2f vec(vec1.x / vec2.x, vec1.y / vec2.y);
 
     return vec;
+  }
+
+  //static float Vec2f::Dot(const Vec2f& forward, const Vec2f& other); /* Dot product of forward to other */
+
+  float Vec2f::getMagnitude() /* Calculate magnititude of vector */
+  {
+    return std::sqrt((this->x*this->x)+(this->y*this->y));
+  }
+
+  void Vec2f::normalize() /* Normalize this */
+  {
+    this->mult(1/this->getMagnitude()); // Divide each element by magnitude
+  }
+  Vec2f Vec2f::Normalized() /* Return normalized version of this */
+  {
+    Vec2f normalizedVector = *this;
+
+    normalizedVector.normalize();
+
+    return normalizedVector;
   }
 }}

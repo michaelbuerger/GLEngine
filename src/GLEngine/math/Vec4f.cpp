@@ -1,4 +1,5 @@
 #include "GLEngine/math/Vec4f.hpp"
+#include <cmath>
 
 namespace GLEngine { namespace math {
   Vec4f::Vec4f()
@@ -100,5 +101,25 @@ namespace GLEngine { namespace math {
     Vec4f vec(vec1.x / vec2.x, vec1.y / vec2.y, vec1.z / vec2.z, vec1.w / vec2.w);
 
     return vec;
+  }
+
+  //static float Vec4f::Dot(const Vec4f& forward, const Vec4f& other); /* Dot product of forward to other */
+
+  float Vec4f::getMagnitude() /* Calculate magnititude of vector */
+  {
+    return std::sqrt((this->x*this->x) + (this->y*this->y) + (this->z*this->z) + (this->w*this->w));
+  }
+
+  void Vec4f::normalize() /* Normalize this */
+  {
+    this->mult(1/this->getMagnitude());
+  }
+  Vec4f Vec4f::Normalized() /* Return normalized version of this */
+  {
+    Vec4f normalizedVector = *this;
+
+    normalizedVector.normalize();
+
+    return normalizedVector;
   }
 }}
