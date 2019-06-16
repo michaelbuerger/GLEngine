@@ -10,7 +10,6 @@ all:
 
 build-execute-project:
 	make build-project
-	@clear
 	make execute-project
 
 make-project: # Sets up cmake files
@@ -20,7 +19,6 @@ build-project: # Builds project using setup cmake files
 	cmake --build build -- -j3
 
 execute-project: # Run generated executable
-	@clear
 	@echo "----PROGRAM OUTPUT----"
 	@bin/GLEngine
 	@echo "----------------------"
