@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/math/math.hpp"
 #include "GLEngine/logging/logging.hpp"
@@ -14,46 +15,174 @@ using namespace GLEngine;
 using namespace logging;
 using namespace math;
 
-void LoadShaderFromResources(const char* address, const char** sourceReturn) // Note use of const char* for ease of use with string literals
+unsigned long GetFileLength(std::ifstream& file)
 {
-    std::string addressResRelative = RESOURCES_PATH;
-    addressResRelative.append(address);
-
-    //std::cout << addressResRelative << std::endl;
-
-    std::ifstream file(addressResRelative);
-    std::vector<std::string> sourceStr;
-
-    if(file.is_open())
+    if(file.good() == false)
     {
-        std::string line;
-        while(getline(file, line))
+        return 0;
+    }
+    
+    unsigned long pos = file.tellg();
+    file.seekg(0, std::ios::end);
+    unsigned long len = file.tellg();
+    file.seekg(pos);
+    
+    return len;
+}
+
+/* Convert name of shader types based on their id, useful for debugging */ // Add support for other types of shaders
+std::string GetShaderTypeName(const uint& shaderType)
+{
+    switch(shaderType)
+    {
+        case GL_VERTEX_SHADER:
+            return "GL_VERTEX_SHADER";
+        break;
+
+        case GL_FRAGMENT_SHADER:
+            return "GL_FRAGMENT_SHADER";
+        break;
+    }
+
+    return "UNKNOWN_SHADER_TYPE";
+}
+
+/* Create shader from pre-loaded source */
+uint CreateShader(const GLchar** shaderSource, const uint& shaderType)
+{
+    uint shader;
+
+    shader = glCreateShader(shaderType);
+    glShaderSource(shader, 1, shaderSource, NULL);
+
+    int success;
+    char infoLog[512];
+
+    glCompileShader(shader);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if(!success)
+    {
+      glGetShaderInfoLog(shader, 512, NULL, infoLog);
+      std::cout << "Shader Compilation Failed (" << GetShaderTypeName(shaderType) << "):\n" << infoLog << std::endl;
+      return 0;
+    }
+
+    return shader;
+}
+
+/* Create shader from file anywhere in the filesystem */
+uint CreateShaderFromAddress(const char* address, const uint& shaderType)
+{
+    std::ifstream file(address);
+
+    if(file.is_open() == false)
+    {
+        std::cout << "Could not open shader at \"" << address << "\"" << std::endl;
+        return 0; // TODO: Update to use logging
+    }
+
+    unsigned long len = GetFileLength(file);
+
+    if(len == 0)
+    {
+        std::cout << "Shader is empty at \"" << address << "\"" << std::endl;
+        return 0; // TODO: Update to use logging
+    }
+
+    GLchar shaderSource[len+1];
+    shaderSource[len] = 0;
+
+    size_t i=0;
+    while (file.good())
+    {
+        shaderSource[i] = file.get();
+        
+        if (!file.eof())
         {
-            sourceStr.push_back(line + "\n");
+            i++;
         }
-        file.close();
+    }
+    
+    shaderSource[i] = 0;  // zero terminate
 
-        //std::cout << "Test" << std::endl;
-    } else
+    file.close();
+
+    const GLchar* shaderSourcePointer = shaderSource;
+
+    return CreateShader(&shaderSourcePointer, shaderType);
+}
+
+/* Create shader from file in resources */
+uint CreateShaderFromResources(const char* address, const uint& shaderType)
+{
+    std::string resAddress = RESOURCES_PATH;
+    resAddress.append(address);
+    return CreateShaderFromAddress(resAddress.c_str(), shaderType);
+}
+
+/* Creates a shader program with the option to bind attribute locations */ // Look into adding other shader type support
+uint CreateShaderProgram(const uint& vertexShader, const uint& fragmentShader, const bool& shouldDeleteShaders, const bool& shouldBindAttribLocations, int* const attribLocations, std::string* const attribNames, const size_t& attribCount)
+{
+    uint shaderProgram = glCreateProgram();
+
+    int success;
+    char infoLog[512];
+
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+
+    if(shouldBindAttribLocations)
     {
-        std::cout << "Could not open \"" << addressResRelative << "\"" << std::endl; // Update to use logging
+        for(size_t i=0; i<attribCount; i++)
+        {
+            glBindAttribLocation(shaderProgram, attribLocations[i], attribNames[i].c_str()); // Do this within shader
+        }
     }
 
-    const char* source[sourceStr.size()];
-    for(size_t i=0; i < sourceStr.size(); i++)
-    {
-        source[i] = sourceStr[i].c_str();
+    glLinkProgram(shaderProgram);
+
+    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
+    if(!success) {
+      glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
+      std::cout << "Shader Program Linking Failed\n" << infoLog << std::endl;
+      return 0;
     }
 
-    sourceReturn = source;
+    if(shouldDeleteShaders)
+    {
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+    }
+
+    return shaderProgram;
+}
+
+/* Create a shader program without binding attribute locations, assuming the use of layout keyword in shaders themselves */
+uint CreateShaderProgram(const uint& vertexShader, const uint& fragmentShader, const bool& shouldDeleteShaders)
+{
+    return CreateShaderProgram(vertexShader, fragmentShader, shouldDeleteShaders, false, NULL, NULL, 0);
+}
+
+uint CreateShaderProgramFromAddresses(const char* vertexShaderAddress, const char* fragmentShaderAddress)
+{
+    uint vertexShader = CreateShaderFromAddress(vertexShaderAddress, GL_VERTEX_SHADER);
+    uint fragmentShader = CreateShaderFromAddress(fragmentShaderAddress, GL_FRAGMENT_SHADER);
+
+    return CreateShaderProgram(vertexShader, fragmentShader, true);
+}
+
+uint CreateShaderProgramFromResources(const char* vertexShaderAddress, const char* fragmentShaderAddress)
+{
+    uint vertexShader = CreateShaderFromResources(vertexShaderAddress, GL_VERTEX_SHADER);
+    uint fragmentShader = CreateShaderFromResources(fragmentShaderAddress, GL_FRAGMENT_SHADER);
+
+    return CreateShaderProgram(vertexShader, fragmentShader, true);
 }
 
 std::string LoadStringFromResources(const char* address) // Note use of const char* for ease of use with string literals
 {
     std::string addressResRelative = RESOURCES_PATH;
     addressResRelative.append(address);
-
-    //std::cout << addressResRelative << std::endl;
 
     std::ifstream file(addressResRelative);
     std::string finalString;
@@ -66,8 +195,6 @@ std::string LoadStringFromResources(const char* address) // Note use of const ch
             finalString.append(line + '\n');
         }
         file.close();
-
-        //std::cout << "Test" << std::endl;
     } else
     {
         std::cout << "Could not open \"" << addressResRelative << "\"" << std::endl;
@@ -76,7 +203,6 @@ std::string LoadStringFromResources(const char* address) // Note use of const ch
 
     return finalString;
 }
-
 
 std::string LoadStringFromAnywhere(const char* address) // Note use of const char* for ease of use with string literals
 {
@@ -132,7 +258,6 @@ int main(void)
     /* Print useful information */
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
-    std::cout << "Entering loop..." << std::endl;
 
     float triangle_vertices[] = { // Triangle declared in 3D space
     -0.5f, -0.5f, 0.0f,
@@ -154,60 +279,9 @@ int main(void)
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Example of unbinding buffer
 
-    uint vertexShader;
-    uint fragmentShader;
+    uint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    const char** vertexShaderSource = NULL;
-    const char** fragmentShaderSource = NULL;
-
-    LoadShaderFromResources("shaders/vert1.glsl", vertexShaderSource);
-    LoadShaderFromResources("shaders/frag1.glsl", fragmentShaderSource);
-
-    glShaderSource(vertexShader, 1, vertexShaderSource, NULL);
-    glShaderSource(fragmentShader, 1, fragmentShaderSource, NULL);
-
-    int success;
-    char infoLog[512];
-
-    glCompileShader(vertexShader);
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-      glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-      std::cout << "Vertex Shader Compilation Failed:\n" << infoLog << std::endl;
-      return -1;
-    }
-
-    glCompileShader(fragmentShader);
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-      glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-      std::cout << "Fragment Shader Compilation Failed:\n" << infoLog << std::endl;
-      return -1;
-    }
-
-    uint shaderProgram = glCreateProgram();
-
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-
-    glBindAttribLocation(shaderProgram, 0, "pos"); // Note to do this before linking the program
-
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success) {
-      glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-      std::cout << "Shader Program Linking Failed\n" << infoLog << std::endl;
-      return -1;
-    }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    std::cout << "Entering loop..." << std::endl;
 
     /* Loop */
     while (!glfwWindowShouldClose(window))
@@ -216,6 +290,7 @@ int main(void)
 
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
