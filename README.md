@@ -1,8 +1,13 @@
 # GLEngine
 A complete game engine developed by Michael Buerger
+Using the following libraries:
+- glfw (Windows, Input Handling, etc)
+- glew (OpenGL Extension Wrangler)
+- glm (OpenGL Mathematics)
+- spdlog (Mainly for console colors)
 
 ## Installation
-All libraries used within the engine are self-contained in the repository except for the following:
+All libraries/binaries used within the engine are self-contained in the repository except for the following:
 - glew (required)
 - cloc (not required)
 
