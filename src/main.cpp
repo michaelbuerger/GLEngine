@@ -3,8 +3,13 @@
 
 #define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
-#include "GLEngine/math/math.hpp"
 #include "GLEngine/logging/logging.hpp"
+
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 
 #include <iostream>
 #include <fstream>
@@ -13,7 +18,6 @@
 
 using namespace GLEngine;
 using namespace logging;
-using namespace math;
 
 unsigned long GetFileLength(std::ifstream& file)
 {
@@ -259,10 +263,51 @@ int main(void)
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    float triangle_vertices[] = { // Triangle declared in 3D space
+    GLfloat triangle_vertices[] = 
+    { // Triangle declared in 3D space
     -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
      0.0f,  0.5f, 0.0f
+    };
+
+    GLfloat cube_vertices[] = 
+    {
+        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
+    -1.0f,-1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f, // triangle 1 : end
+    1.0f, 1.0f,-1.0f, // triangle 2 : begin
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f,-1.0f, // triangle 2 : end
+    1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f, 1.0f,
+    -1.0f,-1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    -1.0f,-1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f,-1.0f,
+    1.0f,-1.0f,-1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f,-1.0f,
+    -1.0f, 1.0f,-1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f,-1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f, 1.0f, 1.0f,
+    -1.0f, 1.0f, 1.0f,
+    1.0f,-1.0f, 1.0f
     };
 
     uint VBO;
@@ -273,24 +318,64 @@ int main(void)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, (void*)0);
-    glEnableVertexAttribArray(0); 
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // Example of unbinding buffer
 
     uint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 
-    std::cout << "Entering loop..." << std::endl;
+    /* TODO:
+    * Indices
+    * Transformations (using own math library)
+    * Texture stuff
+    * Basic lighting
+    * Model loading
+    */
 
+    glm::vec3 objPosition(0.0f, 0.0f, 0.0f);
+    glm::vec3 objScale(1.0f, 1.0f, 1.0f);
+    glm::vec3 objRotationEuler(0.0f, 0.0f, 0.0f);
+
+    glm::quat objRotationQuat(objRotationEuler);
+
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), objPosition);
+    glm::mat4 rotationMatrix = glm::toMat4(objRotationQuat);
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), objScale);
+
+    glm::mat4 transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
+
+    glm::vec3 cameraPosition(2.0f, 1.5f, 1.5f);
+
+    glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling
+    //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
+
+    glm::mat4 viewMatrix = cameraMatrix;
+
+    float cameraFov = 90.0f;
+    float aspectRatio = 16.0f/9.0f;
+
+    glm::mat4 projectionMatrix = glm::perspective(
+        glm::radians(cameraFov), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
+        aspectRatio,       // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
+        0.1f,              // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+        100.0f             // Far clipping plane. Keep as little as possible.
+    );
+
+    glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
+
+    std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!glfwWindowShouldClose(window))
     {
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        //glCullFace(GL_BACK);
         glUseProgram(shaderProgram);
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 12*3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
