@@ -1,7 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming/GLEngine/resources/"
+#define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/logging/logging.hpp"
 
@@ -25,12 +25,12 @@ unsigned long GetFileLength(std::ifstream& file)
     {
         return 0;
     }
-    
+
     unsigned long pos = file.tellg();
     file.seekg(0, std::ios::end);
     unsigned long len = file.tellg();
     file.seekg(pos);
-    
+
     return len;
 }
 
@@ -100,13 +100,13 @@ uint CreateShaderFromAddress(const char* address, const uint& shaderType)
     while (file.good())
     {
         shaderSource[i] = file.get();
-        
+
         if (!file.eof())
         {
             i++;
         }
     }
-    
+
     shaderSource[i] = 0;  // zero terminate
 
     file.close();
@@ -263,14 +263,21 @@ int main(void)
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    GLfloat triangle_vertices[] = 
+    GLfloat triangle_vertices[] =
     { // Triangle declared in 3D space
     -0.5f, -0.5f, 0.0f,
      0.5f, -0.5f, 0.0f,
      0.0f,  0.5f, 0.0f
     };
 
-    GLfloat cube_vertices[] = 
+    GLfloat square_vertices[] =
+    {
+      -1.0f, 1.0f, 0.0f,
+      1.0f, -1.0f, 0.0f,
+      -1.0f, -1.0f, 0.0f
+    };
+
+    GLfloat cube_vertices[] =
     {
         -1.0f,-1.0f,-1.0f, // triangle 1 : begin
     -1.0f,-1.0f, 1.0f,
@@ -318,7 +325,7 @@ int main(void)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(0);
 
@@ -328,10 +335,11 @@ int main(void)
 
     /* TODO:
     * Indices
-    * Transformations (using own math library)
+    * GLFW input handling and such
     * Texture stuff
     * Basic lighting
     * Model loading
+    * Generate indices for models that don't have them??? (Optional obviously)
     */
 
     glm::vec3 objPosition(0.0f, 0.0f, 0.0f);
@@ -375,7 +383,7 @@ int main(void)
         glUseProgram(shaderProgram);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 12*3);
+        glDrawArrays(GL_TRIANGLES, 0, 3*3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

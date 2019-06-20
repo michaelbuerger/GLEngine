@@ -10,8 +10,3 @@ void main()
   gl_Position = mvpMatrix * vec4(posModelspace, 1.0);
   vertexColor = vec4(1.0, 1.0, 1.0, 1.0); // red
 }
-
-
-
-
-
