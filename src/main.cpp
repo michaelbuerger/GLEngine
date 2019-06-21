@@ -19,6 +19,14 @@
 using namespace GLEngine;
 using namespace logging;
 
+/* Useful Links:
+http://www.opengl-tutorial.org/
+http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-9-vbo-indexing/
+http://www.khronos.org/
+http://www.learnopengl.com/
+http://www.glfw.org/
+*/
+
 unsigned long GetFileLength(std::ifstream& file)
 {
     if(file.good() == false)
@@ -35,7 +43,7 @@ unsigned long GetFileLength(std::ifstream& file)
 }
 
 /* Convert name of shader types based on their id, useful for debugging */ // Add support for other types of shaders
-std::string GetShaderTypeName(const uint& shaderType)
+std::string GetShaderTypeName(const GLuint& shaderType)
 {
     switch(shaderType)
     {
@@ -52,9 +60,9 @@ std::string GetShaderTypeName(const uint& shaderType)
 }
 
 /* Create shader from pre-loaded source */
-uint CreateShader(const GLchar** shaderSource, const uint& shaderType)
+GLuint CreateShader(const GLchar** shaderSource, const GLuint& shaderType)
 {
-    uint shader;
+    GLuint shader;
 
     shader = glCreateShader(shaderType);
     glShaderSource(shader, 1, shaderSource, NULL);
@@ -75,7 +83,7 @@ uint CreateShader(const GLchar** shaderSource, const uint& shaderType)
 }
 
 /* Create shader from file anywhere in the filesystem */
-uint CreateShaderFromAddress(const char* address, const uint& shaderType)
+GLuint CreateShaderFromAddress(const char* address, const GLuint& shaderType)
 {
     std::ifstream file(address);
 
@@ -117,7 +125,7 @@ uint CreateShaderFromAddress(const char* address, const uint& shaderType)
 }
 
 /* Create shader from file in resources */
-uint CreateShaderFromResources(const char* address, const uint& shaderType)
+GLuint CreateShaderFromResources(const char* address, const GLuint& shaderType)
 {
     std::string resAddress = RESOURCES_PATH;
     resAddress.append(address);
@@ -125,9 +133,9 @@ uint CreateShaderFromResources(const char* address, const uint& shaderType)
 }
 
 /* Creates a shader program with the option to bind attribute locations */ // Look into adding other shader type support
-uint CreateShaderProgram(const uint& vertexShader, const uint& fragmentShader, const bool& shouldDeleteShaders, const bool& shouldBindAttribLocations, int* const attribLocations, std::string* const attribNames, const size_t& attribCount)
+GLuint CreateShaderProgram(const GLuint& vertexShader, const GLuint& fragmentShader, const bool& shouldDeleteShaders, const bool& shouldBindAttribLocations, int* const attribLocations, std::string* const attribNames, const size_t& attribCount)
 {
-    uint shaderProgram = glCreateProgram();
+    GLuint shaderProgram = glCreateProgram();
 
     int success;
     char infoLog[512];
@@ -162,23 +170,23 @@ uint CreateShaderProgram(const uint& vertexShader, const uint& fragmentShader, c
 }
 
 /* Create a shader program without binding attribute locations, assuming the use of layout keyword in shaders themselves */
-uint CreateShaderProgram(const uint& vertexShader, const uint& fragmentShader, const bool& shouldDeleteShaders)
+GLuint CreateShaderProgram(const GLuint& vertexShader, const GLuint& fragmentShader, const bool& shouldDeleteShaders)
 {
     return CreateShaderProgram(vertexShader, fragmentShader, shouldDeleteShaders, false, NULL, NULL, 0);
 }
 
-uint CreateShaderProgramFromAddresses(const char* vertexShaderAddress, const char* fragmentShaderAddress)
+GLuint CreateShaderProgramFromAddresses(const char* vertexShaderAddress, const char* fragmentShaderAddress)
 {
-    uint vertexShader = CreateShaderFromAddress(vertexShaderAddress, GL_VERTEX_SHADER);
-    uint fragmentShader = CreateShaderFromAddress(fragmentShaderAddress, GL_FRAGMENT_SHADER);
+    GLuint vertexShader = CreateShaderFromAddress(vertexShaderAddress, GL_VERTEX_SHADER);
+    GLuint fragmentShader = CreateShaderFromAddress(fragmentShaderAddress, GL_FRAGMENT_SHADER);
 
     return CreateShaderProgram(vertexShader, fragmentShader, true);
 }
 
-uint CreateShaderProgramFromResources(const char* vertexShaderAddress, const char* fragmentShaderAddress)
+GLuint CreateShaderProgramFromResources(const char* vertexShaderAddress, const char* fragmentShaderAddress)
 {
-    uint vertexShader = CreateShaderFromResources(vertexShaderAddress, GL_VERTEX_SHADER);
-    uint fragmentShader = CreateShaderFromResources(fragmentShaderAddress, GL_FRAGMENT_SHADER);
+    GLuint vertexShader = CreateShaderFromResources(vertexShaderAddress, GL_VERTEX_SHADER);
+    GLuint fragmentShader = CreateShaderFromResources(fragmentShaderAddress, GL_FRAGMENT_SHADER);
 
     return CreateShaderProgram(vertexShader, fragmentShader, true);
 }
@@ -272,14 +280,30 @@ int main(void)
 
     GLfloat square_vertices[] =
     {
-      -1.0f, 1.0f, 0.0f,
-      1.0f, -1.0f, 0.0f,
-      -1.0f, -1.0f, 0.0f
+      -1.0f, 1.0f, 0.0f, // bottom-left triangle // 2
+      1.0f, -1.0f, 0.0f, // 1
+      -1.0f, -1.0f, 0.0f, // 3
+      1.0f, 1.0f, 0.0f, // top-right triangle // 0
+      1.0f, -1.0f, 0.0f, // 1
+      -1.0f, 1.0f, 0.0f // 2
+    };
+
+    GLfloat square_vertices_for_indices[]
+    {
+        1.0f, 1.0f, 0.0f, // 0
+        1.0f, -1.0f, 0.0f, // 1
+        -1.0f, 1.0f, 0.0f, // 2
+        -1.0f, -1.0f, 0.0f // 3
+    };
+
+    GLint square_indices[]
+    {
+        2, 1, 3, 0, 1, 2
     };
 
     GLfloat cube_vertices[] =
     {
-        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
+    -1.0f,-1.0f,-1.0f, // triangle 1 : begin
     -1.0f,-1.0f, 1.0f,
     -1.0f, 1.0f, 1.0f, // triangle 1 : end
     1.0f, 1.0f,-1.0f, // triangle 2 : begin
@@ -317,24 +341,32 @@ int main(void)
     1.0f,-1.0f, 1.0f
     };
 
-    uint VBO;
+    GLuint VBO;
     glGenBuffers(1, &VBO);
 
-    uint VAO;
+    GLuint elementBuffer;
+    glGenBuffers(1, &elementBuffer);
+
+    GLuint VAO;
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices_for_indices), square_vertices_for_indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW);
+    
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
     glEnableVertexAttribArray(0);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0); // Example of unbinding buffer
+    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    uint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
+    GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 
     /* TODO:
-    * Indices
     * GLFW input handling and such
     * Texture stuff
     * Basic lighting
@@ -383,7 +415,8 @@ int main(void)
         glUseProgram(shaderProgram);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3*3);
+        //glDrawArrays(GL_TRIANGLES, 0, 6*3); // draw without indexing, 6 3d vertices
+        glDrawElements(GL_TRIANGLES, sizeof(square_indices)/sizeof(GLuint), GL_UNSIGNED_INT, (void*)0); // draw with indexing
 
         glfwSwapBuffers(window);
         glfwPollEvents();
