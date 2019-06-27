@@ -5,6 +5,7 @@
  * Basic lighting
  * Model loading
  * Generate indices for models that don't have them??? (Optional obviously)
+ * Get rid of methods that load from resources specifically, create method to make address resource relative
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -40,6 +41,7 @@ http://www.glfw.org/
 https://www.glfw.org/docs/3.0/window.html
 https://github.com/nothings/single_file_libs
 https://github.com/nothings/stb
+https://stackoverflow.com/questions/23150123/loading-png-with-stb-image-for-opengl-texture-gives-wrong-colors
 */
 
 unsigned long GetFileLength(std::ifstream& file)
@@ -287,23 +289,6 @@ int main(void)
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    GLfloat triangle_vertices[] =
-    { // Triangle declared in 3D space
-    -0.5f, -0.5f, 0.0f,
-     0.5f, -0.5f, 0.0f,
-     0.0f,  0.5f, 0.0f
-    };
-
-    GLfloat square_vertices[] =
-    {
-      -1.0f, 1.0f, 0.0f, // bottom-left triangle // 2
-      1.0f, -1.0f, 0.0f, // 1
-      -1.0f, -1.0f, 0.0f, // 3
-      1.0f, 1.0f, 0.0f, // top-right triangle // 0
-      1.0f, -1.0f, 0.0f, // 1
-      -1.0f, 1.0f, 0.0f // 2
-    };
-
     GLfloat square_vertices_for_indices[]
     {
         1.0f, 1.0f, 0.0f, // 0
@@ -315,6 +300,11 @@ int main(void)
     GLint square_indices[]
     {
         2, 1, 3, 0, 1, 2
+    };
+
+    GLfloat square_texture_coords[] =
+    {
+        
     };
 
     GLfloat cube_vertices[] =
