@@ -1,10 +1,11 @@
 # GLEngine
 A complete game engine developed by Michael Buerger
 Using the following libraries:
-- glfw (Windows, Input Handling, etc)
-- glew (OpenGL Extension Wrangler)
-- glm (OpenGL Mathematics)
-- spdlog (Mainly for console colors)
+- [glfw](https://www.glfw.org) (Windows, Input Handling, etc)
+- [glew](http://glew.sourceforge.net) (OpenGL Extension Wrangler)
+- [glm](https://glm.g-truc.net/0.9.9/index.html) (OpenGL Mathematics)
+- [spdlog](https://github.com/gabime/spdlog) (Fast C++ logging, fancy colored text in console)
+- [stb_image.h](https://github.com/nothings/stb) (Single-file image loader)
 
 ## Installation
 All libraries/binaries used within the engine are self-contained in the repository except for the following:

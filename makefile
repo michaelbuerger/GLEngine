@@ -5,6 +5,7 @@ all:
 	@echo "make build-execute-project | Runs build and execute"
 	@echo "make qea                   | Quick Easy All: Run make, build, then execute"
 	@echo "make line-count            | Runs cloc on GLEngine code"
+	@echo "make line-count-all        | Runs cloc on all files in the local directory, including any extra downloaded files and resources"
 	@echo "make clean                 | Runs all clean commands like: 'clean-*'"
 	@echo "make clean-bin             | Clears binary directory"
 
@@ -28,7 +29,12 @@ qea:
 	make build-execute-project
 
 line-count:
-	cloc src/ include/ spike/ doc/ CMakeLists.txt makefile README.md .gitignore
+	@echo "Getting line count of all project files, excluding including 3rd party libraries..."
+	cloc src/GLEngine/ include/GLEngine/ examples/ doc/ CMakeLists.txt makefile README.md .gitignore
+
+line-count-all:
+	@echo "Getting line count of all files, including 3rd party libraries..."
+	cloc .
 
 clean:
 	make clean-bin

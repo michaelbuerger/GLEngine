@@ -1,9 +1,20 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+/* TODO:
+ * Texture stuff
+ * Move rendering, texture stuff, and model stuff into classes and abstraction methods
+ * GLFW input handling and such
+ * Basic lighting
+ * Model loading
+ * Generate indices for models that don't have them??? (Optional obviously)
+ */
+
+#include "GLEngine/graphics/graphics.hpp"
 
 #define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/logging/logging.hpp"
+#include "GLEngine/graphics/WindowHandler.hpp"
+#include "GLEngine/graphics/Renderer.hpp"
+#include "GLEngine/graphics/Texture.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,6 +29,7 @@
 
 using namespace GLEngine;
 using namespace logging;
+using namespace graphics;
 
 /* Useful Links:
 http://www.opengl-tutorial.org/
@@ -25,6 +37,9 @@ http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-9-vbo-indexing/
 http://www.khronos.org/
 http://www.learnopengl.com/
 http://www.glfw.org/
+https://www.glfw.org/docs/3.0/window.html
+https://github.com/nothings/single_file_libs
+https://github.com/nothings/stb
 */
 
 unsigned long GetFileLength(std::ifstream& file)
@@ -76,7 +91,7 @@ GLuint CreateShader(const GLchar** shaderSource, const GLuint& shaderType)
     {
       glGetShaderInfoLog(shader, 512, NULL, infoLog);
       std::cout << "Shader Compilation Failed (" << GetShaderTypeName(shaderType) << "):\n" << infoLog << std::endl;
-      return 0;
+      return -1;
     }
 
     return shader;
@@ -90,7 +105,7 @@ GLuint CreateShaderFromAddress(const char* address, const GLuint& shaderType)
     if(file.is_open() == false)
     {
         std::cout << "Could not open shader at \"" << address << "\"" << std::endl;
-        return 0; // TODO: Update to use logging
+        return -1; // TODO: Update to use logging
     }
 
     unsigned long len = GetFileLength(file);
@@ -98,7 +113,7 @@ GLuint CreateShaderFromAddress(const char* address, const GLuint& shaderType)
     if(len == 0)
     {
         std::cout << "Shader is empty at \"" << address << "\"" << std::endl;
-        return 0; // TODO: Update to use logging
+        return -1; // TODO: Update to use logging
     }
 
     GLchar shaderSource[len+1];
@@ -240,23 +255,24 @@ std::string LoadStringFromAnywhere(const char* address) // Note use of const cha
 
 int main(void)
 {
-    /* Initialize GLFW and create window */
+    WindowHandler windowHandler = WindowHandler();
+    // WindowHandler windowHandler(); <-- does not call default constructor for some reason
+
     GLFWwindow* window;
 
-    if (!glfwInit())
-        return -1;
+    std::vector<int> windowHintNames = std::vector<int>();
+    std::vector<int> windowHintValues = std::vector<int>();
 
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLE_OPENGL_VERSION_MAJOR);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLE_OPENGL_VERSION_MINOR);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    windowHintNames.push_back(GLFW_RESIZABLE);
+    windowHintValues.push_back(GL_FALSE);
 
-    window = glfwCreateWindow(1280, 720, "GLFW Example Window", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        return -1;
-    }
+    windowHintNames.push_back(GLFW_CONTEXT_VERSION_MAJOR);
+    windowHintValues.push_back(GLE_OPENGL_VERSION_MAJOR);
+
+    windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
+    windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
+    
+    window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", NULL, NULL, windowHintNames, windowHintValues);
 
     glfwMakeContextCurrent(window);
 
@@ -366,14 +382,6 @@ int main(void)
 
     GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 
-    /* TODO:
-    * GLFW input handling and such
-    * Texture stuff
-    * Basic lighting
-    * Model loading
-    * Generate indices for models that don't have them??? (Optional obviously)
-    */
-
     glm::vec3 objPosition(0.0f, 0.0f, 0.0f);
     glm::vec3 objScale(1.0f, 1.0f, 1.0f);
     glm::vec3 objRotationEuler(0.0f, 0.0f, 0.0f);
@@ -407,7 +415,7 @@ int main(void)
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
-    while (!glfwWindowShouldClose(window))
+    while (!windowHandler.ShouldAnyWindowClose())
     {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -415,13 +423,13 @@ int main(void)
         glUseProgram(shaderProgram);
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
         glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6*3); // draw without indexing, 6 3d vertices
+        //glDrawArrays(GL_TRIANGLES, 0, 6*3); // draw without indexing, 6 3D vertices
         glDrawElements(GL_TRIANGLES, sizeof(square_indices)/sizeof(GLuint), GL_UNSIGNED_INT, (void*)0); // draw with indexing
 
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows
         glfwPollEvents();
     }
 
-    glfwTerminate();
+    windowHandler.~WindowHandler();
     return 0;
 }

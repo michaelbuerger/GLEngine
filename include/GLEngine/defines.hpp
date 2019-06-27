@@ -6,7 +6,7 @@
 
 /* TODO: Figure out a better place for this, so it can be changed if needed */
 #ifndef RESOURCES_PATH
-#define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming/GLEngine/resources/"
+#define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
 #endif
 
 #endif
