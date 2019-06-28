@@ -50,7 +50,7 @@ namespace GLEngine { namespace graphics {
         int colorChannels, width, height;
         unsigned char* imageData = LoadImageDataFromFile(address, &width, &height, &colorChannels, imageLoadFormat);
 
-        Image image(imageLoadFormat, width, height, colorChannels, imageData);
+        Image image = Image(imageLoadFormat, width, height, colorChannels, imageData);
 
         return image;
     }
@@ -60,7 +60,7 @@ namespace GLEngine { namespace graphics {
         int colorChannels, width, height;
         unsigned char* imageData = LoadImageDataFromResources(address, &width, &height, &colorChannels, imageLoadFormat);
 
-        Image image(imageLoadFormat, width, height, colorChannels, imageData);
+        Image image = Image(imageLoadFormat, width, height, colorChannels, imageData);
 
         return image;
     }

@@ -6,6 +6,7 @@ namespace GLEngine { namespace graphics {
     class Image 
     {
         public:
+            Image();
             Image(const int& loadFormat, const int& width, const int& height, const int& colorChannels, unsigned char *imageData);
 
             int GetLoadFormat() const;

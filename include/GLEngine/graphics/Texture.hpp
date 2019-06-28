@@ -12,6 +12,7 @@ namespace GLEngine { namespace graphics {
         public:
             static class ImageHandler imageHandler;
 
+            Texture();
             /* Load texture from resources */
             Texture(const char* address, const int& loadFormat);
             Texture(const Texture& texture);

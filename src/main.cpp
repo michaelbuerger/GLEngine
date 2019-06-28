@@ -6,6 +6,7 @@
  * Model loading
  * Generate indices for models that don't have them??? (Optional obviously)
  * Get rid of methods that load from resources specifically, create method to make address resource relative
+ * Add this to stream todo: Add default constructors to every class
  */
 
 #include "GLEngine/graphics/graphics.hpp"
