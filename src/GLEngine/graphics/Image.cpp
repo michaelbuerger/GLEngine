@@ -2,6 +2,11 @@
 
 namespace GLEngine { namespace graphics {
 
+    Image::Image()
+    {
+        
+    }
+
     Image::Image(const int& loadFormat, const int& width, const int& height, const int& colorChannels, unsigned char *imageData)
     {
         this->loadFormat = loadFormat;

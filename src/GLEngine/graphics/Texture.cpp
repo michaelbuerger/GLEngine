@@ -3,6 +3,8 @@
 
 namespace GLEngine { namespace graphics {
 
+    ImageHandler Texture::imageHandler = ImageHandler();
+
     /* Load texture from resources */
     Texture::Texture(const char* address, const int& loadFormat)
     {
