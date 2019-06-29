@@ -1,6 +1,8 @@
 #ifndef IMAGE_HPP
 #define IMAGE_HPP
 
+#include "GLEngine/graphics/graphics.hpp"
+
 namespace GLEngine { namespace graphics {
 
     class Image 
@@ -14,6 +16,7 @@ namespace GLEngine { namespace graphics {
             int GetHeight() const;
             int GetColorChannels() const;
             unsigned char* GetImageData() const;
+            GLuint GetGLFormat() const;
 
         private:
             int loadFormat;

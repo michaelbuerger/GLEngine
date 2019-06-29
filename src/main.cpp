@@ -7,6 +7,8 @@
  * Generate indices for models that don't have them??? (Optional obviously)
  * Get rid of methods that load from resources specifically, create method to make address resource relative
  * Add this to stream todo: Add default constructors to every class
+ * Add proper checks in ImageHandler
+ * Add engine logging to any place that couts currently
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -28,6 +30,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+
+#include "stb/stb_image.h"
 
 using namespace GLEngine;
 using namespace logging;
@@ -290,22 +294,17 @@ int main(void)
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    GLfloat square_vertices_for_indices[]
+    GLfloat square_vertices_texcoords[]
     {
-        1.0f, 1.0f, 0.0f, // 0
-        1.0f, -1.0f, 0.0f, // 1
-        -1.0f, 1.0f, 0.0f, // 2
-        -1.0f, -1.0f, 0.0f // 3
+        1.0f, 1.0f, 0.0f,    1.0f, 1.0f, // top-right
+        1.0f, -1.0f, 0.0f,   1.0f, -1.0f, // bottom-right
+        -1.0f, 1.0f, 0.0f,   -1.0f, 1.0f, // top-left
+        -1.0f, -1.0f, 0.0f,  -1.0f, -1.0f // bottom-left
     };
 
     GLint square_indices[]
     {
         2, 1, 3, 0, 1, 2
-    };
-
-    GLfloat square_texture_coords[] =
-    {
-        
     };
 
     GLfloat cube_vertices[] =
@@ -361,15 +360,22 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices_for_indices), square_vertices_for_indices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices_texcoords), square_vertices_texcoords, GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+    
     glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    Texture testTexture = Texture("test-texture.png", STBI_default);
+    testTexture.SetDefaultParameters();
+    testTexture.Create(true);
 
     GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 
@@ -412,6 +418,7 @@ int main(void)
 
         //glCullFace(GL_BACK);
         glUseProgram(shaderProgram);
+        testTexture.Bind();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
         glBindVertexArray(VAO);
         //glDrawArrays(GL_TRIANGLES, 0, 6*3); // draw without indexing, 6 3D vertices
