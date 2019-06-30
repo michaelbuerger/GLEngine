@@ -6,7 +6,13 @@
 namespace GLEngine { namespace graphics {
 
     Image::Image()
-    {}
+    {
+        this->loadFormat = -1;
+        this->width = -1;
+        this->height = -1;
+        this->colorChannels = -1;
+        this->imageData = nullptr;
+    }
 
     Image::Image(const int& loadFormat, const int& width, const int& height, const int& colorChannels, unsigned char *imageData)
     {

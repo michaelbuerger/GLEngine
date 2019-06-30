@@ -19,6 +19,7 @@
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/Renderer.hpp"
 #include "GLEngine/graphics/Texture.hpp"
+#include "GLEngine/exceptions.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -373,9 +374,27 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    Texture testTexture = Texture("test-texture.png", STBI_default);
+    std::cout << "Test 1" << std::endl;
+    Texture testTexture;
+    try {
+        testTexture = Texture("textures/test-texture.png", STBI_default);
+        std::cout << "Test 2" << std::endl;
+    } catch (int i)
+    {
+        switch(i)
+        {
+            case GLE_IMAGE_DATA_NULL:
+                std::cout << "Image data of image contained within texture is null" << std::endl;
+                exit(-1);
+            break;
+        }
+    }
     testTexture.SetDefaultParameters();
-    testTexture.Create(true);
+    std::cout << "Test 3" << std::endl;
+    testTexture.Create(true); // Segfault
+    std::cout << "Test 4" << std::endl;
+
+    //std::cout << testTexture.GetImage().GetImageData() << std::endl;
 
     GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 

@@ -12,6 +12,7 @@ namespace GLEngine { namespace graphics {
 
     Texture::Texture()
     {
+        this->image = Image();
         this->GenTextureID();
     }
 
@@ -23,6 +24,7 @@ namespace GLEngine { namespace graphics {
     }
     Texture::Texture(const Texture& texture)
     {
+        this->image = Image();
         this->image = texture.GetImage();
         this->textureID = texture.GetGLID();
     }
@@ -30,6 +32,7 @@ namespace GLEngine { namespace graphics {
     /* Creates texture from previously loaded image data */
     Texture::Texture(const Image& image)
     {
+        this->image = Image();
         this->image = image;
         GenTextureID();
     }
@@ -56,9 +59,10 @@ namespace GLEngine { namespace graphics {
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             this->Unbind();
-            return;
+        } else
+        {
+            // Add call noting textureID not being generated
         }
-        // Add call noting textureID not being generated
     }
     /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
     void Texture::SetIntParameters(const std::vector<GLuint>& texParamNames, const std::vector<GLuint>& texParamValues) const
@@ -71,9 +75,10 @@ namespace GLEngine { namespace graphics {
                 glTexParameteri(GL_TEXTURE_2D, texParamNames.at(i), texParamValues.at(i));
             }
             this->Unbind();
-            return;
+        } else
+        {
+            // Add call noting textureID not being generated
         }
-        // Add call noting textureID not being generated
     }
 
     /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
@@ -87,10 +92,10 @@ namespace GLEngine { namespace graphics {
                 glTexParameterf(GL_TEXTURE_2D, texParamNames.at(i), texParamValues.at(i));
             }
             this->Unbind();
-            return;
+        } else
+        {
+            // Add call noting textureID not being generated
         }
-
-        // Add call noting textureID not being generated
     }
 
     void Texture::Create(const bool& shouldGenerateMipmaps)
@@ -101,12 +106,15 @@ namespace GLEngine { namespace graphics {
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->image.GetWidth(), this->image.GetHeight(), 0, this->image.GetGLFormat(), GL_UNSIGNED_BYTE, this->image.GetImageData());
             if(shouldGenerateMipmaps)
-            glGenerateMipmap(GL_TEXTURE_2D);
+            {
+                glGenerateMipmap(GL_TEXTURE_2D);
+            }
 
             this->Unbind();
-            return;
+        } else
+        {
+            // Add call noting textureID not being generated
         }
-        // Add call noting textureID not being generated
     }
 
     /* Get OpenGL texture ID */

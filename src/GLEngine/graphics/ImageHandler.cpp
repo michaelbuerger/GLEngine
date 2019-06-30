@@ -2,11 +2,13 @@
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/Image.hpp"
 #include "GLEngine/defines.hpp"
+#include "GLEngine/exceptions.hpp"
 
 #include "stb/stb_image.h"
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 namespace GLEngine { namespace graphics {
 
@@ -18,8 +20,13 @@ namespace GLEngine { namespace graphics {
     /* Load image file of given width, height, and channels to heap allocated section in memory */
     unsigned char *ImageHandler::LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat)
     {
-        this->loadedImageData.push_back(stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat));
-        return this->loadedImageData.at(loadedImageData.size()-1);
+        unsigned char* imageData = stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat);
+        if(imageData != NULL)
+        {
+            this->loadedImageData.push_back(imageData);
+        }
+
+        return imageData;
     }
 
     /* Load image file of given width, height, and channels to heap allocated section in memory (from resources path) */
@@ -50,6 +57,13 @@ namespace GLEngine { namespace graphics {
         int colorChannels, width, height;
         unsigned char* imageData = LoadImageDataFromFile(address, &width, &height, &colorChannels, imageLoadFormat);
 
+        if(imageData == NULL)
+        {
+            std::cout << "Loaded image data from \"" << address << "\"is null..." << std::endl;
+            std::cout << "...stbi failure reason is:" << stbi_failure_reason() << std::endl; // Update to use logging
+            throw GLE_IMAGE_DATA_NULL; // main cause is failing to find file or not having permission to open (can't fopen)
+        }
+
         Image image = Image(imageLoadFormat, width, height, colorChannels, imageData);
 
         return image;
@@ -59,6 +73,13 @@ namespace GLEngine { namespace graphics {
     {
         int colorChannels, width, height;
         unsigned char* imageData = LoadImageDataFromResources(address, &width, &height, &colorChannels, imageLoadFormat);
+
+        if(imageData == NULL)
+        {
+            std::cout << "Loaded image data from \"" << address << "\"is null..." << std::endl;
+            std::cout << "...stbi failure reason is:" << stbi_failure_reason() << std::endl; // Update to use logging
+            throw GLE_IMAGE_DATA_NULL; // main cause is failing to find file or not having permission to open (can't fopen)
+        }
 
         Image image = Image(imageLoadFormat, width, height, colorChannels, imageData);
 
