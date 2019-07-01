@@ -3,6 +3,8 @@
 
 #include "stb/stb_image.h"
 
+#include <iostream>
+
 namespace GLEngine { namespace graphics {
 
     Image::Image()

@@ -59,8 +59,8 @@ namespace GLEngine { namespace graphics {
 
         if(imageData == NULL)
         {
-            std::cout << "Loaded image data from \"" << address << "\"is null..." << std::endl;
-            std::cout << "...stbi failure reason is:" << stbi_failure_reason() << std::endl; // Update to use logging
+            std::cout << "Loaded image data from \"" << address << "\" is null..." << std::endl;
+            std::cout << "...stbi failure reason is: " << stbi_failure_reason() << std::endl; // Update to use logging
             throw GLE_IMAGE_DATA_NULL; // main cause is failing to find file or not having permission to open (can't fopen)
         }
 
@@ -76,8 +76,8 @@ namespace GLEngine { namespace graphics {
 
         if(imageData == NULL)
         {
-            std::cout << "Loaded image data from \"" << address << "\"is null..." << std::endl;
-            std::cout << "...stbi failure reason is:" << stbi_failure_reason() << std::endl; // Update to use logging
+            std::cout << "Loaded image data from \"" << address << "\" is null..." << std::endl;
+            std::cout << "...stbi failure reason is: " << stbi_failure_reason() << std::endl; // Update to use logging
             throw GLE_IMAGE_DATA_NULL; // main cause is failing to find file or not having permission to open (can't fopen)
         }
 

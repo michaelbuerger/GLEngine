@@ -103,7 +103,6 @@ namespace GLEngine { namespace graphics {
         if(this->textureID != 0)
         {
             this->Bind();
-
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->image.GetWidth(), this->image.GetHeight(), 0, this->image.GetGLFormat(), GL_UNSIGNED_BYTE, this->image.GetImageData());
             if(shouldGenerateMipmaps)
             {

@@ -70,13 +70,9 @@ std::string GetShaderTypeName(const GLuint& shaderType)
 {
     switch(shaderType)
     {
-        case GL_VERTEX_SHADER:
-            return "GL_VERTEX_SHADER";
-        break;
+        case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
 
-        case GL_FRAGMENT_SHADER:
-            return "GL_FRAGMENT_SHADER";
-        break;
+        case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
     }
 
     return "UNKNOWN_SHADER_TYPE";
@@ -374,27 +370,20 @@ int main(void)
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    std::cout << "Test 1" << std::endl;
     Texture testTexture;
     try {
-        testTexture = Texture("textures/test-texture.png", STBI_default);
-        std::cout << "Test 2" << std::endl;
+        testTexture = Texture("textures/test-texture.png", STBI_rgb);
     } catch (int i)
     {
         switch(i)
         {
             case GLE_IMAGE_DATA_NULL:
-                std::cout << "Image data of image contained within texture is null" << std::endl;
+                std::cout << "Example catch: Could not load texture" << std::endl;
                 exit(-1);
-            break;
         }
     }
     testTexture.SetDefaultParameters();
-    std::cout << "Test 3" << std::endl;
-    testTexture.Create(true); // Segfault
-    std::cout << "Test 4" << std::endl;
-
-    //std::cout << testTexture.GetImage().GetImageData() << std::endl;
+    testTexture.Create(true); // segfault bruh
 
     GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 

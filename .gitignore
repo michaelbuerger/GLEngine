@@ -5,6 +5,8 @@ bin/
 *.gch
 *.o
 .vscode/
+.idea/
+cmake-build-debug/
 
 ### Linux ###
 *~
