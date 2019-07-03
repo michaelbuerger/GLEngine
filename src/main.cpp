@@ -48,6 +48,8 @@ https://www.glfw.org/docs/3.0/window.html
 https://github.com/nothings/single_file_libs
 https://github.com/nothings/stb
 https://stackoverflow.com/questions/23150123/loading-png-with-stb-image-for-opengl-texture-gives-wrong-colors
+@TODO: Watch this:
+ https://www.youtube.com/watch?v=16w9RjrSdBg
 */
 
 unsigned long GetFileLength(std::ifstream& file)
@@ -372,7 +374,7 @@ int main(void)
 
     Texture testTexture;
     try {
-        testTexture = Texture("textures/test-texture.png", STBI_rgb);
+        testTexture = Texture("textures/solid-red.jpg", STBI_rgb);
     } catch (int i)
     {
         switch(i)

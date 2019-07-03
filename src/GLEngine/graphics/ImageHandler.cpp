@@ -21,11 +21,10 @@ namespace GLEngine { namespace graphics {
     unsigned char *ImageHandler::LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat)
     {
         unsigned char* imageData = stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat);
-        if(imageData != NULL)
+        if(imageData)
         {
             this->loadedImageData.push_back(imageData);
         }
-
         return imageData;
     }
 
@@ -57,7 +56,7 @@ namespace GLEngine { namespace graphics {
         int colorChannels, width, height;
         unsigned char* imageData = LoadImageDataFromFile(address, &width, &height, &colorChannels, imageLoadFormat);
 
-        if(imageData == NULL)
+        if(!imageData)
         {
             std::cout << "Loaded image data from \"" << address << "\" is null..." << std::endl;
             std::cout << "...stbi failure reason is: " << stbi_failure_reason() << std::endl; // Update to use logging
@@ -74,7 +73,7 @@ namespace GLEngine { namespace graphics {
         int colorChannels, width, height;
         unsigned char* imageData = LoadImageDataFromResources(address, &width, &height, &colorChannels, imageLoadFormat);
 
-        if(imageData == NULL)
+        if(!imageData)
         {
             std::cout << "Loaded image data from \"" << address << "\" is null..." << std::endl;
             std::cout << "...stbi failure reason is: " << stbi_failure_reason() << std::endl; // Update to use logging
