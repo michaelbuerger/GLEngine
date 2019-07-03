@@ -17,11 +17,11 @@ namespace GLEngine { namespace graphics {
 
             Texture();
             /* Load texture from resources */
-            Texture(const char* address, const int& loadFormat);
+            Texture(const char* address, const int& loadFormat, const bool& shouldGenerateMipmaps);
             Texture(const Texture& texture);
 
             /* Creates texture from previously loaded image */
-            Texture(const Image& image);
+            Texture(const Image& image, const bool& shouldGenerateMipmaps);
 
             void Bind() const;
             void Unbind() const;
@@ -29,13 +29,9 @@ namespace GLEngine { namespace graphics {
             /* TODO: Figure out if glTexImage2D actually needs to be recalled when changing params */
 
             /* Binds texID, sets parameters to default (see definition), must recall Create(), unbinds texID */ 
-            void SetDefaultParameters() const;
+            void SetDefaultParameters();
             /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
-            void SetIntParameters(const std::vector<GLuint>& texParamNames, const std::vector<GLuint>& texParamValues) const;
-            /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
-            void SetFloatParameters(const std::vector<GLfloat>& texParamNames, const std::vector<GLfloat>& texParamValues) const;
-
-            void Create(const bool& shouldGenerateMipmaps);
+            void SetIntParameters(const std::vector<GLuint>& texParamNames, const std::vector<GLuint>& texParamValues);
 
             Image GetImage() const;
             /* Get OpenGL texture ID */
@@ -50,6 +46,10 @@ namespace GLEngine { namespace graphics {
             GLuint textureID;
 
             void GenTextureID();
+            void Create(const bool& shouldGenerateMipmaps);
+
+            std::vector<GLuint> m_texParamNames;
+            std::vector<GLuint> m_texParamValues;
     };
 
 }}

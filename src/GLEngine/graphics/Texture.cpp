@@ -14,27 +14,35 @@ namespace GLEngine { namespace graphics {
     {
         this->image = Image();
         this->GenTextureID();
+        m_texParamNames = std::vector<GLuint>();
+        m_texParamValues = std::vector<GLuint>();
     }
 
     /* Load texture from resources */
-    Texture::Texture(const char* address, const int& loadFormat)
+    Texture::Texture(const char* address, const int& loadFormat, const bool& shouldGenerateMipmaps)
     {
         this->image = Texture::imageHandler.LoadImageFromResources(address, loadFormat);
         this->GenTextureID();
+        this->Create(shouldGenerateMipmaps);
+        m_texParamNames = std::vector<GLuint>();
+        m_texParamValues = std::vector<GLuint>();
     }
     Texture::Texture(const Texture& texture)
     {
-        this->image = Image();
         this->image = texture.GetImage();
         this->textureID = texture.GetGLID();
+        m_texParamNames = std::vector<GLuint>();
+        m_texParamValues = std::vector<GLuint>();
     }
 
     /* Creates texture from previously loaded image data */
-    Texture::Texture(const Image& image)
+    Texture::Texture(const Image& image, const bool& shouldGenerateMipmaps)
     {
-        this->image = Image();
         this->image = image;
         GenTextureID();
+        this->Create(shouldGenerateMipmaps);
+        m_texParamNames = std::vector<GLuint>();
+        m_texParamValues = std::vector<GLuint>();
     }
 
     void Texture::Bind() const
@@ -49,52 +57,27 @@ namespace GLEngine { namespace graphics {
     /* TODO: Figure out if glTexImage2D actually needs to be recalled when changing params */
 
     /* Binds texID, sets parameters to default (OpenGL default then definition spec default), must recall Create(), unbinds texID */ 
-    void Texture::SetDefaultParameters() const
+    void Texture::SetDefaultParameters()
     {
-        if(this->textureID != 0)
-        {
-            this->Bind();
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            this->Unbind();
-        } else
-        {
-            // Add call noting textureID not being generated
-        }
-    }
-    /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
-    void Texture::SetIntParameters(const std::vector<GLuint>& texParamNames, const std::vector<GLuint>& texParamValues) const
-    {
-        if(this->textureID != 0)
-        {
-            this->Bind();
-            for(size_t i=0; i<std::min(texParamNames.size(), texParamValues.size()); i++)
-            {
-                glTexParameteri(GL_TEXTURE_2D, texParamNames.at(i), texParamValues.at(i));
-            }
-            this->Unbind();
-        } else
-        {
-            // Add call noting textureID not being generated
-        }
-    }
+        m_texParamNames.push_back(GL_TEXTURE_WRAP_S);
+        m_texParamValues.push_back(GL_REPEAT);
 
+        m_texParamNames.push_back(GL_TEXTURE_WRAP_T);
+        m_texParamValues.push_back(GL_REPEAT);
+
+        m_texParamNames.push_back(GL_TEXTURE_MIN_FILTER);
+        m_texParamValues.push_back(GL_LINEAR);
+
+        m_texParamNames.push_back(GL_TEXTURE_MAG_FILTER);
+        m_texParamValues.push_back(GL_LINEAR);
+    }
     /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
-    void Texture::SetFloatParameters(const std::vector<GLfloat>& texParamNames, const std::vector<GLfloat>& texParamValues) const
+    void Texture::SetIntParameters(const std::vector<GLuint>& texParamNames, const std::vector<GLuint>& texParamValues)
     {
-        if(this->textureID != 0)
+        for(size_t i=0; i<std::min(texParamNames.size(), texParamValues.size()); i++)
         {
-            this->Bind();
-            for(size_t i=0; i<std::min(texParamNames.size(), texParamValues.size()); i++)
-            {
-                glTexParameterf(GL_TEXTURE_2D, texParamNames.at(i), texParamValues.at(i));
-            }
-            this->Unbind();
-        } else
-        {
-            // Add call noting textureID not being generated
+            m_texParamNames.push_back(texParamNames[i]);
+            m_texParamValues.push_back(texParamValues[i]);
         }
     }
 
@@ -103,6 +86,10 @@ namespace GLEngine { namespace graphics {
         if(this->textureID != 0)
         {
             this->Bind();
+            for(size_t i=0; i<std::min(m_texParamNames.size(), m_texParamValues.size()); i++)
+            {
+                glTexParameteri(GL_TEXTURE_2D, m_texParamNames[i], m_texParamValues[i]);
+            }
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->image.GetWidth(), this->image.GetHeight(), 0, this->image.GetGLFormat(), GL_UNSIGNED_BYTE, this->image.GetImageData());
             if(shouldGenerateMipmaps)
             {
@@ -114,6 +101,11 @@ namespace GLEngine { namespace graphics {
         {
             // Add call noting textureID not being generated
         }
+
+        // TODO: Texture::imageHandler.FreeImage(image); This segfaults for some reason
+        // Googled cause = trying to free pointer that wasn't allocated with malloc (might even be stack allocated)
+        // For now this will cause memory leaks but it is in debug mode so that's not a real issue
+        // Look into this
     }
 
     /* Get OpenGL texture ID */

@@ -40,11 +40,8 @@ namespace GLEngine { namespace graphics {
             /* Free individual images */
             void FreeImage(const Image& image);
 
-            /* Free all heap allocated sections */
-            ~ImageHandler();
-
         private:
-             std::vector<unsigned char*> loadedImageData;
+             std::vector<unsigned char*> loadedImageData; // Not entirely necessary, leaving in for possible later use
     };
 
 }}

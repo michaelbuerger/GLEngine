@@ -20,7 +20,7 @@ namespace GLEngine { namespace graphics {
     /* Load image file of given width, height, and channels to heap allocated section in memory */
     unsigned char *ImageHandler::LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat)
     {
-        unsigned char* imageData = stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat);
+        unsigned char *imageData = stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat);
         if(imageData)
         {
             this->loadedImageData.push_back(imageData);
@@ -40,7 +40,7 @@ namespace GLEngine { namespace graphics {
     /* Free individual images */
     void ImageHandler::FreeImageData(unsigned char *imageData)
     {
-        stbi_image_free(imageData); // Free image data
+        free(imageData); // Free image data
         for(size_t i=0; i<this->loadedImageData.size(); i++) // Try to find in loaded image data vector, if found remove it
         {
             if(imageData == this->loadedImageData.at(i))
@@ -88,14 +88,5 @@ namespace GLEngine { namespace graphics {
     void ImageHandler::FreeImage(const Image& image)
     {
         this->FreeImageData(image.GetImageData());
-    }
-
-    /* Free all heap allocated sections */
-    ImageHandler::~ImageHandler()
-    {
-        for(size_t i=0; i<this->loadedImageData.size(); i++)
-        {
-            stbi_image_free(this->loadedImageData.at(i));
-        }
     }
 }}

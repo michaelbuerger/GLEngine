@@ -9,6 +9,9 @@
  * Add this to stream todo: Add default constructors to every class
  * Add proper checks in ImageHandler
  * Add engine logging to any place that couts currently
+ * Remove this-> from all classes before everything except member functions
+ * Add m_ before each private variable
+ * Convert use of STBI_enums to graphics.hpp or defined.hpp preprocessor defined constants (i.e. GLE_RGB)
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -374,7 +377,7 @@ int main(void)
 
     Texture testTexture;
     try {
-        testTexture = Texture("textures/solid-red.jpg", STBI_rgb);
+        testTexture = Texture("textures/solid-red.jpg", STBI_rgb, true);
     } catch (int i)
     {
         switch(i)
@@ -384,8 +387,6 @@ int main(void)
                 exit(-1);
         }
     }
-    testTexture.SetDefaultParameters();
-    testTexture.Create(true); // segfault bruh
 
     GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
 
