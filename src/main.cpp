@@ -5,6 +5,7 @@
  * Basic lighting
  * Model loading
  * Generate indices for models that don't have them??? (Optional obviously)
+ TODO:
  * Get rid of methods that load from resources specifically, create method to make address resource relative
  * Add this to stream todo: Add default constructors to every class
  * Add proper checks in ImageHandler
@@ -12,6 +13,9 @@
  * Remove this-> from all classes before everything except member functions
  * Add m_ before each private variable
  * Convert use of STBI_enums to graphics.hpp or defined.hpp preprocessor defined constants (i.e. GLE_RGB)
+ * Issue with free image segfault
+ * Issue with texture repeating itself 4 times
+ * Add options to flip image vertically and horizontally
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -280,7 +284,7 @@ int main(void)
 
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
-    
+
     window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", NULL, NULL, windowHintNames, windowHintValues);
 
     glfwMakeContextCurrent(window);
@@ -364,10 +368,10 @@ int main(void)
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices_texcoords), square_vertices_texcoords, GL_STATIC_DRAW);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW);
-    
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-    
+
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
@@ -377,7 +381,7 @@ int main(void)
 
     Texture testTexture;
     try {
-        testTexture = Texture("textures/solid-red.jpg", STBI_rgb, true);
+        testTexture = Texture("textures/test-texture.png", STBI_rgb, true);
     } catch (int i)
     {
         switch(i)
