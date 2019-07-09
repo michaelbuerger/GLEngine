@@ -1,9 +1,12 @@
 /* TODO:
  * Model loading
+ * Move IO functions that are independent of shader stuff to own header and cpp file
+ * Move shader code to Shader class
  * Basic lighting
  * GLFW input handling and such
- TODO:
+ * TODO:
  * Get rid of methods that load from resources specifically, create method to make address resource relative
+ * Look into returning image data from image data load methods in image handler to return by ref
  * Add default constructors to every class
  * Add proper checks in ImageHandler
  * Add engine logging to any place that couts currently
@@ -19,6 +22,7 @@
 #define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/logging/logging.hpp"
+#include "GLEngine/io/io.hpp"
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/Renderer.hpp"
 #include "GLEngine/graphics/Texture.hpp"
@@ -40,6 +44,7 @@
 using namespace GLEngine;
 using namespace logging;
 using namespace graphics;
+using namespace io;
 
 /* Useful Links:
 http://www.opengl-tutorial.org/
@@ -54,213 +59,6 @@ https://stackoverflow.com/questions/23150123/loading-png-with-stb-image-for-open
 @TODO: Watch this:
  https://www.youtube.com/watch?v=16w9RjrSdBg
 */
-
-unsigned long GetFileLength(std::ifstream& file)
-{
-    if(file.good() == false)
-    {
-        return 0;
-    }
-
-    unsigned long pos = file.tellg();
-    file.seekg(0, std::ios::end);
-    unsigned long len = file.tellg();
-    file.seekg(pos);
-
-    return len;
-}
-
-/* Convert name of shader types based on their id, useful for debugging */ // Add support for other types of shaders
-std::string GetShaderTypeName(const GLuint& shaderType)
-{
-    switch(shaderType)
-    {
-        case GL_VERTEX_SHADER: return "GL_VERTEX_SHADER";
-
-        case GL_FRAGMENT_SHADER: return "GL_FRAGMENT_SHADER";
-    }
-
-    return "UNKNOWN_SHADER_TYPE";
-}
-
-/* Create shader from pre-loaded source */
-GLuint CreateShader(const GLchar** shaderSource, const GLuint& shaderType)
-{
-    GLuint shader;
-
-    shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, shaderSource, NULL);
-
-    int success;
-    char infoLog[512];
-
-    glCompileShader(shader);
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if(!success)
-    {
-      glGetShaderInfoLog(shader, 512, NULL, infoLog);
-      std::cout << "Shader Compilation Failed (" << GetShaderTypeName(shaderType) << "):\n" << infoLog << std::endl;
-      return -1;
-    }
-
-    return shader;
-}
-
-/* Create shader from file anywhere in the filesystem */
-GLuint CreateShaderFromAddress(const char* address, const GLuint& shaderType)
-{
-    std::ifstream file(address);
-
-    if(file.is_open() == false)
-    {
-        std::cout << "Could not open shader at \"" << address << "\"" << std::endl;
-        return -1; // TODO: Update to use logging
-    }
-
-    unsigned long len = GetFileLength(file);
-
-    if(len == 0)
-    {
-        std::cout << "Shader is empty at \"" << address << "\"" << std::endl;
-        return -1; // TODO: Update to use logging
-    }
-
-    GLchar shaderSource[len+1];
-    shaderSource[len] = 0;
-
-    size_t i=0;
-    while (file.good())
-    {
-        shaderSource[i] = file.get();
-
-        if (!file.eof())
-        {
-            i++;
-        }
-    }
-
-    shaderSource[i] = 0;  // zero terminate
-
-    file.close();
-
-    const GLchar* shaderSourcePointer = shaderSource;
-
-    return CreateShader(&shaderSourcePointer, shaderType);
-}
-
-/* Create shader from file in resources */
-GLuint CreateShaderFromResources(const char* address, const GLuint& shaderType)
-{
-    std::string resAddress = RESOURCES_PATH;
-    resAddress.append(address);
-    return CreateShaderFromAddress(resAddress.c_str(), shaderType);
-}
-
-/* Creates a shader program with the option to bind attribute locations */ // Look into adding other shader type support
-GLuint CreateShaderProgram(const GLuint& vertexShader, const GLuint& fragmentShader, const bool& shouldDeleteShaders, const bool& shouldBindAttribLocations, int* const attribLocations, std::string* const attribNames, const size_t& attribCount)
-{
-    GLuint shaderProgram = glCreateProgram();
-
-    int success;
-    char infoLog[512];
-
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-
-    if(shouldBindAttribLocations)
-    {
-        for(size_t i=0; i<attribCount; i++)
-        {
-            glBindAttribLocation(shaderProgram, attribLocations[i], attribNames[i].c_str()); // Do this within shader
-        }
-    }
-
-    glLinkProgram(shaderProgram);
-
-    glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
-    if(!success) {
-      glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
-      std::cout << "Shader Program Linking Failed\n" << infoLog << std::endl;
-      return 0;
-    }
-
-    if(shouldDeleteShaders)
-    {
-        glDeleteShader(vertexShader);
-        glDeleteShader(fragmentShader);
-    }
-
-    return shaderProgram;
-}
-
-/* Create a shader program without binding attribute locations, assuming the use of layout keyword in shaders themselves */
-GLuint CreateShaderProgram(const GLuint& vertexShader, const GLuint& fragmentShader, const bool& shouldDeleteShaders)
-{
-    return CreateShaderProgram(vertexShader, fragmentShader, shouldDeleteShaders, false, NULL, NULL, 0);
-}
-
-GLuint CreateShaderProgramFromAddresses(const char* vertexShaderAddress, const char* fragmentShaderAddress)
-{
-    GLuint vertexShader = CreateShaderFromAddress(vertexShaderAddress, GL_VERTEX_SHADER);
-    GLuint fragmentShader = CreateShaderFromAddress(fragmentShaderAddress, GL_FRAGMENT_SHADER);
-
-    return CreateShaderProgram(vertexShader, fragmentShader, true);
-}
-
-GLuint CreateShaderProgramFromResources(const char* vertexShaderAddress, const char* fragmentShaderAddress)
-{
-    GLuint vertexShader = CreateShaderFromResources(vertexShaderAddress, GL_VERTEX_SHADER);
-    GLuint fragmentShader = CreateShaderFromResources(fragmentShaderAddress, GL_FRAGMENT_SHADER);
-
-    return CreateShaderProgram(vertexShader, fragmentShader, true);
-}
-
-std::string LoadStringFromResources(const char* address) // Note use of const char* for ease of use with string literals
-{
-    std::string addressResRelative = RESOURCES_PATH;
-    addressResRelative.append(address);
-
-    std::ifstream file(addressResRelative);
-    std::string finalString;
-
-    if(file.is_open())
-    {
-        std::string line;
-        while(getline(file, line))
-        {
-            finalString.append(line + '\n');
-        }
-        file.close();
-    } else
-    {
-        std::cout << "Could not open \"" << addressResRelative << "\"" << std::endl;
-        return NULL; // TODO: Update to use logging
-    }
-
-    return finalString;
-}
-
-std::string LoadStringFromAnywhere(const char* address) // Note use of const char* for ease of use with string literals
-{
-    std::ifstream file(address);
-    std::string finalString;
-
-    if(file.is_open())
-    {
-        std::string line;
-        while(getline(file, line))
-        {
-            finalString.append(line + '\n');
-        }
-        file.close();
-    } else
-    {
-        std::cout << "Could not open \"" << address << "\"" << std::endl;
-        return NULL; // TODO: Update to use logging
-    }
-
-    return finalString;
-}
 
 int main(void)
 {
@@ -282,8 +80,6 @@ int main(void)
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
     window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", NULL, NULL, windowHintNames, windowHintValues);
-
-    glfwMakeContextCurrent(window);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -376,7 +172,7 @@ int main(void)
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     Texture testTexture;
-    try {
+    try { // TODO: Add try catch statement within constructors of Texture, plus engine logging
         testTexture = Texture("textures/test-texture.png", STBI_rgb, true);
     } catch (int i)
     {
@@ -388,7 +184,7 @@ int main(void)
         }
     }
 
-    GLuint shaderProgram = CreateShaderProgramFromResources("shaders/vert1.glsl", "shaders/frag1.glsl");
+    GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
     glm::vec3 objPosition(0.0f, 0.0f, 0.0f);
     glm::vec3 objScale(1.0f, 1.0f, 1.0f);
@@ -422,6 +218,7 @@ int main(void)
 
     glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
 
+    glfwMakeContextCurrent(window); // Note: Only have to call this before rendering
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())

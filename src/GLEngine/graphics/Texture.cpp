@@ -1,12 +1,15 @@
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/ImageHandler.hpp"
+#include "GLEngine/io/io.hpp"
 
 #include <cmath>
 #include <vector>
 #include <iostream>
 
 namespace GLEngine { namespace graphics {
+
+    using namespace io;
 
     ImageHandler Texture::imageHandler = ImageHandler();
 
@@ -21,7 +24,7 @@ namespace GLEngine { namespace graphics {
     /* Load texture from resources */
     Texture::Texture(const char* address, const int& loadFormat, const bool& shouldGenerateMipmaps)
     {
-        this->image = Texture::imageHandler.LoadImageFromResources(address, loadFormat, true);
+        this->image = Texture::imageHandler.LoadImageFromAddress(ResPathRelative(address).c_str(), loadFormat, true);
         this->GenTextureID();
         this->Create(shouldGenerateMipmaps);
         m_texParamNames = std::vector<GLuint>();

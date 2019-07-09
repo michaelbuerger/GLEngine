@@ -24,7 +24,7 @@ add_subdirectory ("${PROJECT_SOURCE_DIR}/glfw/")
 add_subdirectory ("${PROJECT_SOURCE_DIR}/glew-2.1.0/build/cmake/")
 add_subdirectory ("${PROJECT_SOURCE_DIR}/spdlog-1.x/")
 
-add_executable (GLEngine ${source_files} ${header_files})
+add_executable (GLEngine ${source_files} ${header_files} include/GLEngine/graphics/ModelHandler.hpp include/GLEngine/graphics/ModelHandler.hpp)
 
 target_link_libraries (GLEngine glfw glew)
 target_include_directories (

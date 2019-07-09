@@ -18,7 +18,7 @@ namespace GLEngine { namespace graphics {
     }
 
     /* Load image file of given width, height, and channels to heap allocated section in memory */
-    unsigned char *ImageHandler::LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical)
+    unsigned char *ImageHandler::LoadImageDataFromAddress(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical)
     {
         stbi_set_flip_vertically_on_load(flipVertical);
 
@@ -28,15 +28,6 @@ namespace GLEngine { namespace graphics {
             this->loadedImageData.push_back(imageData);
         }
         return imageData;
-    }
-
-    /* Load image file of given width, height, and channels to heap allocated section in memory (from resources path) */
-    unsigned char *ImageHandler::LoadImageDataFromResources(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical)
-    {
-        std::string resAddress = RESOURCES_PATH;
-        resAddress.append(address);
-
-        return this->LoadImageDataFromFile(resAddress.c_str(), ret_width, ret_height, ret_colorChannels, imageLoadFormat, flipVertical);
     }
 
     /* Free individual images */
@@ -53,10 +44,10 @@ namespace GLEngine { namespace graphics {
     }
 
     /* Load image data to heap allocated section in memory */
-    Image ImageHandler::LoadImageFromFile(const char *address, const int& imageLoadFormat, const bool& flipVertical)
+    Image ImageHandler::LoadImageFromAddress(const char *address, const int& imageLoadFormat, const bool& flipVertical)
     {
         int colorChannels, width, height;
-        unsigned char* imageData = LoadImageDataFromFile(address, &width, &height, &colorChannels, imageLoadFormat, flipVertical);
+        unsigned char* imageData = LoadImageDataFromAddress(address, &width, &height, &colorChannels, imageLoadFormat, flipVertical);
 
         if(!imageData)
         {
@@ -69,23 +60,7 @@ namespace GLEngine { namespace graphics {
 
         return image;
     }
-    /* Load image data to heap allocated section in memory (from resources path) */
-    Image ImageHandler::LoadImageFromResources(const char *address, const int& imageLoadFormat, const bool& flipVertical)
-    {
-        int colorChannels, width, height;
-        unsigned char* imageData = LoadImageDataFromResources(address, &width, &height, &colorChannels, imageLoadFormat, flipVertical);
 
-        if(!imageData)
-        {
-            std::cout << "Loaded image data from \"" << address << "\" is null..." << std::endl;
-            std::cout << "...stbi failure reason is: " << stbi_failure_reason() << std::endl; // Update to use logging
-            throw GLE_IMAGE_DATA_NULL; // main cause is failing to find file or not having permission to open (can't fopen)
-        }
-
-        Image image = Image(imageLoadFormat, width, height, colorChannels, imageData);
-
-        return image;
-    }
     /* Free individual image data pointers */
     void ImageHandler::FreeImage(const Image& image)
     {
