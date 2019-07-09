@@ -18,8 +18,10 @@ namespace GLEngine { namespace graphics {
     }
 
     /* Load image file of given width, height, and channels to heap allocated section in memory */
-    unsigned char *ImageHandler::LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat)
+    unsigned char *ImageHandler::LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical)
     {
+        stbi_set_flip_vertically_on_load(flipVertical);
+
         unsigned char *imageData = stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat);
         if(imageData)
         {
@@ -29,12 +31,12 @@ namespace GLEngine { namespace graphics {
     }
 
     /* Load image file of given width, height, and channels to heap allocated section in memory (from resources path) */
-    unsigned char *ImageHandler::LoadImageDataFromResources(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat)
+    unsigned char *ImageHandler::LoadImageDataFromResources(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical)
     {
         std::string resAddress = RESOURCES_PATH;
         resAddress.append(address);
 
-        return this->LoadImageDataFromFile(resAddress.c_str(), ret_width, ret_height, ret_colorChannels, imageLoadFormat);
+        return this->LoadImageDataFromFile(resAddress.c_str(), ret_width, ret_height, ret_colorChannels, imageLoadFormat, flipVertical);
     }
 
     /* Free individual images */
@@ -51,10 +53,10 @@ namespace GLEngine { namespace graphics {
     }
 
     /* Load image data to heap allocated section in memory */
-    Image ImageHandler::LoadImageFromFile(const char *address, const int& imageLoadFormat)
+    Image ImageHandler::LoadImageFromFile(const char *address, const int& imageLoadFormat, const bool& flipVertical)
     {
         int colorChannels, width, height;
-        unsigned char* imageData = LoadImageDataFromFile(address, &width, &height, &colorChannels, imageLoadFormat);
+        unsigned char* imageData = LoadImageDataFromFile(address, &width, &height, &colorChannels, imageLoadFormat, flipVertical);
 
         if(!imageData)
         {
@@ -68,10 +70,10 @@ namespace GLEngine { namespace graphics {
         return image;
     }
     /* Load image data to heap allocated section in memory (from resources path) */
-    Image ImageHandler::LoadImageFromResources(const char *address, const int& imageLoadFormat)
+    Image ImageHandler::LoadImageFromResources(const char *address, const int& imageLoadFormat, const bool& flipVertical)
     {
         int colorChannels, width, height;
-        unsigned char* imageData = LoadImageDataFromResources(address, &width, &height, &colorChannels, imageLoadFormat);
+        unsigned char* imageData = LoadImageDataFromResources(address, &width, &height, &colorChannels, imageLoadFormat, flipVertical);
 
         if(!imageData)
         {

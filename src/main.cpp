@@ -1,21 +1,17 @@
 /* TODO:
- * Texture stuff
- * Move rendering, texture stuff, and model stuff into classes and abstraction methods
- * GLFW input handling and such
- * Basic lighting
  * Model loading
- * Generate indices for models that don't have them??? (Optional obviously)
+ * Basic lighting
+ * GLFW input handling and such
  TODO:
  * Get rid of methods that load from resources specifically, create method to make address resource relative
- * Add this to stream todo: Add default constructors to every class
+ * Add default constructors to every class
  * Add proper checks in ImageHandler
  * Add engine logging to any place that couts currently
  * Remove this-> from all classes before everything except member functions
  * Add m_ before each private variable
  * Convert use of STBI_enums to graphics.hpp or defined.hpp preprocessor defined constants (i.e. GLE_RGB)
  * Issue with free image segfault
- * Issue with texture repeating itself 4 times
- * Add options to flip image vertically and horizontally
+ * Figure out segfault on exit
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -303,9 +299,9 @@ int main(void)
     GLfloat square_vertices_texcoords[]
     {
         1.0f, 1.0f, 0.0f,    1.0f, 1.0f, // top-right
-        1.0f, -1.0f, 0.0f,   1.0f, -1.0f, // bottom-right
-        -1.0f, 1.0f, 0.0f,   -1.0f, 1.0f, // top-left
-        -1.0f, -1.0f, 0.0f,  -1.0f, -1.0f // bottom-left
+        1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // bottom-right
+        -1.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
+        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f // bottom-left
     };
 
     GLint square_indices[]
@@ -406,7 +402,8 @@ int main(void)
 
     glm::mat4 transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
 
-    glm::vec3 cameraPosition(2.0f, 1.5f, 1.5f);
+    //glm::vec3 cameraPosition(2.0f, 1.5f, 1.5f);
+    glm::vec3 cameraPosition(0.0f, 0.0f, 1.5f);
 
     glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling
     //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);

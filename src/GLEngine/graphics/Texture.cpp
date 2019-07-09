@@ -21,7 +21,7 @@ namespace GLEngine { namespace graphics {
     /* Load texture from resources */
     Texture::Texture(const char* address, const int& loadFormat, const bool& shouldGenerateMipmaps)
     {
-        this->image = Texture::imageHandler.LoadImageFromResources(address, loadFormat);
+        this->image = Texture::imageHandler.LoadImageFromResources(address, loadFormat, true);
         this->GenTextureID();
         this->Create(shouldGenerateMipmaps);
         m_texParamNames = std::vector<GLuint>();
@@ -104,7 +104,7 @@ namespace GLEngine { namespace graphics {
 
         // TODO: Texture::imageHandler.FreeImage(image); This segfaults for some reason
         // Googled cause = trying to free pointer that wasn't allocated with malloc (might even be stack allocated)
-        // For now this will cause memory leaks but it is in debug mode so that's not a real issue
+        // For now this might cause memory leaks but it is in debug mode so that's not a real issue
         // Look into this
     }
 

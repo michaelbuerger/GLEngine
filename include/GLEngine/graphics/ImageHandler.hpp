@@ -27,16 +27,16 @@ namespace GLEngine { namespace graphics {
             ImageHandler();
 
             /* Load image data to heap allocated section in memory */
-            unsigned char *LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat);
+            unsigned char *LoadImageDataFromFile(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical);
             /* Load image data to heap allocated section in memory (from resources path) */
-            unsigned char *LoadImageDataFromResources(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat);
+            unsigned char *LoadImageDataFromResources(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical);
             /* Free individual image data pointers */
             void FreeImageData(unsigned char *imageData);
 
             /* Load image data to heap allocated section in memory */
-            Image LoadImageFromFile(const char *address, const int& imageLoadFormat);
+            Image LoadImageFromFile(const char *address, const int& imageLoadFormat, const bool& flipVertical);
             /* Load image data to heap allocated section in memory (from resources path) */
-            Image LoadImageFromResources(const char *address, const int& imageLoadFormat);
+            Image LoadImageFromResources(const char *address, const int& imageLoadFormat, const bool& flipVertical);
             /* Free individual images */
             void FreeImage(const Image& image);
 
