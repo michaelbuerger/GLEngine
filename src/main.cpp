@@ -174,14 +174,10 @@ int main(void)
     Texture testTexture;
     try { // TODO: Add try catch statement within constructors of Texture, plus engine logging
         testTexture = Texture("textures/test-texture.png", STBI_rgb, true);
-    } catch (int i)
+    } catch (GLE_IMAGE_DATA_NULL& e)
     {
-        switch(i)
-        {
-            case GLE_IMAGE_DATA_NULL:
-                std::cout << "Example catch: Could not load texture" << std::endl;
-                exit(-1);
-        }
+        std::cout << e.what() << std::endl;
+        exit(-1);
     }
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
