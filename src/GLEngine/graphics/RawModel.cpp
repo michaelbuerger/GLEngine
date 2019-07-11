@@ -1,5 +1,0 @@
-namespace GLEngine { namespace graphics {
-
-    
-
-}}
