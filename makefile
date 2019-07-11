@@ -20,9 +20,9 @@ build-project: # Builds project using setup cmake files
 	cmake --build build -- -j3
 
 execute-project: # Run generated executable
-	@echo "----PROGRAM OUTPUT----"
+	@echo "---------- PROGRAM OUTPUT ----------"
 	@bin/GLEngine
-	@echo "----------------------"
+	@echo "---------- END OF OUTPUT -----------"
 
 qea:
 	make make-project

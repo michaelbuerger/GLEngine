@@ -11,22 +11,51 @@ namespace GLEngine { namespace graphics {
         1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // bottom-right
         -1.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
         -1.0f, -1.0f, 0.0f,  0.0f, 0.0f // bottom-left
-    }; // KEEP READING UP ON OBJ, NOTE FACES ARE IMPORTANT AND DO EVERYTHING BASED ON INDICES
+    };
 
-    Model();
-            Model(const GLfloat* vertices, const GLfloat* texcoords, const GLfloat* normals);
-            Model(const Model& model);
+    Model::Model()
+    {
 
-            /* Primitives */
-            // static Model triangle;
-            Model square = 
-            // static Model cube;
+    }
+    /* Create model with combined data array (vertices, texcoords, and normals) per-vertex */
+    Model::Model(const GLfloat* data, const GLfloat* indices, const bool& shouldUseTexcoords, const bool& shouldUseNormals) // Assumes use of heap allocated pointer
+    {
 
-            GLfloat *GetVertices();
-            GLfloat *GetTexcoords();
-            GLfloat *GetNormals();
+    }
+    Model::Model(const GLfloat* vertices, const GLfloat* texcoords, const GLfloat* normals, const GLfloat* indices) // Assumes use of heap allocated pointer
+    {
 
-            /* Returns new array with per-vertex data in this order: vertex, texcoord, normal */
-            GLfloat *GetCombinedData();
+    }
+    Model::Model(const Model& model)
+    {
+
+    }
+
+    /* Primitives */
+    // Model Model::triangle;
+    Model Model::square = square_vertices_texcoords_normals;
+    // Model Model::cube;
+
+    GLfloat *Model::GetData() const
+    {
+
+    }
+    bool Model::ShouldUseTexcoords() const
+    {
+
+    }
+    bool Model::ShouldUseNormals() const
+    {
+
+    }
+
+    GLuint Model::GetVAO() const
+    {
+        return m_vao;
+    }
+    GLuint Model::GetVBO() const
+    {
+        return m_vbo;
+    }
 
 }}

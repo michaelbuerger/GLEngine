@@ -4,6 +4,7 @@
  * Move shader code to Shader class
  * Basic lighting
  * GLFW input handling and such
+ * Convert to using unique_ptr, shared_ptr, and weak_ptr when possible
  * TODO:
  * Get rid of methods that load from resources specifically, create method to make address resource relative
  * Look into returning image data from image data load methods in image handler to return by ref
@@ -15,6 +16,7 @@
  * Convert use of STBI_enums to graphics.hpp or defined.hpp preprocessor defined constants (i.e. GLE_RGB)
  * Issue with free image segfault
  * Figure out segfault on exit
+ * Index generator for varying combinations of vertices, texcoords, and normals
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -56,6 +58,7 @@ https://www.glfw.org/docs/3.0/window.html
 https://github.com/nothings/single_file_libs
 https://github.com/nothings/stb
 https://stackoverflow.com/questions/23150123/loading-png-with-stb-image-for-opengl-texture-gives-wrong-colors
+https://mbevin.wordpress.com/2012/11/18/smart-pointers/
 @TODO: Watch this:
  https://www.youtube.com/watch?v=16w9RjrSdBg
 */
