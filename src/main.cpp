@@ -40,6 +40,8 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <exception>
+#include <memory>
 
 #include "stb/stb_image.h"
 
@@ -177,7 +179,7 @@ int main(void)
     Texture testTexture;
     try { // TODO: Add try catch statement within constructors of Texture, plus engine logging
         testTexture = Texture("textures/test-texture.png", STBI_rgb, true);
-    } catch (GLE_IMAGE_DATA_NULL& e)
+    } catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
         exit(-1);

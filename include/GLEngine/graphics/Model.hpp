@@ -4,6 +4,9 @@
 #include "GLEngine/defines.hpp"
 #include "GLEngine/graphics/graphics.hpp"
 
+#include <memory>
+#include <utility>
+
 namespace GLEngine { namespace graphics { // KEEP READING UP ON OBJ, NOTE FACES ARE IMPORTANT AND DO EVERYTHING BASED ON INDICES
     
     /* Creates model from default primitive, given data, or previously created model */
@@ -14,18 +17,14 @@ namespace GLEngine { namespace graphics { // KEEP READING UP ON OBJ, NOTE FACES 
             /* Creates model with square primitive data */
             Model();
             /* Create model with combined data array (vertices, texcoords, and normals) per-vertex */
-            Model(const GLfloat* data, const GLfloat* indices, const bool& shouldUseTexcoords, const bool& shouldUseNormals);
-            Model(const GLfloat* vertices, const GLfloat* texcoords, const GLfloat* normals, const GLfloat* indices);
+            Model(std::unique_ptr<GLfloat*>& data, std::unique_ptr<GLint*>& indices, const bool& shouldUseTexcoords, const bool& shouldUseNormals);
             Model(const Model& model);
 
             ~Model();
 
             /* Primitives */
-            // static Model triangle;
-            static Model square;
-            // static Model cube;
+            void MakeSquare();
 
-            GLfloat *GetData() const;
             bool ShouldUseTexcoords() const;
             bool ShouldUseNormals() const;
 
@@ -33,8 +32,8 @@ namespace GLEngine { namespace graphics { // KEEP READING UP ON OBJ, NOTE FACES 
             GLuint GetVBO() const;
 
         private:
-            GLfloat *m_data;
-            GLfloat *m_indices;
+            std::unique_ptr<GLfloat*> m_data;
+            std::unique_ptr<GLint*> m_indices;
             bool m_shouldUseTexcoords;
             bool m_shouldUseNormals;
 
