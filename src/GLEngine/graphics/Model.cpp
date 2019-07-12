@@ -1,64 +1,51 @@
 #include "GLEngine/graphics/Model.hpp"
 
 #include "GLEngine/defines.hpp"
+#include "GLEngine/exceptions.hpp"
 #include "GLEngine/graphics/graphics.hpp"
 
 #include <memory>
 #include <utility>
 
 namespace GLEngine { namespace graphics {
-    
-    GLfloat square_vertices_texcoords_normals[]
-    {
-        1.0f, 1.0f, 0.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top-right
-        1.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f, // bottom-right
-        -1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top-left
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom-left
-    };
 
-    GLint square_indices[]
+    Model::Model(const GLuint& vao)
     {
-        2, 1, 3, 0, 1, 2
-    };
-
-    Model::Model()
-    {
-        this->MakeSquare();
+        m_vao = vao;
+        m_texture = std::make_shared<Texture>();
     }
-    /* Create model with combined data array (vertices, texcoords, and normals) per-vertex */
-    Model::Model(std::unique_ptr<GLfloat*>& data, std::unique_ptr<GLint*>& indices, const bool& shouldUseTexcoords, const bool& shouldUseNormals) // Assumes use of heap allocated pointer
+    Model::Model(const GLuint& vao, const std::shared_ptr<Texture>& texture)
     {
-        m_data = std::unique_ptr<GLfloat*>(std::move(data));
-        m_indices = std::unique_ptr<GLint*>(std::move(indices));
-        m_shouldUseTexcoords = shouldUseTexcoords;
-        m_shouldUseNormals = shouldUseNormals;
+        m_vao = vao;
+        m_texture = texture;
     }
-
-    /* Primitives */
-    void Model::MakeSquare()
+    Model::Model(const Model& model)
     {
-        m_data = std::make_unique<GLfloat*>(square_vertices_texcoords_normals);
-        m_indices = std::make_unique<GLint*>(square_indices);
-        m_shouldUseTexcoords = true;
-        m_shouldUseNormals = true;
-    }
-
-    bool Model::ShouldUseTexcoords() const
-    {
-        return m_shouldUseTexcoords;
-    }
-    bool Model::ShouldUseNormals() const
-    {
-        return m_shouldUseNormals;
+        m_vao = model.GetVAO();
+        m_texture = model.GetTexture();
     }
 
     GLuint Model::GetVAO() const
     {
         return m_vao;
     }
-    GLuint Model::GetVBO() const
+    const std::shared_ptr<Texture>& Model::GetTexture() const
     {
-        return m_vbo;
+        return m_texture;
+    }
+
+
+    /* Bind vao and texture */
+    void Model::Bind() const
+    {
+        glBindVertexArray(m_vao);
+        m_texture->Bind();
+    }
+    /* Unbind vao and texture */
+    void Model::Unbind() const
+    {
+        glBindVertexArray(0);
+        m_texture->Unbind();
     }
 
 }}

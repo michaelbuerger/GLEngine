@@ -13,7 +13,7 @@ namespace GLEngine { namespace graphics {
 
     ImageHandler Texture::imageHandler = ImageHandler();
 
-    Texture::Texture()
+    Texture::Texture() // TODO: Implement default constructor to make texture from purple and black
     {
         this->image = Image();
         this->GenTextureID();

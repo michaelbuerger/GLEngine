@@ -3,6 +3,7 @@
 
 #include "GLEngine/defines.hpp"
 #include "GLEngine/graphics/graphics.hpp"
+#include "GLEngine/graphics/Texture.hpp"
 
 #include <memory>
 #include <utility>
@@ -14,31 +15,21 @@ namespace GLEngine { namespace graphics { // KEEP READING UP ON OBJ, NOTE FACES 
     class Model
     {
         public:
-            /* Creates model with square primitive data */
-            Model();
-            /* Create model with combined data array (vertices, texcoords, and normals) per-vertex */
-            Model(std::unique_ptr<GLfloat*>& data, std::unique_ptr<GLint*>& indices, const bool& shouldUseTexcoords, const bool& shouldUseNormals);
+            Model(const GLuint& vao);
+            Model(const GLuint& vao, const std::shared_ptr<Texture>& texture);
             Model(const Model& model);
 
-            ~Model();
-
-            /* Primitives */
-            void MakeSquare();
-
-            bool ShouldUseTexcoords() const;
-            bool ShouldUseNormals() const;
-
             GLuint GetVAO() const;
-            GLuint GetVBO() const;
+            const std::shared_ptr<Texture>& GetTexture() const;
+
+            /* Bind vao and texture */
+            void Bind() const;
+            /* Unbind vao and texture */
+            void Unbind() const;
 
         private:
-            std::unique_ptr<GLfloat*> m_data;
-            std::unique_ptr<GLint*> m_indices;
-            bool m_shouldUseTexcoords;
-            bool m_shouldUseNormals;
-
             GLuint m_vao;
-            GLuint m_vbo; // Only uses one VBO with all data inside of it
+            std::shared_ptr<Texture> m_texture;
     };
 
 }}

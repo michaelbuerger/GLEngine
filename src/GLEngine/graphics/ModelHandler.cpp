@@ -12,7 +12,29 @@
 
 /* Figure out way to generate normals */
 
+#include "GLEngine/graphics/ModelHandler.hpp"
+#include "GLEngine/graphics/graphics.hpp"
+#include "GLEngine/defines.hpp"
+#include "GLEngine/exceptions.hpp"
+
 namespace GLEngine { namespace graphics {
 
+    GLfloat square_vertices_texcoords_normals[]
+    {
+        1.0f, 1.0f, 0.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top-right
+        1.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f, // bottom-right
+        -1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top-left
+        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom-left
+    };
+
+    GLint square_indices[]
+    {
+        2, 1, 3, 0, 1, 2
+    };
+
+    ModelHandler::ModelHandler()
+    {
+
+    }
 
 }}
