@@ -11,6 +11,7 @@ Using the following libraries:
 All libraries/binaries used within the engine are self-contained in the repository except for the following:
 - glew (required)
 - cloc (not required)
+- valgrind (not required)
 
 #### Installing glew-2.1.0:
 1. Go to the [GLEW Sourceforge](http://glew.sourceforge.net/) page.
@@ -23,6 +24,9 @@ All libraries/binaries used within the engine are self-contained in the reposito
 - **Ubuntu/Debian**: ```sudo apt install cloc```
 - **macOS**: Install **homebrew** then run```brew install cloc```
 
+#### Installing valgrind:
+- **Ubuntu/Debian**: ```sudo apt install valgrind```
+- **macOS**: Install **homebrew** then run```brew install valgrind```
 
 ## Running
 **The following commands can be run from a terminal in the project directory**:
@@ -39,8 +43,9 @@ All libraries/binaries used within the engine are self-contained in the reposito
 
 **Developer's Note:**
 
-When adding new cpp files to the engine, re-running ```make-project``` is required for them to be built.
+When adding new cpp files to the engine, re-running ```make-project``` is required for them to be added to the CMake project.
 
 ## Links
 **Trello**: <https://trello.com/b/Pl9kCp8s/glengine>  
 **GitHub**: <https://github.com/popwser/GLEngine>
+**Good Markdown Editor**: <https://pandao.github.io/editor.md>
