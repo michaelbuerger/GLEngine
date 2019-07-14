@@ -9,11 +9,15 @@
 
 namespace GLEngine { namespace graphics {
 
-    Model::Model(const GLuint& vao)
+    /* Model::Model()
+    {
+
+    } */
+    /* Model::Model(const GLuint& vao)
     {
         m_vao = vao;
         m_texture = std::make_shared<Texture>();
-    }
+    } */
     Model::Model(const GLuint& vao, const std::shared_ptr<Texture>& texture)
     {
         m_vao = vao;

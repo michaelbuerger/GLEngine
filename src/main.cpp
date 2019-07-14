@@ -15,8 +15,9 @@
  * Add m_ before each private variable
  * Convert use of STBI_enums to graphics.hpp or defined.hpp preprocessor defined constants (i.e. GLE_RGB)
  * Issue with free image segfault
- * Figure out segfault on exit
- * Index generator for varying combinations of vertices, texcoords, and normals
+ * Figure out segfault on exit (segfault now gone, convert to using unique_ptr, shared_ptr, weak_ptr in ImageHandler)
+ * Get rid of WindowHandler's manual destruction of windows, make Window class that has its own destructor, have WindowHandler create shared ptr to Window classes
+ * Indices generator for varying combinations of vertices, texcoords, and normals
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -28,6 +29,9 @@
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/Renderer.hpp"
 #include "GLEngine/graphics/Texture.hpp"
+#include "GLEngine/graphics/ImageHandler.hpp"
+#include "GLEngine/graphics/Model.hpp"
+
 #include "GLEngine/exceptions.hpp"
 
 #include <glm/glm.hpp>
@@ -57,12 +61,18 @@ http://www.khronos.org/
 http://www.learnopengl.com/
 http://www.glfw.org/
 https://www.glfw.org/docs/3.0/window.html
+
 https://github.com/nothings/single_file_libs
 https://github.com/nothings/stb
 https://stackoverflow.com/questions/23150123/loading-png-with-stb-image-for-opengl-texture-gives-wrong-colors
+
 https://mbevin.wordpress.com/2012/11/18/smart-pointers/
-@TODO: Watch this:
- https://www.youtube.com/watch?v=16w9RjrSdBg
+http://www.cplusplus.com/reference/memory/shared_ptr/~shared_ptr/ // Shared pointer destructor details
+
+http://paulbourke.net/dataformats/obj/
+https://en.wikipedia.org/wiki/Wavefront_.obj_file
+
+https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues
 */
 
 int main(void)
@@ -110,7 +120,7 @@ int main(void)
         2, 1, 3, 0, 1, 2
     };
 
-    GLfloat cube_vertices[] =
+    GLfloat cube_vertices[] = 
     {
     -1.0f,-1.0f,-1.0f, // triangle 1 : begin
     -1.0f,-1.0f, 1.0f,
@@ -173,17 +183,17 @@ int main(void)
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    Texture testTexture;
-    try { // TODO: Add try catch statement within constructors of Texture, plus engine logging
-        testTexture = Texture("textures/test-texture.png", STBI_rgb, true);
+    std::shared_ptr<Texture> testTexture;
+    try { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
+        testTexture = std::make_shared<Texture>("textures/test-texture.png", STBI_rgb, true);
     } catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
         exit(-1);
     }
+
+    Model model = Model(VAO, testTexture);
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -219,7 +229,7 @@ int main(void)
 
     glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
 
-    glfwMakeContextCurrent(window); // Note: Only have to call this before rendering
+    glfwMakeContextCurrent(window); // Note: Only dependance on this line is glDrawElements <-- fact check
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())
@@ -228,10 +238,8 @@ int main(void)
 
         //glCullFace(GL_BACK);
         glUseProgram(shaderProgram);
-        testTexture.Bind();
+        model.Bind();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-        glBindVertexArray(VAO);
-        //glDrawArrays(GL_TRIANGLES, 0, 6*3); // draw without indexing, 6 3D vertices
         glDrawElements(GL_TRIANGLES, sizeof(square_indices)/sizeof(GLuint), GL_UNSIGNED_INT, (void*)0); // draw with indexing
 
         glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows

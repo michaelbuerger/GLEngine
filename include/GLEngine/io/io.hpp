@@ -15,7 +15,9 @@ namespace GLEngine { namespace io {
 
     unsigned long GetFileLength(std::ifstream& file);
 
-    /* Convert name of shader types based on their id, useful for debugging */ // Add support for other types of shaders
+    /* TODO: Move this stuff below to relevant shader classes */
+    /* TODO: Add support for other shaders */
+    /* Convert name of shader types based on their id, useful for debugging */
     std::string GetShaderTypeName(const GLuint& shaderType);
 
     /* Create shader from pre-loaded source */

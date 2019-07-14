@@ -8,14 +8,13 @@
 #include <memory>
 #include <utility>
 
-namespace GLEngine { namespace graphics { // KEEP READING UP ON OBJ, NOTE FACES ARE IMPORTANT AND DO EVERYTHING BASED ON INDICES
+namespace GLEngine { namespace graphics {
     
-    /* Creates model from default primitive, given data, or previously created model */
-    /* Note that this class only works with the use of 3D vertices, UV texcoords (no W), and 3D normals */
     class Model
     {
         public:
-            Model(const GLuint& vao);
+            // Model(); // Create model with some primitive and some default texture
+            // Model(const GLuint& vao); // Create model with vao and some default texture
             Model(const GLuint& vao, const std::shared_ptr<Texture>& texture);
             Model(const Model& model);
 

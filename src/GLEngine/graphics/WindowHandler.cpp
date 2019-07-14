@@ -17,15 +17,6 @@ namespace GLEngine { namespace graphics {
         }
     }
 
-    WindowHandler::~WindowHandler()
-    {
-        for (size_t i=0; i<this->windows.size(); i++)
-        {
-            glfwDestroyWindow(this->windows.at(i));
-        }
-        glfwTerminate();
-    }
-
     GLFWwindow *WindowHandler::CreateWindow(const int& width, const int& height, const char *title, GLFWmonitor *monitor, GLFWwindow *share, const std::vector<int>& windowHintNames, const std::vector<int>& windowHintValues)
     {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -64,18 +55,25 @@ namespace GLEngine { namespace graphics {
 
     void WindowHandler::DestroyWindow(GLFWwindow *window)
     {
-        size_t indexOfWindow = 0;
-        for (size_t i=0; i<this->windows.size(); i++)
+        for (size_t i=0; i<this->windows.size(); i++) // remove from windows list if applicable
         {
             if(this->windows.at(i) == window)
             {
-                indexOfWindow = i;
+                this->windows.erase(this->windows.begin()+i);
                 break;
             }
         }
 
-        this->windows.erase(this->windows.begin()+indexOfWindow);
-        glfwDestroyWindow(window);
+        glfwDestroyWindow(window); // destroy window
+    }
+
+    WindowHandler::~WindowHandler()
+    {
+        for (size_t i=0; i<this->windows.size(); i++)
+        {
+            glfwDestroyWindow(this->windows.at(i));
+        }
+        glfwTerminate();
     }
 
 }}
