@@ -9,19 +9,17 @@ namespace GLEngine { namespace logging
 {
 	class Log
 	{
-	private:
-		static std::shared_ptr<spdlog::logger> s_EngineLogger;
-		static std::shared_ptr<spdlog::logger> s_AppLogger;
-	public:
-		static void Init();
+	    private:
+		    static std::shared_ptr<spdlog::logger> m_EngineLogger;
+		    static std::shared_ptr<spdlog::logger> m_AppLogger;
+	    public:
+		    static void Init();
 
-		inline static std::shared_ptr<spdlog::logger>& GetEngineLogger() { return s_EngineLogger; };
-		inline static std::shared_ptr<spdlog::logger>& GetAppLogger() { return s_AppLogger; };
+		    inline static std::shared_ptr<spdlog::logger>& GetEngineLogger() { return m_EngineLogger; };
+		    inline static std::shared_ptr<spdlog::logger>& GetAppLogger() { return m_AppLogger; };
 	};
 
 }}
-
-#endif /* end of include guard LOG_HPP */
 
 #ifndef GLE_ENGINE_DEBUG_LOG_OFF
 
@@ -42,3 +40,5 @@ namespace GLEngine { namespace logging
 #define GLE_CRIT(...) GLEngine::logging::Log::GetAppLogger()->critical(__VA_ARGS__)
 
 #endif
+
+#endif /* end of include guard LOG_HPP */

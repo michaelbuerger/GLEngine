@@ -8,6 +8,7 @@
 #include "GLEngine/defines.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/io/io.hpp"
+#include "GLEngine/logging/logging.hpp"
 
 #include <memory>
 #include <string>
@@ -30,16 +31,15 @@ namespace GLEngine { namespace graphics {
         2, 1, 3, 0, 1, 2
     };
 
-    void LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize)
+    bool LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize)
     {
         /* std::stof converts std::string to float, contained in <string>, doesn't care about spaces before and after num */
         std::ifstream file(address);
 
         if(file.is_open() == false)
         {
-            std::cout << "Could not open model at \"" << address << "\"" << std::endl;
-            throw GLE_CANT_OPEN_FILE();
-            return;
+            GLE_ENGINE_ERROR("Could not open model at \"{}\"", address);
+            return false;
         }
 
         std::string line;
@@ -161,7 +161,17 @@ namespace GLEngine { namespace graphics {
                 {
                     if(line[i] == '/')
                     {
-                        vtnCombo[vtnComboi] = std::stoi(numStr);
+                        GLuint try_stoi;
+                        try {
+                            try_stoi = std::stoi(numStr);
+                        }
+                        catch (std::invalid_argument& e)
+                        {
+                            GLE_ENGINE_ERROR("Expected an integer, instead got \"{}\"", numStr);
+                            return false;
+                        }
+
+                        vtnCombo[vtnComboi] = try_stoi;
                         vtnComboi++;
                         numsFound++;
                         numStr = "";
@@ -170,7 +180,17 @@ namespace GLEngine { namespace graphics {
                     
                     if(numsFound == 2 && line[i] == ' ')
                     {
-                        vtnCombo[vtnComboi] = std::stoi(numStr);
+                        GLuint try_stoi;
+                        try {
+                            try_stoi = std::stoi(numStr);
+                        }
+                        catch (std::invalid_argument& e)
+                        {
+                            GLE_ENGINE_ERROR("Expected an integer, instead got: \"{}\"", numStr);
+                            return false;
+                        }
+
+                        vtnCombo[vtnComboi] = try_stoi;
                         vtnComboi = 0;
                         numsFound = 0;
                         numStr = "";
@@ -233,9 +253,11 @@ namespace GLEngine { namespace graphics {
         {
             ret_indices.get()[i] = comboIndices[i];
         }
+
+        return true;
     }
 
-    GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes, const GLuint& drawMode)
+    GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes)
     {
         GLuint vao, vbo, elementBuffer;
 
@@ -248,8 +270,8 @@ namespace GLEngine { namespace graphics {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-        glBufferData(GL_ARRAY_BUFFER, dataSizeBytes, data, drawMode);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSizeBytes, indices, drawMode);
+        glBufferData(GL_ARRAY_BUFFER, dataSizeBytes, data, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSizeBytes, indices, GL_STATIC_DRAW);
 
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);                     // vertices
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // texcoords
@@ -263,6 +285,21 @@ namespace GLEngine { namespace graphics {
         glBindVertexArray(0);
 
         return vao;
+    }
+
+    Model CreateModelFromOBJ(const char* address, const std::shared_ptr<Texture>& texture)
+    {
+        std::unique_ptr<GLfloat[]> model_data;
+        std::unique_ptr<GLuint[]> model_indices;
+        GLuint model_vertexCount;
+        GLsizeiptr model_dataSize;
+        GLsizeiptr model_indicesSize;
+        LoadOBJFile(address, model_data, model_indices, model_vertexCount, model_dataSize, model_indicesSize);
+
+        int vao = CreateVAO(model_data.get(), model_indices.get(), model_dataSize, model_indicesSize);
+
+        Model model = Model(vao, model_vertexCount, texture);
+        return model;
     }
 
 }}

@@ -10,6 +10,7 @@
 #include "GLEngine/defines.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/io/io.hpp"
+#include "GLEngine/graphics/Model.hpp"
 
 #include <memory>
 #include <string>
@@ -18,9 +19,9 @@
 
 namespace GLEngine { namespace graphics {
 
-    void LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize);
-    GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes, const GLuint& drawMode); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
-
+    bool LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize);
+    GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
+    Model CreateModelFromOBJ(const char* address, const std::shared_ptr<Texture>& texture);
 }}
 
 #endif
