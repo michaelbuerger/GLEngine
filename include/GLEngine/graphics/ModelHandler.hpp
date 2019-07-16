@@ -18,14 +18,8 @@
 
 namespace GLEngine { namespace graphics {
 
-    class ModelHandler
-    {
-        ModelHandler();
-
-        void LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_vertices, std::unique_ptr<GLfloat[]>& ret_texcoords, std::unique_ptr<GLfloat[]>& ret_normals, std::unique_ptr<GLint[]>& ret_indices);
-        GLuint LoadOBJFile(const char* address);
-        GLuint CreateVAO(const GLfloat data[], const GLint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes, GLuint& drawMode);
-    };
+    void LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLint[]>& ret_indices);
+    GLuint CreateVAO(const GLfloat data[], const GLint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes, const GLuint& drawMode); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
 
 }}
 

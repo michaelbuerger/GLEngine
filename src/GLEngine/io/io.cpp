@@ -2,6 +2,7 @@
 
 #include "GLEngine/defines.hpp"
 #include "GLEngine/graphics/graphics.hpp"
+#include "GLEngine/exceptions.hpp"
 
 #include <string>
 #include <iostream>
@@ -31,6 +32,12 @@ namespace GLEngine { namespace io {
         file.seekg(pos);
 
         return len;
+    }
+
+    bool CanCharBeStartOfNumber(const char& c)
+    {
+        return (c == '+' || c == '-' || c == '0' || c == '1' || c == '2' || c == '3' 
+             || c == '4' || c == '5' || c == '6' || c == '7' || c == '8' || c == '9');
     }
 
     /* Convert name of shader types based on their id, useful for debugging */ // Add support for other types of shaders
@@ -77,6 +84,7 @@ namespace GLEngine { namespace io {
         if(file.is_open() == false)
         {
             std::cout << "Could not open shader at \"" << address << "\"" << std::endl;
+            throw GLE_CANT_OPEN_FILE();
             return -1; // TODO: Update to use logging
         }
 
@@ -85,6 +93,8 @@ namespace GLEngine { namespace io {
         if(len == 0)
         {
             std::cout << "Shader is empty at \"" << address << "\"" << std::endl;
+            throw GLE_CANT_OPEN_FILE();
+            file.close();
             return -1; // TODO: Update to use logging
         }
 

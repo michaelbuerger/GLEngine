@@ -18,15 +18,17 @@ namespace GLEngine { namespace graphics {
         m_vao = vao;
         m_texture = std::make_shared<Texture>();
     } */
-    Model::Model(const GLuint& vao, const std::shared_ptr<Texture>& texture)
+    Model::Model(const GLuint& vao, const GLuint& vertexCount, const std::shared_ptr<Texture>& texture)
     {
         m_vao = vao;
         m_texture = texture;
+        m_vertexCount = vertexCount;
     }
     Model::Model(const Model& model)
     {
         m_vao = model.GetVAO();
         m_texture = model.GetTexture();
+        m_vertexCount = model.GetVertexCount();
     }
 
     GLuint Model::GetVAO() const
@@ -36,6 +38,10 @@ namespace GLEngine { namespace graphics {
     const std::shared_ptr<Texture>& Model::GetTexture() const
     {
         return m_texture;
+    }
+    GLuint Model::GetVertexCount() const
+    {
+        return m_vertexCount;
     }
 
 

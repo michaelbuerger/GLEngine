@@ -17,7 +17,6 @@
  * Issue with free image segfault
  * Figure out segfault on exit (segfault now gone, convert to using unique_ptr, shared_ptr, weak_ptr in ImageHandler)
  * Get rid of WindowHandler's manual destruction of windows, make Window class that has its own destructor, have WindowHandler create shared ptr to Window classes
- * Indices generator for varying combinations of vertices, texcoords, and normals
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -31,7 +30,7 @@
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/ImageHandler.hpp"
 #include "GLEngine/graphics/Model.hpp"
-
+#include "GLEngine/graphics/ModelHandler.hpp"
 #include "GLEngine/exceptions.hpp"
 
 #include <glm/glm.hpp>
@@ -107,82 +106,15 @@ int main(void)
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    GLfloat square_vertices_texcoords[]
-    {
-        1.0f, 1.0f, 0.0f,    1.0f, 1.0f, // top-right
-        1.0f, -1.0f, 0.0f,   1.0f, 0.0f, // bottom-right
-        -1.0f, 1.0f, 0.0f,   0.0f, 1.0f, // top-left
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f // bottom-left
-    };
-
-    GLint square_indices[]
-    {
-        2, 1, 3, 0, 1, 2
-    };
-
-    GLfloat cube_vertices[] = 
-    {
-    -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-    -1.0f,-1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f, // triangle 1 : end
-    1.0f, 1.0f,-1.0f, // triangle 2 : begin
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f, // triangle 2 : end
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    -1.0f,-1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    -1.0f,-1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f,-1.0f,
-    1.0f,-1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f,-1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f,-1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f, 1.0f, 1.0f,
-    -1.0f, 1.0f, 1.0f,
-    1.0f,-1.0f, 1.0f
-    };
-
-    GLuint VBO;
-    glGenBuffers(1, &VBO);
-
-    GLuint elementBuffer;
-    glGenBuffers(1, &elementBuffer);
-
     GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+    std::unique_ptr<GLfloat[]> cube_data;
+    std::unique_ptr<GLint[]> cube_indices;
+    LoadOBJFile(ResPathRelative("models/test-square-triangulated.obj").c_str(), cube_data, cube_indices);
+    GLuint cube_vertexCount = sizeof(cube_indices.get())/sizeof(GLint);
+    // TODO: Fix this - Something to do with last section of code in above function is wrong, causing each array to be of length 1?
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices_texcoords), square_vertices_texcoords, GL_STATIC_DRAW);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(square_indices), square_indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
+    VAO = CreateVAO(cube_data.get(), cube_indices.get(), sizeof(cube_data.get()), sizeof(cube_indices.get()), GL_STATIC_DRAW);
 
     std::shared_ptr<Texture> testTexture;
     try { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
@@ -193,7 +125,7 @@ int main(void)
         exit(-1);
     }
 
-    Model model = Model(VAO, testTexture);
+    Model model = Model(VAO, cube_vertexCount, testTexture);
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -240,7 +172,7 @@ int main(void)
         glUseProgram(shaderProgram);
         model.Bind();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-        glDrawElements(GL_TRIANGLES, sizeof(square_indices)/sizeof(GLuint), GL_UNSIGNED_INT, (void*)0); // draw with indexing
+        glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, (void*)0); // draw with indexing
 
         glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows
         glfwPollEvents();

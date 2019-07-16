@@ -12,4 +12,12 @@ struct GLE_IMAGE_DATA_NULL : public std::exception
     }
 };
 
+struct GLE_CANT_OPEN_FILE : public std::exception
+{
+    const char *what() const throw()
+    {
+        return "GLE_CAN'T_OPEN_FILE";
+    }
+};
+
 #endif

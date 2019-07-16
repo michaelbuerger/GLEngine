@@ -15,6 +15,9 @@ namespace GLEngine { namespace io {
 
     unsigned long GetFileLength(std::ifstream& file);
 
+    /* Returns true if char can be the first character of a number represented in text */
+    bool CanCharBeStartOfNumber(const char& c);
+
     /* TODO: Move this stuff below to relevant shader classes */
     /* TODO: Add support for other shaders */
     /* Convert name of shader types based on their id, useful for debugging */
