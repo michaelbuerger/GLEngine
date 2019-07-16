@@ -109,12 +109,14 @@ int main(void)
     GLuint VAO;
 
     std::unique_ptr<GLfloat[]> cube_data;
-    std::unique_ptr<GLint[]> cube_indices;
-    LoadOBJFile(ResPathRelative("models/test-square-triangulated.obj").c_str(), cube_data, cube_indices);
-    GLuint cube_vertexCount = sizeof(cube_indices.get())/sizeof(GLint);
+    std::unique_ptr<GLuint[]> cube_indices;
+    GLuint cube_vertexCount;
+    GLsizeiptr cube_dataSize;
+    GLsizeiptr cube_indicesSize;
+    LoadOBJFile(ResPathRelative("models/test-square-triangulated.obj").c_str(), cube_data, cube_indices, cube_vertexCount, cube_dataSize, cube_indicesSize);
     // TODO: Fix this - Something to do with last section of code in above function is wrong, causing each array to be of length 1?
 
-    VAO = CreateVAO(cube_data.get(), cube_indices.get(), sizeof(cube_data.get()), sizeof(cube_indices.get()), GL_STATIC_DRAW);
+    VAO = CreateVAO(cube_data.get(), cube_indices.get(), cube_dataSize, cube_indicesSize, GL_STATIC_DRAW);
 
     std::shared_ptr<Texture> testTexture;
     try { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception

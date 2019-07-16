@@ -30,7 +30,7 @@ namespace GLEngine { namespace graphics {
         2, 1, 3, 0, 1, 2
     };
 
-    void LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLint[]>& ret_indices)
+    void LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize)
     {
         /* std::stof converts std::string to float, contained in <string>, doesn't care about spaces before and after num */
         std::ifstream file(address);
@@ -47,9 +47,9 @@ namespace GLEngine { namespace graphics {
         std::vector<std::array<GLfloat, 3>> vertexDict = std::vector<std::array<GLfloat, 3>>();
         std::vector<std::array<GLfloat, 2>> texcoordDict = std::vector<std::array<GLfloat, 2>>();
         std::vector<std::array<GLfloat, 3>> normalDict = std::vector<std::array<GLfloat, 3>>();
-        std::vector<std::array<int, 3>> vtnComboDict = std::vector<std::array<int, 3>>();
-        std::vector<GLint> comboIndices;
-        int comboIndex = 0;
+        std::vector<std::array<GLuint, 3>> vtnComboDict = std::vector<std::array<GLuint, 3>>();
+        std::vector<GLuint> comboIndices;
+        GLuint comboIndex = 0;
         
         while (std::getline(file, line))
         {
@@ -58,10 +58,10 @@ namespace GLEngine { namespace graphics {
             {
                 if(line[1] == 't') // texcoord
                 {
-                    int numsFound = 0;
+                    GLuint numsFound = 0;
                     std::string numStr = "";
                     std::array<GLfloat, 2> grp = std::array<GLfloat, 2>();
-                    int grpi = 0;
+                    GLuint grpi = 0;
                     for(size_t i=3; i<line.size(); i++)
                     {
                         if(i == line.size()-1)
@@ -90,10 +90,10 @@ namespace GLEngine { namespace graphics {
                     texcoordDict.push_back(grp);
                 } else if(line[1] == 'n') // normal
                 {
-                    int numsFound = 0;
+                    GLuint numsFound = 0;
                     std::string numStr = "";
                     std::array<GLfloat, 3> grp = std::array<GLfloat, 3>();
-                    int grpi = 0;
+                    GLuint grpi = 0;
                     for(size_t i=3; i<line.size(); i++)
                     {
                         if(i == line.size()-1)
@@ -120,10 +120,10 @@ namespace GLEngine { namespace graphics {
                     normalDict.push_back(grp);
                 } else // vertex
                 {
-                    int numsFound = 0;
+                    GLuint numsFound = 0;
                     std::string numStr = "";
                     std::array<GLfloat, 3> grp = std::array<GLfloat, 3>();
-                    int grpi = 0;
+                    GLuint grpi = 0;
                     for(size_t i=2; i<line.size(); i++)
                     {
                         if(i == line.size()-1)
@@ -153,10 +153,10 @@ namespace GLEngine { namespace graphics {
             } else if(line[0] == 'f') // face specification
             {
 
-                int numsFound = 0;
+                GLuint numsFound = 0;
                 std::string numStr = "";
-                std::array<int, 3> vtnCombo = std::array<int, 3>();
-                int vtnComboi = 0;
+                std::array<GLuint, 3> vtnCombo = std::array<GLuint, 3>();
+                GLuint vtnComboi = 0;
                 for(size_t i=2; i<line.size(); i++)
                 {
                     if(line[i] == '/')
@@ -176,12 +176,12 @@ namespace GLEngine { namespace graphics {
                         numStr = "";
 
                         // handle vtn combo
-                        
+
                         int foundIndex = -1;
                         // check if vtn combo is in dict already
                         for(size_t vi=0; vi<vtnComboDict.size(); vi++)
                         {
-                            std::array<int, 3> vtnComboVI = vtnComboDict.at(vi);
+                            std::array<GLuint, 3> vtnComboVI = vtnComboDict.at(vi);
                             // compare
                             if(vtnComboVI[0] == vtnCombo[0] && vtnComboVI[1] == vtnCombo[1] && vtnComboVI[2] == vtnCombo[2])
                             {
@@ -212,7 +212,10 @@ namespace GLEngine { namespace graphics {
         file.close();
 
         ret_data = std::make_unique<GLfloat[]>(vtnComboDict.size()*8);
-        ret_indices = std::make_unique<GLint[]>(comboIndices.size());
+        ret_indices = std::make_unique<GLuint[]>(comboIndices.size());
+        ret_dataSize = vtnComboDict.size() * 8 * sizeof(GLfloat);
+        ret_indicesSize = comboIndices.size() * sizeof(GLuint);
+        ret_vertexCount = comboIndices.size();
 
         for(size_t i=0;i<vtnComboDict.size();i++)
         {
@@ -232,7 +235,7 @@ namespace GLEngine { namespace graphics {
         }
     }
 
-    GLuint CreateVAO(const GLfloat data[], const GLint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes, const GLuint& drawMode)
+    GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes, const GLuint& drawMode)
     {
         GLuint vao, vbo, elementBuffer;
 
