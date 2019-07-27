@@ -1,13 +1,12 @@
 /* TODO:
- * Model loading
- * Move IO functions that are independent of shader stuff to own header and cpp file
+ * Fix model loading
  * Move shader code to Shader class
  * Basic lighting
  * GLFW input handling and such
  * Convert to using unique_ptr, shared_ptr, and weak_ptr when possible
+ * Delete custom math library, keep utility methods
  * TODO:
  * Get rid of methods that load from resources specifically, create method to make address resource relative
- * Look into returning image data from image data load methods in image handler to return by ref
  * Add default constructors to every class
  * Add proper checks in ImageHandler
  * Add engine logging to any place that couts currently

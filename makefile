@@ -33,7 +33,7 @@ valgrind:
 	valgrind bin/GLEngine
 
 line-count:
-	@echo "Getting line count of all project files, excluding including 3rd party libraries..."
+	@echo "Getting line count of all project files (no 3rd party libraries etc.)..."
 	cloc src/GLEngine/ include/GLEngine/ examples/ doc/ CMakeLists.txt makefile README.md .gitignore
 
 line-count-all:
