@@ -4,7 +4,6 @@
  * Basic lighting
  * GLFW input handling and such
  * Convert to using unique_ptr, shared_ptr, and weak_ptr when possible
- * Delete custom math library, keep utility methods
  * TODO:
  * Get rid of methods that load from resources specifically, create method to make address resource relative
  * Add default constructors to every class
@@ -116,18 +115,18 @@ int main()
 
     std::shared_ptr<Texture> testTexture;
     try { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        testTexture = std::make_shared<Texture>("textures/test-texture.png", STBI_rgb, true);
+        testTexture = std::make_shared<Texture>("textures/hugh.png", STBI_rgb, true);
     } catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
         exit(-1);
     }
 
-    Model model = CreateModelFromVBOFile(ResPathRelative("models/cube.obj").c_str(), testTexture);
+    Model model = CreateModelFromVBOFile(ResPathRelative("models/hugh.obj").c_str(), testTexture);
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
-    glfwMakeContextCurrent(window); // Note: Only dependance on this line is glDrawElements <-- fact check
+    glfwMakeContextCurrent(window); // Note: Only dependance on this line is glDrawElements/glDrawArrays <-- fact check
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -153,10 +152,10 @@ int main()
 
         glm::mat4 transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
 
-        //glm::vec3 cameraPosition(2.0f, 1.5f, 1.5f);
-        glm::vec3 cameraPosition(std::sin(degree)*3, sin(degree)*1.5, std::cos(degree)*3);
+        //glm::vec3 cameraPosition(2.5f, 2.0f, 2.5f);
+        glm::vec3 cameraPosition(std::sin(degree)*5, 5.5f, std::cos(degree)*5);
 
-        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling
+        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 3.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling
         //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
 
         glm::mat4 viewMatrix = cameraMatrix;
