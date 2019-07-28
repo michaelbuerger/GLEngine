@@ -80,7 +80,7 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.CreateWindow(1920, 1080, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -132,13 +132,12 @@ int main()
 
         glm::mat4 transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
 
-        //glm::vec3 cameraPosition(2.5f, 2.0f, 2.5f);
         glm::vec3 cameraPosition(std::sin(degree)*5, 5.5f, std::cos(degree)*5);
 
-        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 3.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling
+        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 3.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
         //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
 
-        glm::mat4 viewMatrix = cameraMatrix;
+        glm::mat4 viewMatrix = cameraMatrix; // TODO: Try making this based on inverse transform matrix of camera (ignoring scale)
 
         float cameraFov = 90.0f;
         float aspectRatio = 16.0f/9.0f;
@@ -150,13 +149,21 @@ int main()
             100.0f             // Far clipping plane. Keep as little as possible.
         );
 
-        glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
+        glm::mat4 normalMatrix = glm::transpose(glm::inverse(transformationMatrix));
+
+        //glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
         model.Bind();
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(transformationMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+        glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(glm::vec3(5.0f, 0.0f, 5.0f))); // point light
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
         glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
