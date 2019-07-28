@@ -1,23 +1,3 @@
-/* TODO:
- * Fix model loading
- * Move shader code to Shader class
- * Basic lighting
- * GLFW input handling and such
- * Convert to using unique_ptr, shared_ptr, and weak_ptr when possible
- * TODO:
- * Get rid of methods that load from resources specifically, create method to make address resource relative
- * Add default constructors to every class
- * Add proper checks in ImageHandler
- * Add engine logging to any place that couts currently
- * Remove this-> from all classes before everything except member functions
- * Add m_ before each private variable
- * Convert use of STBI_enums to graphics.hpp or defined.hpp preprocessor defined constants (i.e. GLE_RGB)
- * Issue with free image segfault
- * Figure out segfault on exit (segfault now gone, convert to using unique_ptr, shared_ptr, weak_ptr in ImageHandler)
- * Get rid of WindowHandler's manual destruction of windows, make Window class that has its own destructor, have WindowHandler create shared ptr to Window classes
- * http://www.opengl-tutorial.org/beginners-tutorials/tutorial-6-keyboard-and-mouse/
- */
-
 #include "GLEngine/graphics/graphics.hpp"
 
 #define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
