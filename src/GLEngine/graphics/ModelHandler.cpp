@@ -10,253 +10,21 @@
 #include "GLEngine/io/io.hpp"
 #include "GLEngine/logging/logging.hpp"
 
+#include "CPPML/loading/loading.hpp"
+#include "CPPML/loading/OBJ.hpp"
+
 #include <memory>
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <stdio.h>
 
 namespace GLEngine { namespace graphics {
 
-    GLfloat square_vertices_texcoords_normals[]
-    {
-        1.0f, 1.0f, 0.0f,    1.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top-right
-        1.0f, -1.0f, 0.0f,   1.0f, 0.0f,   0.0f, 0.0f, 1.0f, // bottom-right
-        -1.0f, 1.0f, 0.0f,   0.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top-left
-        -1.0f, -1.0f, 0.0f,  0.0f, 0.0f,   0.0f, 0.0f, 1.0f  // bottom-left
-    };
-
-    GLint square_indices[]
-    {
-        2, 1, 3, 0, 1, 2
-    };
-
-    bool LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize)
-    {
-        /* std::stof converts std::string to float, contained in <string>, doesn't care about spaces before and after num */
-        std::ifstream file(address);
-
-        if(file.is_open() == false)
-        {
-            GLE_ENGINE_ERROR("Could not open model at \"{}\"", address);
-            return false;
-        }
-
-        std::string line;
-
-        std::vector<std::array<GLfloat, 3>> vertexDict = std::vector<std::array<GLfloat, 3>>();
-        std::vector<std::array<GLfloat, 2>> texcoordDict = std::vector<std::array<GLfloat, 2>>();
-        std::vector<std::array<GLfloat, 3>> normalDict = std::vector<std::array<GLfloat, 3>>();
-        std::vector<std::array<GLuint, 3>> vtnComboDict = std::vector<std::array<GLuint, 3>>();
-        std::vector<GLuint> comboIndices;
-        GLuint comboIndex = 0;
-        
-        while (std::getline(file, line))
-        {
-            //std::cout << "---LINE: " << line << " ---" << std::endl; // DEBUG
-            if(line[0] == 'v') // per-vertex data
-            {
-                if(line[1] == 't') // texcoord
-                {
-                    GLuint numsFound = 0;
-                    std::string numStr = "";
-                    std::array<GLfloat, 2> grp = std::array<GLfloat, 2>();
-                    GLuint grpi = 0;
-                    for(size_t i=3; i<line.size(); i++)
-                    {
-                        if(i == line.size()-1)
-                        {
-                            numStr += line[i];
-                        }
-                        if(line[i] == ' ' || i == line.size()-1)
-                        {
-                            grp[grpi] = std::stof(numStr);
-                            grpi++;
-                            numsFound++;
-                            numStr = "";
-
-                            if(numsFound == 2)
-                            {
-                                break;
-                            }
-                            continue;
-                        }
-
-                        if(i != line.size()-1)
-                        {
-                            numStr += line[i];
-                        }
-                    }
-                    texcoordDict.push_back(grp);
-                } else if(line[1] == 'n') // normal
-                {
-                    GLuint numsFound = 0;
-                    std::string numStr = "";
-                    std::array<GLfloat, 3> grp = std::array<GLfloat, 3>();
-                    GLuint grpi = 0;
-                    for(size_t i=3; i<line.size(); i++)
-                    {
-                        if(i == line.size()-1)
-                        {
-                            numStr += line[i];
-                        }
-                        if(line[i] == ' ' || i == line.size()-1) {
-                            grp[grpi] = std::stof(numStr);
-                            grpi++;
-                            numsFound++;
-                            numStr = "";
-                            if(numsFound == 3)
-                            {
-                                break;
-                            }
-                            continue;
-                        }
-                        if(i != line.size()-1)
-                        {
-                            numStr += line[i];
-                        }
-
-                    }
-                    normalDict.push_back(grp);
-                } else // vertex
-                {
-                    GLuint numsFound = 0;
-                    std::string numStr = "";
-                    std::array<GLfloat, 3> grp = std::array<GLfloat, 3>();
-                    GLuint grpi = 0;
-                    for(size_t i=2; i<line.size(); i++)
-                    {
-                        if(i == line.size()-1)
-                        {
-                            numStr += line[i];
-                        }
-                        if(line[i] == ' ' || i == line.size()-1)
-                        {
-                            grp[grpi] = std::stof(numStr);
-                            grpi++;
-                            numsFound++;
-                            numStr = "";
-                            if(numsFound == 3)
-                            {
-                                break;
-                            }
-                            continue;
-                        }
-                        if(i != line.size()-1)
-                        {
-                            numStr += line[i];
-                        }
-                    }
-                    vertexDict.push_back(grp);
-                }
-                
-            } else if(line[0] == 'f') // face specification
-            {
-
-                GLuint numsFound = 0;
-                std::string numStr = "";
-                std::array<GLuint, 3> vtnCombo = std::array<GLuint, 3>();
-                GLuint vtnComboi = 0;
-                for(size_t i=2; i<line.size(); i++)
-                {
-                    if(line[i] == '/')
-                    {
-                        GLuint try_stoi;
-                        try {
-                            try_stoi = std::stoi(numStr);
-                        }
-                        catch (std::invalid_argument& e)
-                        {
-                            GLE_ENGINE_ERROR("Expected an integer, instead got \"{}\"", numStr);
-                            return false;
-                        }
-
-                        vtnCombo[vtnComboi] = try_stoi;
-                        vtnComboi++;
-                        numsFound++;
-                        numStr = "";
-                        continue;
-                    }
-                    
-                    if(numsFound == 2 && line[i] == ' ')
-                    {
-                        GLuint try_stoi;
-                        try {
-                            try_stoi = std::stoi(numStr);
-                        }
-                        catch (std::invalid_argument& e)
-                        {
-                            GLE_ENGINE_ERROR("Expected an integer, instead got: \"{}\"", numStr);
-                            return false;
-                        }
-
-                        vtnCombo[vtnComboi] = try_stoi;
-                        vtnComboi = 0;
-                        numsFound = 0;
-                        numStr = "";
-
-                        // handle vtn combo
-
-                        int foundIndex = -1;
-                        // check if vtn combo is in dict already
-                        for(size_t vi=0; vi<vtnComboDict.size(); vi++)
-                        {
-                            std::array<GLuint, 3> vtnComboVI = vtnComboDict.at(vi);
-                            // compare
-                            if(vtnComboVI[0] == vtnCombo[0] && vtnComboVI[1] == vtnCombo[1] && vtnComboVI[2] == vtnCombo[2])
-                            {
-                                // found
-                                foundIndex = vi;
-                                break;
-                            }
-                        }
-
-                        if(foundIndex == -1) {
-                            foundIndex = comboIndex;
-                            vtnComboDict.push_back(vtnCombo);
-                            comboIndex++;
-                        }
-
-                        comboIndices.push_back(foundIndex);
-                        continue;
-                    }
-
-                    numStr += line[i];
-                }
-            } else // comment or other line that isn't used
-            {
-                continue;
-            }
-        }
-
-        file.close();
-
-        ret_data = std::make_unique<GLfloat[]>(vtnComboDict.size()*8);
-        ret_indices = std::make_unique<GLuint[]>(comboIndices.size());
-        ret_dataSize = vtnComboDict.size() * 8 * sizeof(GLfloat);
-        ret_indicesSize = comboIndices.size() * sizeof(GLuint);
-        ret_vertexCount = comboIndices.size();
-
-        for(size_t i=0;i<vtnComboDict.size();i++)
-        {
-            ret_data[i*8] = vertexDict.at(vtnComboDict[i][0]-1)[0];
-            ret_data[(i*8)+1] = vertexDict.at(vtnComboDict[i][0]-1)[1];
-            ret_data[(i*8)+2] = vertexDict.at(vtnComboDict[i][0]-1)[2];
-            ret_data[(i*8)+3] = texcoordDict.at(vtnComboDict[i][1]-1)[0];
-            ret_data[(i*8)+4] = texcoordDict.at(vtnComboDict[i][1]-1)[1];
-            ret_data[(i*8)+5] = normalDict.at(vtnComboDict[i][2]-1)[0];
-            ret_data[(i*8)+6] = normalDict.at(vtnComboDict[i][2]-1)[1];
-            ret_data[(i*8)+7] = normalDict.at(vtnComboDict[i][2]-1)[2];
-        }
-
-        for(size_t i=0;i<comboIndices.size();i++)
-        {
-            ret_indices.get()[i] = comboIndices[i];
-        }
-
-        return true;
-    }
-
+    // TODO: See if this function works.
+    // Convert to use of vertexCount from sizeBytes
+    // Convert to using smart pointers
     GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes)
     {
         GLuint vao, vbo, elementBuffer;
@@ -276,7 +44,6 @@ namespace GLEngine { namespace graphics {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);                     // vertices
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat))); // texcoords
         glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat))); // normals
-        // TODO: Add support for data structure differing from the following: 3D vertices, 2D texcoords, 3D normals
 
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
@@ -287,18 +54,64 @@ namespace GLEngine { namespace graphics {
         return vao;
     }
 
-    Model CreateModelFromOBJ(const char* address, const std::shared_ptr<Texture>& texture)
+    GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], const GLfloat normals[], const GLuint indices[], const GLuint& vertexCount)
     {
-        std::unique_ptr<GLfloat[]> model_data;
-        std::unique_ptr<GLuint[]> model_indices;
-        GLuint model_vertexCount;
-        GLsizeiptr model_dataSize;
-        GLsizeiptr model_indicesSize;
-        LoadOBJFile(address, model_data, model_indices, model_vertexCount, model_dataSize, model_indicesSize);
+        GLuint vao, verticesVbo, texcoordsVbo, normalsVbo, elementBuffer;
 
-        int vao = CreateVAO(model_data.get(), model_indices.get(), model_dataSize, model_indicesSize);
+        glGenVertexArrays(1, &vao);
+        glGenBuffers(1, &verticesVbo);
+        glGenBuffers(1, &texcoordsVbo);
+        glGenBuffers(1, &normalsVbo);
+        glGenBuffers(1, &elementBuffer);
 
-        Model model = Model(vao, model_vertexCount, texture);
+        glBindVertexArray(vao);
+
+        glBindBuffer(GL_ARRAY_BUFFER, verticesVbo);
+        glBufferData(GL_ARRAY_BUFFER, vertexCount*sizeof(GLfloat)*3, vertices, GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // vertices
+
+        glBindBuffer(GL_ARRAY_BUFFER, texcoordsVbo);
+        glBufferData(GL_ARRAY_BUFFER, vertexCount*sizeof(GLfloat)*2, texcoords, GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0); // texcoords
+
+        glBindBuffer(GL_ARRAY_BUFFER, normalsVbo);
+        glBufferData(GL_ARRAY_BUFFER, vertexCount*sizeof(GLfloat)*3, normals, GL_STATIC_DRAW);
+        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); // normals
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, vertexCount*sizeof(GLuint), indices, GL_STATIC_DRAW);
+
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+
+        glBindVertexArray(0);
+
+        return vao;
+    }
+
+    Model CreateModelFromVBOFile(const char* address, std::shared_ptr<Texture> texture) {
+
+        std::unique_ptr<GLfloat[]> vertices;
+        std::unique_ptr<GLfloat[]> texcoords;
+        std::unique_ptr<GLfloat[]> normals;
+        uint vertexCount;
+
+        FILE* file = CPPML::OpenFile(address);
+        CPPML::LoadOBJFile(file, vertices, texcoords, normals, vertexCount);
+
+        // TODO: Create way for model to know if its indexed or not
+        // TODO: Create renderer that can take this data in and render without elements when applicable
+
+        GLuint indices[vertexCount];
+        for(size_t i=0;i<vertexCount;i++) {
+            indices[i] = i;
+        }
+
+        GLuint vao = CreateVAO_MultiVBO(vertices.get(), texcoords.get(), normals.get(), indices, vertexCount); // Look into better way of doing this, right now these unique ptrs don't get freed ever because of .get
+        
+        Model model = Model(vao, vertexCount, texture);
+
         return model;
     }
 

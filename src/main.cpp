@@ -16,6 +16,7 @@
  * Issue with free image segfault
  * Figure out segfault on exit (segfault now gone, convert to using unique_ptr, shared_ptr, weak_ptr in ImageHandler)
  * Get rid of WindowHandler's manual destruction of windows, make Window class that has its own destructor, have WindowHandler create shared ptr to Window classes
+ * http://www.opengl-tutorial.org/beginners-tutorials/tutorial-6-keyboard-and-mouse/
  */
 
 #include "GLEngine/graphics/graphics.hpp"
@@ -38,6 +39,12 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "stb/stb_image.h"
+
+#include "CPPML/logging/Log.hpp"
+#include "CPPML/loading/loading.hpp"
+#include "CPPML/loading/OBJ.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -45,8 +52,6 @@
 #include <exception>
 #include <memory>
 #include <cmath>
-
-#include "stb/stb_image.h"
 
 using namespace GLEngine;
 using namespace logging;
@@ -77,6 +82,8 @@ https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glv
 int main()
 {
     Log::Init();
+    CPPML::Log::Init(spdlog::level::trace);
+
     WindowHandler windowHandler = WindowHandler();
     // WindowHandler windowHandler(); <-- does not call default constructor for some reason
 
@@ -116,14 +123,16 @@ int main()
         exit(-1);
     }
 
-    Model model = CreateModelFromOBJ(ResPathRelative("models/cube-triangulated-texcoords.obj").c_str(), testTexture);
+    Model model = CreateModelFromVBOFile(ResPathRelative("models/cube.obj").c_str(), testTexture);
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
     glfwMakeContextCurrent(window); // Note: Only dependance on this line is glDrawElements <-- fact check
 
-    //glEnable(GL_CULL_FACE);
-    //glCullFace(GL_BACK);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     float degree = 0;
 
@@ -164,12 +173,12 @@ int main()
 
         glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
 
-        glDepthMask(true);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(shaderProgram);
         model.Bind();
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "mvpMatrix"), 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
         glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
         glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows

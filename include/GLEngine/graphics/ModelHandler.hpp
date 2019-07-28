@@ -18,10 +18,10 @@
 #include <fstream>
 
 namespace GLEngine { namespace graphics {
-
-    bool LoadOBJFile(const char* address, std::unique_ptr<GLfloat[]>& ret_data, std::unique_ptr<GLuint[]>& ret_indices, GLuint& ret_vertexCount, GLsizeiptr& ret_dataSize, GLsizeiptr& ret_indicesSize);
     GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
-    Model CreateModelFromOBJ(const char* address, const std::shared_ptr<Texture>& texture);
+    GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], const GLfloat normals[], const GLuint indices[], const GLuint& vertexCount);
+
+    Model CreateModelFromVBOFile(const char* address, std::shared_ptr<Texture> texture);
 }}
 
 #endif
