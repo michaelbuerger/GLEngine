@@ -1,5 +1,5 @@
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef GLE_IMAGE_HPP
+#define GLE_IMAGE_HPP
 
 #include "GLEngine/graphics/graphics.hpp"
 

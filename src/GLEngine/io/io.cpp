@@ -13,7 +13,7 @@ namespace GLEngine { namespace io {
 
     std::string ResPathRelative(const char* address)
     {
-        std::string resAddress = RESOURCES_PATH;
+        std::string resAddress = GLE_RESOURCES_PATH;
         resAddress.append(address);
 
         return resAddress;

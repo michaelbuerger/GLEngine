@@ -9,8 +9,8 @@
  * STBI_grey_alpha
  */
 
-#ifndef IMAGE_HANDLER_HPP
-#define IMAGE_HANDLER_HPP
+#ifndef GLE_IMAGE_HANDLER_HPP
+#define GLE_IMAGE_HANDLER_HPP
 
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/Image.hpp"

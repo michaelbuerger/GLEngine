@@ -1,5 +1,5 @@
-#ifndef IO_HPP
-#define IO_HPP
+#ifndef GLE_IO_HPP
+#define GLE_IO_HPP
 
 #include "GLEngine/defines.hpp"
 #include "GLEngine/graphics/graphics.hpp"

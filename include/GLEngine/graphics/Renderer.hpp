@@ -1,5 +1,5 @@
-#ifndef RENDERER_HPP
-#define RENDERER_HPP
+#ifndef GLE_RENDERER_HPP
+#define GLE_RENDERER_HPP
 
 namespace GLEngine { namespace graphics {
 

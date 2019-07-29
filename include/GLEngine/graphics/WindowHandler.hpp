@@ -1,5 +1,5 @@
-#ifndef WINDOW_HANDLER_CPP
-#define WINDOW_HANDLER_CPP
+#ifndef GLE_WINDOW_HANDLER_CPP
+#define GLE_WINDOW_HANDLER_CPP
 
 #include "GLEngine/graphics/graphics.hpp"
 #include <vector>

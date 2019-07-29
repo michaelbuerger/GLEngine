@@ -1,5 +1,5 @@
-#ifndef TEXTURE_HPP
-#define TEXTURE_HPP
+#ifndef GLE_TEXTURE_HPP
+#define GLE_TEXTURE_HPP
 
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/graphics/ImageHandler.hpp"

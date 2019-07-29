@@ -1,5 +1,5 @@
-#ifndef MODEL_HPP
-#define MODEL_HPP
+#ifndef GLE_MODEL_HPP
+#define GLE_MODEL_HPP
 
 #include "GLEngine/defines.hpp"
 #include "GLEngine/graphics/graphics.hpp"

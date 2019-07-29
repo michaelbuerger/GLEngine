@@ -3,8 +3,8 @@
 // TODO: Look into whether or not it makes sense to hold references to all VAOs and VBOs and destroy them at end of program
 // Note: Currently nothing handles destroying/freeing VAOs and VBOs right now, and there doesn't seem to be any issue (even with valgrind)
 
-#ifndef MODEL_HANDLER_HPP
-#define MODEL_HANDLER_HPP
+#ifndef GLE_MODEL_HANDLER_HPP
+#define GLE_MODEL_HANDLER_HPP
 
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/defines.hpp"

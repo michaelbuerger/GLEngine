@@ -1,6 +1,6 @@
 /* Inclusion of all logging modules */
-#ifndef LOGGING_HPP
-#define LOGGING_HPP
+#ifndef GLE_LOGGING_HPP
+#define GLE_LOGGING_HPP
 
 #include "Log.hpp"
 
