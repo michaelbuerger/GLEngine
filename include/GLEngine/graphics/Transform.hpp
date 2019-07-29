@@ -20,6 +20,8 @@ public:
     void SetRotation(const glm::quat &rotation);
     void SetScale(const glm::vec3 &scale);
 
+    void RotateEulerAngles(const glm::vec3 &rotation); // 0 - 360 (degrees)
+
     glm::vec3 GetPosition() const;
     glm::vec3 GetEulerAngles() const; // 0 - 360 (degrees)
     glm::quat GetRotation() const;
