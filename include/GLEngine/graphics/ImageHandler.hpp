@@ -19,27 +19,28 @@
 
 #include <vector>
 
-namespace GLEngine { namespace graphics {
+namespace GLEngine
+{
 
-    class ImageHandler
-    {
-        public:
-            ImageHandler();
+class ImageHandler
+{
+public:
+    ImageHandler();
 
-            /* Load image data to heap allocated section in memory */
-            unsigned char *LoadImageDataFromAddress(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int& imageLoadFormat, const bool& flipVertical);
-            /* Free individual image data pointers */
-            void FreeImageData(unsigned char *imageData);
+    /* Load image data to heap allocated section in memory */
+    unsigned char *LoadImageDataFromAddress(const char *address, int *ret_width, int *ret_height, int *ret_colorChannels, const int &imageLoadFormat, const bool &flipVertical);
+    /* Free individual image data pointers */
+    void FreeImageData(unsigned char *imageData);
 
-            /* Load image data to heap allocated section in memory */
-            Image LoadImageFromAddress(const char *address, const int& imageLoadFormat, const bool& flipVertical);
-            /* Free individual images */
-            void FreeImage(const Image& image);
+    /* Load image data to heap allocated section in memory */
+    Image LoadImageFromAddress(const char *address, const int &imageLoadFormat, const bool &flipVertical);
+    /* Free individual images */
+    void FreeImage(const Image &image);
 
-        private:
-             std::vector<unsigned char*> loadedImageData; // Not entirely necessary, leaving in for possible later use
-    };
+private:
+    std::vector<unsigned char *> loadedImageData; // Not entirely necessary, leaving in for possible later use
+};
 
-}}
+} // namespace GLEngine
 
 #endif

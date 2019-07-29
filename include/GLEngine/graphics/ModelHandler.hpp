@@ -17,11 +17,12 @@
 #include <iostream>
 #include <fstream>
 
-namespace GLEngine { namespace graphics {
-    GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr& dataSizeBytes, const GLsizeiptr& indicesSizeBytes); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
-    GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], const GLfloat normals[], const GLuint indices[], const GLuint& vertexCount);
+namespace GLEngine
+{
+GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr &dataSizeBytes, const GLsizeiptr &indicesSizeBytes); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
+GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], const GLfloat normals[], const GLuint indices[], const GLuint &vertexCount);
 
-    Model CreateModelFromVBOFile(const char* address, std::shared_ptr<Texture> texture);
-}}
+Model CreateModelFromVBOFile(const char *address, std::shared_ptr<Texture> texture);
+} // namespace GLEngine
 
 #endif

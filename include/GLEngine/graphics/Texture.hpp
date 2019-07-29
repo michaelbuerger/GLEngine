@@ -7,51 +7,52 @@
 
 #include <vector>
 
-namespace GLEngine { namespace graphics {
+namespace GLEngine
+{
 
-    /* Non-PNG will work, but if the format doesn't support alpha channels they will not be generated */
-    class Texture
-    {
-        public:
-            static class ImageHandler imageHandler;
+/* Non-PNG will work, but if the format doesn't support alpha channels they will not be generated */
+class Texture
+{
+public:
+    static class ImageHandler imageHandler;
 
-            Texture();
-            /* Load texture from resources */
-            Texture(const char* address, const int& loadFormat, const bool& shouldGenerateMipmaps);
-            Texture(const Texture& texture);
+    Texture();
+    /* Load texture from resources */
+    Texture(const char *address, const int &loadFormat, const bool &shouldGenerateMipmaps);
+    Texture(const Texture &texture);
 
-            /* Creates texture from previously loaded image */
-            Texture(const Image& image, const bool& shouldGenerateMipmaps);
+    /* Creates texture from previously loaded image */
+    Texture(const Image &image, const bool &shouldGenerateMipmaps);
 
-            void Bind() const;
-            void Unbind() const;
+    void Bind() const;
+    void Unbind() const;
 
-            /* TODO: Figure out if glTexImage2D actually needs to be recalled when changing params */
+    /* TODO: Figure out if glTexImage2D actually needs to be recalled when changing params */
 
-            /* Binds texID, sets parameters to default (see definition), must recall Create(), unbinds texID */ 
-            void SetDefaultParameters();
-            /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
-            void SetIntParameters(const std::vector<GLuint>& texParamNames, const std::vector<GLuint>& texParamValues);
+    /* Binds texID, sets parameters to default (see definition), must recall Create(), unbinds texID */
+    void SetDefaultParameters();
+    /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
+    void SetIntParameters(const std::vector<GLuint> &texParamNames, const std::vector<GLuint> &texParamValues);
 
-            Image GetImage() const;
-            /* Get OpenGL texture ID */
-            GLuint GetGLID() const;
+    Image GetImage() const;
+    /* Get OpenGL texture ID */
+    GLuint GetGLID() const;
 
-            ~Texture();
+    ~Texture();
 
-            Image image;
+    Image image;
 
-        private:
-            //Image image;
-            GLuint textureID;
+private:
+    //Image image;
+    GLuint textureID;
 
-            void GenTextureID();
-            void Create(const bool& shouldGenerateMipmaps);
+    void GenTextureID();
+    void Create(const bool &shouldGenerateMipmaps);
 
-            std::vector<GLuint> m_texParamNames;
-            std::vector<GLuint> m_texParamValues;
-    };
+    std::vector<GLuint> m_texParamNames;
+    std::vector<GLuint> m_texParamValues;
+};
 
-}}
+} // namespace GLEngine
 
 #endif

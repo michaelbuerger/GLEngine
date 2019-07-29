@@ -5,21 +5,22 @@
 #include <memory> // Shared ptr
 #include "spdlog/spdlog.h"
 
-namespace GLEngine { namespace logging
+namespace GLEngine
 {
-	class Log
-	{
-	    private:
-		    static std::shared_ptr<spdlog::logger> m_EngineLogger;
-		    static std::shared_ptr<spdlog::logger> m_AppLogger;
-	    public:
-		    static void Init();
+class Log
+{
+private:
+	static std::shared_ptr<spdlog::logger> m_EngineLogger;
+	static std::shared_ptr<spdlog::logger> m_AppLogger;
 
-		    inline static std::shared_ptr<spdlog::logger>& GetEngineLogger() { return m_EngineLogger; };
-		    inline static std::shared_ptr<spdlog::logger>& GetAppLogger() { return m_AppLogger; };
-	};
+public:
+	static void Init();
 
-}}
+	inline static std::shared_ptr<spdlog::logger> &GetEngineLogger() { return m_EngineLogger; };
+	inline static std::shared_ptr<spdlog::logger> &GetAppLogger() { return m_AppLogger; };
+};
+
+} // namespace GLEngine
 
 #ifndef GLE_ENGINE_DEBUG_LOG_OFF
 

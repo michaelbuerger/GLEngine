@@ -4,6 +4,8 @@
 #include <iostream>
 #include <exception>
 
+namespace GLEngine
+{
 struct GLE_IMAGE_DATA_NULL : public std::exception
 {
     const char *what() const throw()
@@ -19,5 +21,6 @@ struct GLE_CANT_OPEN_FILE : public std::exception
         return "GLE_CAN'T_OPEN_FILE";
     }
 };
+} // namespace GLEngine
 
 #endif

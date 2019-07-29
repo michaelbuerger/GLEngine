@@ -8,31 +8,32 @@
 #include <memory>
 #include <utility>
 
-namespace GLEngine { namespace graphics {
-    
-    class Model
-    {
-        public:
-            // Model(); // Create model with some primitive and some default texture
-            // Model(const GLuint& vao); // Create model with vao and some default texture
-            Model(const GLuint& vao, const GLuint& vertexCount, const std::shared_ptr<Texture>& texture);
-            Model(const Model& model);
+namespace GLEngine
+{
 
-            GLuint GetVAO() const;
-            const std::shared_ptr<Texture>& GetTexture() const;
-            GLuint GetVertexCount() const;
+class Model
+{
+public:
+    // Model(); // Create model with some primitive and some default texture
+    // Model(const GLuint& vao); // Create model with vao and some default texture
+    Model(const GLuint &vao, const GLuint &vertexCount, const std::shared_ptr<Texture> &texture);
+    Model(const Model &model);
 
-            /* Bind vao and texture */
-            void Bind() const;
-            /* Unbind vao and texture */
-            void Unbind() const;
+    GLuint GetVAO() const;
+    const std::shared_ptr<Texture> &GetTexture() const;
+    GLuint GetVertexCount() const;
 
-        private:
-            GLuint m_vao;
-            std::shared_ptr<Texture> m_texture;
-            GLuint m_vertexCount;
-    };
+    /* Bind vao and texture */
+    void Bind() const;
+    /* Unbind vao and texture */
+    void Unbind() const;
 
-}}
+private:
+    GLuint m_vao;
+    std::shared_ptr<Texture> m_texture;
+    GLuint m_vertexCount;
+};
+
+} // namespace GLEngine
 
 #endif

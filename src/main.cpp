@@ -10,6 +10,7 @@
 #include "GLEngine/graphics/ImageHandler.hpp"
 #include "GLEngine/graphics/Model.hpp"
 #include "GLEngine/graphics/ModelHandler.hpp"
+#include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/exceptions.hpp"
 
 #include <glm/glm.hpp>
@@ -33,9 +34,6 @@
 #include <cmath>
 
 using namespace GLEngine;
-using namespace logging;
-using namespace graphics;
-using namespace io;
 
 /* Useful Links:
 http://www.opengl-tutorial.org/
@@ -66,7 +64,7 @@ int main()
     WindowHandler windowHandler = WindowHandler();
     // WindowHandler windowHandler(); <-- does not call default constructor for some reason
 
-    GLFWwindow* window;
+    GLFWwindow *window;
 
     std::vector<int> windowHintNames = std::vector<int>();
     std::vector<int> windowHintValues = std::vector<int>();
@@ -86,7 +84,7 @@ int main()
     GLenum err = glewInit();
     if (GLEW_OK != err)
     {
-      std::cout << "Error: " << glewGetErrorString(err) << std::endl;
+        std::cout << "Error: " << glewGetErrorString(err) << std::endl;
     }
 
     /* Print useful information */
@@ -94,9 +92,11 @@ int main()
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
     std::shared_ptr<Texture> testTexture;
-    try { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
+    try
+    { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
         testTexture = std::make_shared<Texture>("textures/jeep.png", STBI_rgb, true);
-    } catch (std::exception& e)
+    }
+    catch (std::exception &e)
     {
         std::cout << e.what() << std::endl;
         exit(-1);
@@ -120,19 +120,10 @@ int main()
     while (!windowHandler.ShouldAnyWindowClose())
     {
         degree += 0.01f;
-        glm::vec3 objPosition(0.0f, 0.0f, 0.0f);
-        glm::vec3 objScale(1.0f, 1.0f, 1.0f);
-        glm::vec3 objRotationEuler(0.0f, 0.0f, 0.0f);
+        Transform transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        glm::mat4 transformationMatrix = transform.GetMatrix();
 
-        glm::quat objRotationQuat(objRotationEuler);
-
-        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), objPosition);
-        glm::mat4 rotationMatrix = glm::toMat4(objRotationQuat);
-        glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), objScale);
-
-        glm::mat4 transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
-
-        glm::vec3 cameraPosition(std::sin(degree)*3.0f, 1.0f, std::cos(degree)*3.0f);
+        glm::vec3 cameraPosition(std::sin(degree) * 3.0f, 1.0f, std::cos(degree) * 3.0f);
 
         glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 1.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
         //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
@@ -140,13 +131,13 @@ int main()
         glm::mat4 viewMatrix = cameraMatrix; // TODO: Try making this based on inverse transform matrix of camera (ignoring scale)
 
         float cameraFov = 90.0f;
-        float aspectRatio = 16.0f/9.0f;
+        float aspectRatio = 16.0f / 9.0f;
 
         glm::mat4 projectionMatrix = glm::perspective(
             glm::radians(cameraFov), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
-            aspectRatio,       // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
-            0.1f,              // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-            100.0f             // Far clipping plane. Keep as little as possible.
+            aspectRatio,             // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
+            0.1f,                    // Near clipping plane. Keep as big as possible, or you'll get precision issues.
+            100.0f                   // Far clipping plane. Keep as little as possible.
         );
 
         glm::mat4 normalMatrix = glm::transpose(glm::inverse(transformationMatrix));

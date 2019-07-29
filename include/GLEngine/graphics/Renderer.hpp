@@ -1,14 +1,15 @@
 #ifndef GLE_RENDERER_HPP
 #define GLE_RENDERER_HPP
 
-namespace GLEngine { namespace graphics {
+namespace GLEngine
+{
 
-    class Renderer
-    {
-        public:
-            Renderer();
-    };
+class Renderer
+{
+public:
+    Renderer();
+};
 
-}}
+} // namespace GLEngine
 
 #endif
