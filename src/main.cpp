@@ -1,6 +1,6 @@
 #include "GLEngine/graphics/graphics.hpp"
 
-#define RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
+#define GLE_RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/logging/logging.hpp"
 #include "GLEngine/io/io.hpp"
@@ -80,7 +80,7 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1920, 1080, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -95,14 +95,14 @@ int main()
 
     std::shared_ptr<Texture> testTexture;
     try { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        testTexture = std::make_shared<Texture>("textures/hugh.png", STBI_rgb, true);
+        testTexture = std::make_shared<Texture>("textures/jeep.png", STBI_rgb, true);
     } catch (std::exception& e)
     {
         std::cout << e.what() << std::endl;
         exit(-1);
     }
 
-    Model model = CreateModelFromVBOFile(ResPathRelative("models/hugh.obj").c_str(), testTexture);
+    Model model = CreateModelFromVBOFile(ResPathRelative("models/jeep.obj").c_str(), testTexture);
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -132,9 +132,9 @@ int main()
 
         glm::mat4 transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
 
-        glm::vec3 cameraPosition(std::sin(degree)*5, 5.5f, std::cos(degree)*5);
+        glm::vec3 cameraPosition(std::sin(degree)*3.0f, 1.0f, std::cos(degree)*3.0f);
 
-        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 3.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
+        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 1.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
         //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
 
         glm::mat4 viewMatrix = cameraMatrix; // TODO: Try making this based on inverse transform matrix of camera (ignoring scale)
@@ -163,7 +163,7 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-        glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(glm::vec3(5.0f, 0.0f, 5.0f))); // point light
+        glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(cameraPosition)); // point light
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
         glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
