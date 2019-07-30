@@ -5,10 +5,10 @@
 
 #include "GLEngine/graphics/ModelHandler.hpp"
 #include "GLEngine/graphics/graphics.hpp"
+#include "GLEngine/logging/Log.hpp"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/io/io.hpp"
-#include "GLEngine/logging/logging.hpp"
 
 #include "CPPML/loading/loading.hpp"
 #include "CPPML/loading/OBJ.hpp"
