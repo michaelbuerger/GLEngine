@@ -1,5 +1,6 @@
 # Project specific ignores
 build/
+!docs/build/
 bin/
 /glew-2.1.0/
 *.gch
