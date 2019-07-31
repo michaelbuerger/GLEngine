@@ -18,6 +18,7 @@ void main()
   float specularStrength = 0.15;
   float shininess = 1; // lower -> higher = rougher to smoother
   vec3 lightColor = vec3(1.0, 1.0, 1.0);
+  bool unlit = false;
 
   // Ambient
   vec3 ambient = ambientStrength * lightColor;
@@ -37,7 +38,11 @@ void main()
 
   vec3 lighting = ambient + diffuse + specular;
 
-  fragColor = vec4(lighting, 1.0) * texture(texture2D, texCoord);
+  if(!unlit) {
+    fragColor = vec4(lighting, 1.0) * texture(texture2D, texCoord);
+  } else {
+    fragColor = texture(texture2D, texCoord);
+  }
 }
 
 
