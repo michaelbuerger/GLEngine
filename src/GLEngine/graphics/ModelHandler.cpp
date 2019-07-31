@@ -91,7 +91,7 @@ GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], c
     return vao;
 }
 
-Model CreateModelFromVBOFile(const char *address, std::shared_ptr<Texture> texture)
+Model CreateModelFromOBJFile(const char *address, std::shared_ptr<Texture> texture)
 {
 
     std::unique_ptr<GLfloat[]> vertices;

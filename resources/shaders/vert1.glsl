@@ -25,7 +25,7 @@ void main()
   texCoord = aTexCoord;
   normal = mat3(viewMatrix * normalMatrix) * aNormal;
 
-  pointLightPos = vec3(viewMatrix * modelMatrix * vec4(pointLightPosition, 1.0));
+  pointLightPos = vec3(viewMatrix * vec4(pointLightPosition, 1.0));
 
   fragPos = vec3(viewMatrix * modelMatrix * vec4(aPos, 1.0));
 }

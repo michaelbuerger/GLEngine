@@ -12,6 +12,7 @@
 #include "GLEngine/graphics/ModelHandler.hpp"
 #include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/exceptions.hpp"
+#include "GLEngine/math/math.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -94,7 +95,7 @@ int main()
     std::shared_ptr<Texture> testTexture;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        testTexture = std::make_shared<Texture>("textures/jeep.png", STBI_rgb, true);
+        testTexture = std::make_shared<Texture>("textures/test-texture.png", STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -102,7 +103,7 @@ int main()
         exit(-1);
     }
 
-    Model model = CreateModelFromVBOFile(ResPathRelative("models/jeep.obj").c_str(), testTexture);
+    Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), testTexture);
 
     GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -113,19 +114,19 @@ int main()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
-    float degree = 0;
+    Transform transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())
     {
-        degree += 0.01f;
-        Transform transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+        transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
+        //GLE_ENGINE_INFO("Euler Y: {}", transform.GetEulerAngles().y);
         glm::mat4 transformationMatrix = transform.GetMatrix();
 
-        glm::vec3 cameraPosition(std::sin(degree) * 3.0f, 1.0f, std::cos(degree) * 3.0f);
+        glm::vec3 cameraPosition(3.0f, 0.0f, 3.0f);
 
-        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0, 1.0f, 0), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
+        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
         //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
 
         glm::mat4 viewMatrix = cameraMatrix; // TODO: Try making this based on inverse transform matrix of camera (ignoring scale)
@@ -154,7 +155,7 @@ int main()
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
-        glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(cameraPosition)); // point light
+        glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(glm::vec3(3.0f, 0.0f, 3.0f))); // point light
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
         glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 

@@ -14,8 +14,9 @@ uniform sampler2D texture2D;
 void main()
 {
   float ambientStrength = 0.15;
-  float specularStrength = 0.5;
-  float shininess = 128; // lower -> higher = rougher to smoother (how much the specular highlight is diffused less -> more)
+  float diffuseStrength = 0.7;
+  float specularStrength = 0.15;
+  float shininess = 1; // lower -> higher = rougher to smoother
   vec3 lightColor = vec3(1.0, 1.0, 1.0);
 
   // Ambient
@@ -26,7 +27,7 @@ void main()
   vec3 normalizedNormal = normalize(normal);
   // Note: lightDirection is slightly misleading because it is actually a direction vector from the fragPos to the point light
   float diff = max(dot(normalizedNormal, lightDirection), 0.0);
-  vec3 diffuse = diff * lightColor;
+  vec3 diffuse = diffuseStrength * diff * lightColor;
 
   // Specular
   vec3 viewDirection = normalize(vec3(0, 0, 0) - fragPos); // Note 0, 0, 0 is the camera/viewer's position as lighting variables are transformed into model-view space

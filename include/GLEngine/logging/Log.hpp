@@ -24,11 +24,11 @@ public:
 
 #ifndef GLE_ENGINE_DEBUG_LOG_OFF
 
-#define GLE_ENGINE_TRACE(...) GLEngine::logging::Log::GetEngineLogger()->trace(__VA_ARGS__)
-#define GLE_ENGINE_INFO(...) GLEngine::logging::Log::GetEngineLogger()->info(__VA_ARGS__)
-#define GLE_ENGINE_WARN(...) GLEngine::logging::Log::GetEngineLogger()->warn(__VA_ARGS__)
-#define GLE_ENGINE_ERROR(...) GLEngine::logging::Log::GetEngineLogger()->error(__VA_ARGS__)
-#define GLE_ENGINE_CRIT(...) GLEngine::logging::Log::GetEngineLogger()->critical(__VA_ARGS__)
+#define GLE_ENGINE_TRACE(...) GLEngine::Log::GetEngineLogger()->trace(__VA_ARGS__)
+#define GLE_ENGINE_INFO(...) GLEngine::Log::GetEngineLogger()->info(__VA_ARGS__)
+#define GLE_ENGINE_WARN(...) GLEngine::Log::GetEngineLogger()->warn(__VA_ARGS__)
+#define GLE_ENGINE_ERROR(...) GLEngine::Log::GetEngineLogger()->error(__VA_ARGS__)
+#define GLE_ENGINE_CRIT(...) GLEngine::Log::GetEngineLogger()->critical(__VA_ARGS__)
 
 #endif
 
