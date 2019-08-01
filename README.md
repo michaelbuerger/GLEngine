@@ -1,8 +1,8 @@
-# GLEngine
+## GLEngine
 
-A complete game engine developed by Michael Buerger
+#### A complete game engine developed by Michael Buerger
 
-All documentation has moved over to [**GitHub Pages**](https://popwser.github.io/GLEngine/)
+#### All documentation has moved over to [GitHub Pages](https://popwser.github.io/GLEngine/)
 
 ## Links
 
