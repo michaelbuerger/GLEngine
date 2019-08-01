@@ -1,5 +1,7 @@
 # GLEngine
 
+Read the docs! <https://glengine.readthedocs.io/en/latest/>
+
 A complete game engine developed by Michael Buerger
 Using the following libraries:
 
@@ -57,5 +59,5 @@ When adding new cpp files to the engine, re-running `make-project` is required f
 ## Links
 
 **Trello**: <https://trello.com/b/Pl9kCp8s/glengine>  
-**GitHub**: <https://github.com/popwser/GLEngine>
+**GitHub**: <https://github.com/popwser/GLEngine>  
 **Good Markdown Editor**: <https://pandao.github.io/editor.md>
