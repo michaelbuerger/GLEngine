@@ -13,6 +13,7 @@ GLEngine uses [GLFW 3.3](https://www.glfw.org/) for platform-independent window 
 !!! tip
     Any time you want to use GLFW or OpenGL methods or defines, simply importing ```GLEngine/include/graphics/graphics.hpp``` will include everything for you in the right order.
 
+---
 ## Creating Windows
 
 If you want to manually handle the creation and destruction of GLFW windows, please take a look at the following:
@@ -48,6 +49,7 @@ Every window holds a reference to it's own OpenGL version, as the OpenGL context
 !!! note
     ```CreateWindow``` will call ```glfwMakeContentCurrent``` on the ```GLFWwindow*``` it is creating for you. When you want to manually switch the glfw context, you have to call ```glfwMakeContextCurrent(yourWindow)``` yourself.
 
+---
 ## Initializing glew
 
 At any point after the [initialization of GLFW](#creating-windows), you can initialize glew. This can be achieved with the following code (eventually this will be handled by the renderer):
@@ -63,6 +65,7 @@ if (GLEW_OK != err)
 !!! note
     Please note that you should try to use GLEngine's logging (with [spdlog](https://github.com/gabime/spdlog)) when possible. See the [engine and application logging](#engine-and-application-logging) section.
 
+---
 ## Engine and Application Logging
 
 GLEngine utilizes [spdlog](https://github.com/gabime/spdlog) to handle all of it's logging. [CPPModelLibrary](https://github.com/popwser/CPPModelLibrary) also does.  
