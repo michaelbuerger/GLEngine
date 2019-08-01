@@ -1,5 +1,11 @@
 # --- Export Ignores (Doesn't export when downloading as ZIP from GitHub) ---
 # TEMPLATE: [file, dir, etc] export-ignore
+mkdocs.yml export-ignore
+docs/ export-ignore
+.gitattributes export-ignore
+.gitignore export-ignore
+CMakeLists.txt export-ignore
+makefile export-ignore
 
 # --- Project Specific ---
 glew-2.1.0/* linguist-vendored
