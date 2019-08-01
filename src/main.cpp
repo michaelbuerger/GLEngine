@@ -11,6 +11,7 @@
 #include "GLEngine/graphics/Model.hpp"
 #include "GLEngine/graphics/ModelHandler.hpp"
 #include "GLEngine/graphics/Transform.hpp"
+#include "GLEngine/graphics/Camera.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/math/math.hpp"
 
@@ -121,27 +122,11 @@ int main()
     while (!windowHandler.ShouldAnyWindowClose())
     {
         transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
-        //GLE_ENGINE_INFO("Euler Y: {}", transform.GetEulerAngles().y);
-        glm::mat4 transformationMatrix = transform.GetMatrix();
 
-        glm::vec3 cameraPosition(3.0f, 0.0f, 3.0f);
+        Camera camera = Camera(Transform(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)), 
+        90.0f, 16.0f/9.0f, 100.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
-        glm::mat4 cameraMatrix = glm::lookAt(cameraPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0, 1, 0)); // Look into Unity-style camera handling (position, rotation based)
-        //cameraMatrix = glm::translate(glm::mat4(), cameraPosition);
-
-        glm::mat4 viewMatrix = cameraMatrix; // TODO: Try making this based on inverse transform matrix of camera (ignoring scale)
-
-        float cameraFov = 90.0f;
-        float aspectRatio = 16.0f / 9.0f;
-
-        glm::mat4 projectionMatrix = glm::perspective(
-            glm::radians(cameraFov), // The vertical Field of View, in radians: the amount of "zoom". Think "camera lens". Usually between 90° (extra wide) and 30° (quite zoomed in)
-            aspectRatio,             // Aspect Ratio. Depends on the size of your window. Notice that 4/3 == 800/600 == 1280/960, sounds familiar ?
-            0.1f,                    // Near clipping plane. Keep as big as possible, or you'll get precision issues.
-            100.0f                   // Far clipping plane. Keep as little as possible.
-        );
-
-        glm::mat4 normalMatrix = glm::transpose(glm::inverse(transformationMatrix));
+        glm::mat4 normalMatrix = glm::transpose(transform.GetMatrixInverse());
 
         //glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
 
@@ -150,9 +135,9 @@ int main()
         glUseProgram(shaderProgram);
         model.Bind();
 
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(transformationMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
+        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(camera.GetProjectionMatrix()));
         glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
 
         glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(glm::vec3(3.0f, 0.0f, 3.0f))); // point light

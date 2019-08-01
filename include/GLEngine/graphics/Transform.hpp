@@ -26,7 +26,16 @@ public:
     glm::vec3 GetRotation() const; // 0 - 360 (degrees)
     //glm::quat GetRotation() const;
     glm::vec3 GetScale() const;
+
+    glm::vec3 Forward();
+    //glm::vec3 Up();
+
+    glm::vec3 ForwardOfInverse(); // Forward based on inverse transformation matrix
+    //glm::vec3 UpOfInverse(); // Up based on inverse transformation matrix
+
     glm::mat4 GetMatrix();
+    glm::mat4 GetMatrixInverse();
+    void RecalcTransformationMatrix(); // Note that this will be automatically run
 
     static glm::mat4 CreateTransformationMatrix(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
     //static glm::mat4 CreateTransformationMatrix(const glm::vec3 &position, const glm::quat &rotation, const glm::vec3 &scale);
@@ -40,6 +49,7 @@ private:
     glm::vec3 m_rotation;
     glm::vec3 m_scale;
     glm::mat4 m_transformationMatrix;
+    glm::mat4 m_inverseTransformationMatrix;
 
     bool m_transformationMatrixNeedsRecalc;
 };

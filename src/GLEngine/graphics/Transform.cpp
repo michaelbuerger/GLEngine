@@ -79,19 +79,48 @@ glm::vec3 Transform::GetScale() const
 {
     return m_scale;
 }
+
+glm::vec3 Transform::Forward() {
+    return glm::normalize(glm::vec3(this->GetMatrix()[2]));
+}
+/*glm::vec3 Transform::Up() {
+
+}*/
+
+glm::vec3 Transform::ForwardOfInverse() {
+    return glm::normalize(glm::vec3(this->GetMatrixInverse()[2]));
+}
+/*glm::vec3 Transform::UpOfInverse() {
+
+}*/
+
 glm::mat4 Transform::GetMatrix()
 {
     if (m_transformationMatrixNeedsRecalc)
     {
-        glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), m_position);
-        glm::mat4 rotationMatrix = glm::toMat4(eulerToQuat(glm::radians(m_rotation)));
-        glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), m_scale);
-
-        m_transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
+        RecalcTransformationMatrix();
         m_transformationMatrixNeedsRecalc = false;
     }
 
     return m_transformationMatrix;
+}
+
+glm::mat4 Transform::GetMatrixInverse() {
+    if(m_transformationMatrixNeedsRecalc)
+    {
+        RecalcTransformationMatrix();
+        m_transformationMatrixNeedsRecalc = false;
+    }
+    return m_inverseTransformationMatrix;
+}
+
+void Transform::RecalcTransformationMatrix() {
+    glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), m_position);
+    glm::mat4 rotationMatrix = glm::toMat4(eulerToQuat(glm::radians(m_rotation)));
+    glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), m_scale);
+
+    m_transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
+    m_inverseTransformationMatrix = glm::inverse(m_transformationMatrix);
 }
 
 } // namespace GLEngine
