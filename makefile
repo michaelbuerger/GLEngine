@@ -34,7 +34,7 @@ valgrind:
 
 line-count:
 	@echo "Getting line count of all project files (no 3rd party libraries etc.)..."
-	cloc src/GLEngine/ include/GLEngine/ examples/ doc/ CMakeLists.txt makefile README.md .gitignore
+	cloc src/GLEngine/ include/GLEngine/ examples/ docs/ CMakeLists.txt makefile README.md .gitignore mkdocs.yml
 
 line-count-all:
 	@echo "Getting line count of all files, including 3rd party libraries..."
