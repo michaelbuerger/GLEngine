@@ -35,6 +35,7 @@ public:
 
     glm::mat4 GetMatrix();
     glm::mat4 GetMatrixInverse();
+    glm::mat4 GetNormalMatrix();
     void RecalcTransformationMatrix(); // Note that this will be automatically run
 
     static glm::mat4 CreateTransformationMatrix(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
@@ -50,6 +51,7 @@ private:
     glm::vec3 m_scale;
     glm::mat4 m_transformationMatrix;
     glm::mat4 m_inverseTransformationMatrix;
+    glm::mat4 m_normalMatrix;
 
     bool m_transformationMatrixNeedsRecalc;
 };

@@ -114,6 +114,16 @@ glm::mat4 Transform::GetMatrixInverse() {
     return m_inverseTransformationMatrix;
 }
 
+glm::mat4 Transform::GetNormalMatrix()
+{
+    if(m_transformationMatrixNeedsRecalc)
+    {
+        RecalcTransformationMatrix();
+        m_transformationMatrixNeedsRecalc = false;
+    }
+    return m_normalMatrix;
+}
+
 void Transform::RecalcTransformationMatrix() {
     glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), m_position);
     glm::mat4 rotationMatrix = glm::toMat4(eulerToQuat(glm::radians(m_rotation)));
@@ -121,6 +131,7 @@ void Transform::RecalcTransformationMatrix() {
 
     m_transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
     m_inverseTransformationMatrix = glm::inverse(m_transformationMatrix);
+    m_normalMatrix = glm::transpose(m_inverseTransformationMatrix);
 }
 
 } // namespace GLEngine

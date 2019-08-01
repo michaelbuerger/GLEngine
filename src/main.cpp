@@ -12,6 +12,7 @@
 #include "GLEngine/graphics/ModelHandler.hpp"
 #include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/graphics/Camera.hpp"
+#include "GLEngine/graphics/ShaderProgram.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/math/math.hpp"
 
@@ -106,9 +107,9 @@ int main()
 
     Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), testTexture);
 
-    GLuint shaderProgram = CreateShaderProgramFromAddresses(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
+    ShaderProgram shaderProgram = ShaderProgram(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
-    glfwMakeContextCurrent(window); // Note: Only dependance on this line is glDrawElements/glDrawArrays <-- fact check
+    glfwMakeContextCurrent(window); // TODO: Figure out dependance on this line (like what code needs the context)
 
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -126,21 +127,17 @@ int main()
         Camera camera = Camera(Transform(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)), 
         90.0f, 16.0f/9.0f, 100.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
-        glm::mat4 normalMatrix = glm::transpose(transform.GetMatrixInverse());
-
-        //glm::mat4 mvpMatrix = projectionMatrix * (viewMatrix * transformationMatrix);
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
+        shaderProgram.Bind();
         model.Bind();
 
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(transform.GetMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(camera.GetViewMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "projectionMatrix"), 1, GL_FALSE, glm::value_ptr(camera.GetProjectionMatrix()));
-        glUniformMatrix4fv(glGetUniformLocation(shaderProgram, "normalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+        shaderProgram.Uniform("modelMatrix", transform.GetMatrix());
+        shaderProgram.Uniform("viewMatrix", camera.GetViewMatrix());
+        shaderProgram.Uniform("projectionMatrix", camera.GetProjectionMatrix());
+        shaderProgram.Uniform("normalMatrix", transform.GetNormalMatrix());
+        shaderProgram.Uniform("pointLightPosition", glm::vec3(3.0f, 0.0f, 3.0f));
 
-        glUniform3fv(glGetUniformLocation(shaderProgram, "pointLightPosition"), 1, glm::value_ptr(glm::vec3(3.0f, 0.0f, 3.0f))); // point light
         // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
         glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
