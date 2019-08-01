@@ -59,7 +59,7 @@ https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glv
 
 int main()
 {
-    Log::Init();
+    Log::Init(spdlog::level::trace);
     CPPML::Log::Init(spdlog::level::trace);
 
     WindowHandler windowHandler = WindowHandler();
