@@ -46,13 +46,4 @@ void ShaderProgram::Bind()
 {
     glUseProgram(m_ID);
 }
-void ShaderProgram::Unbind()
-{
-    glUseProgram(0);
-}
-
-GLuint ShaderProgram::GetID()
-{
-    return m_ID;
-}
 }

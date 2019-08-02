@@ -3,21 +3,29 @@
 in vec2 texCoord;
 in vec3 normal;
 
-in vec3 pointLightPos;
-
 in vec3 fragPos;
 
 out vec4 fragColor;
 
+uniform vec3 color;
 uniform sampler2D texture2D;
+uniform float shininess;
+
+in vec3 pointLightPos;
+uniform float lightStrength = 1.0;
+uniform vec3 lightColor = vec3(1.0, 1.0, 1.0);
+uniform float ambientStrength = 0.15;
+uniform float diffuseStrength = 0.7;
+uniform float specularStrength = 0.15;
 
 void main()
 {
+  float lightStrength = 1.0;
+  vec3 lightColor = vec3(1.0, 1.0, 1.0);
   float ambientStrength = 0.15;
   float diffuseStrength = 0.7;
   float specularStrength = 0.15;
   float shininess = 1; // lower -> higher = rougher to smoother
-  vec3 lightColor = vec3(1.0, 1.0, 1.0);
   bool unlit = false;
 
   // Ambient
