@@ -5,6 +5,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include <string>
+
 namespace GLEngine
 {
 
@@ -20,6 +22,7 @@ public:
     //void SetRotation(const glm::quat &rotation);
     void SetScale(const glm::vec3 &scale);
 
+    void Translate(const glm::vec3 &translation);
     void Rotate(const glm::vec3 &rotation); // 0 - 360 (degrees)
 
     glm::vec3 GetPosition() const;
@@ -44,6 +47,8 @@ public:
     static glm::mat4 CreateRotationMatrix(const glm::vec3 &rotation);
     //static glm::mat4 CreateRotationMatrix(const glm::quat &rotation);
     static glm::mat4 CreateScaleMatrix(const glm::vec3 &scale);
+
+    std::string DebugStr();
 
 private:
     glm::vec3 m_position;

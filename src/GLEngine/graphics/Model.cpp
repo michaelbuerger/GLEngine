@@ -36,17 +36,35 @@ GLuint Model::GetVertexCount() const
     return m_vertexCount;
 }
 
+void Model::BindVAO() const
+{
+    glBindVertexArray(m_vao);
+}
+void Model::UnbindVAO() const
+{
+    glBindVertexArray(0);
+}
+
+void Model::BindTexture() const
+{
+    m_texture->Bind();
+}
+void Model::UnbindTexture() const
+{
+    m_texture->Unbind();
+}
+
 /* Bind vao and texture */
 void Model::Bind() const
 {
-    glBindVertexArray(m_vao);
-    m_texture->Bind();
+    this->BindVAO();
+    this->BindTexture();
 }
 /* Unbind vao and texture */
 void Model::Unbind() const
 {
-    glBindVertexArray(0);
-    m_texture->Unbind();
+    this->UnbindVAO();
+    this->UnbindTexture();
 }
 
 } // namespace GLEngine

@@ -7,52 +7,121 @@ in vec3 fragPos;
 
 out vec4 fragColor;
 
-uniform vec3 color;
-uniform sampler2D texture2D;
-uniform float shininess;
+struct Material
+{
+  sampler2D diffuseMap;
+  sampler2D specularMap;
+  vec3 color; // !!! ignored right now !!!
+  float shininess; // Doesn't matter if unlit == false
+  bool useTexture; // !!! ignored right now !!!
+  bool unlit; // !!! ignored right now !!!
+};
 
-in vec3 pointLightPos;
-uniform float lightStrength = 1.0;
-uniform vec3 lightColor = vec3(1.0, 1.0, 1.0);
-uniform float ambientStrength = 0.15;
-uniform float diffuseStrength = 0.7;
-uniform float specularStrength = 0.15;
+uniform mat4 viewMatrix; // Inverse of camera's transform
+
+struct DirectionalLight
+{
+  vec3 direction;
+  vec3 color;
+  vec3 ambientMultiplier;
+  vec3 diffuseMultiplier;
+  vec3 specularMultiplier;
+};
+
+struct PointLight // make array for every element
+{
+  vec3 position;
+  vec3 color;
+  vec3 ambientMultiplier;
+  vec3 diffuseMultiplier;
+  vec3 specularMultiplier;
+
+  float constant; // attenuation stuff
+  float linear;
+  float quadratic; 
+};
+
+#define NUM_DIRECTIONAL_LIGHTS 1
+#define NUM_POINT_LIGHTS 3
+
+uniform Material material;
+
+uniform DirectionalLight directionalLight[NUM_DIRECTIONAL_LIGHTS];
+uniform PointLight pointLight[NUM_POINT_LIGHTS];
+
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
+vec3 CalcPointLight(PointLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
 
 void main()
 {
-  float lightStrength = 1.0;
-  vec3 lightColor = vec3(1.0, 1.0, 1.0);
-  float ambientStrength = 0.15;
-  float diffuseStrength = 0.7;
-  float specularStrength = 0.15;
-  float shininess = 1; // lower -> higher = rougher to smoother
-  bool unlit = false;
+  vec3 ambientColor;
+  vec3 diffuseColor;
+  vec3 specularColor;
+
+  ambientColor = vec3(texture(material.diffuseMap, texCoord));
+  diffuseColor = vec3(texture(material.diffuseMap, texCoord));
+  specularColor = vec3(texture(material.specularMap, texCoord));
+
+  vec3 result;
+
+  for(int i=0; i < NUM_DIRECTIONAL_LIGHTS; i++)
+  {
+    result += CalcDirectionalLight(directionalLight[i], ambientColor, diffuseColor, specularColor);
+  }
+
+  for(int i=0; i < NUM_POINT_LIGHTS; i++)
+  {
+    //result += CalcPointLight(pointLight[i], ambientColor, diffuseColor, specularColor);
+  }
+
+  fragColor = vec4(result, 1.0);
+}
+
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor)
+{
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+  
+  vec3 lightDirection = normalize(-light.direction);
+  // Diffuse
+  float diff = max(dot(normalize(normal), lightDirection), 0.0);
+  // Specular
+  vec3 viewDirection = normalize(vec3(0, 0, 0) - fragPos); // Note 0, 0, 0 is the camera/viewer's position as lighting variables are transformed into model-view space
+  vec3 reflectDirection = reflect(-lightDirection, normal);
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), material.shininess);
+
+  ambient = light.ambientMultiplier * ambientColor;
+  diffuse = light.diffuseMultiplier * diff * diffuseColor;
+  specular = light.specularMultiplier * spec * specularColor;
+
+  return (ambient + diffuse + specular);
+}  
+
+vec3 CalcPointLight(PointLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor)
+{
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
 
   // Ambient
-  vec3 ambient = ambientStrength * lightColor;
+  ambient = light.ambientMultiplier * vec3(ambientColor) * light.color;
 
   // Diffuse
-  vec3 lightDirection = normalize(pointLightPos - fragPos); 
+  vec3 lightDirection = normalize(vec3(viewMatrix * vec4(light.position, 1.0)) - fragPos); 
   vec3 normalizedNormal = normalize(normal);
   // Note: lightDirection is slightly misleading because it is actually a direction vector from the fragPos to the point light
   float diff = max(dot(normalizedNormal, lightDirection), 0.0);
-  vec3 diffuse = diffuseStrength * diff * lightColor;
+  diffuse = light.diffuseMultiplier * vec3(diffuseColor) * diff * light.color;
 
   // Specular
   vec3 viewDirection = normalize(vec3(0, 0, 0) - fragPos); // Note 0, 0, 0 is the camera/viewer's position as lighting variables are transformed into model-view space
   vec3 reflectDirection = reflect(-lightDirection, normalizedNormal);
-  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), shininess);
-  vec3 specular = specularStrength * spec * lightColor;
+  float spec = pow(max(dot(viewDirection, reflectDirection), 0.0), material.shininess);
+  specular = light.specularMultiplier * vec3(specularColor) * spec * light.color;
 
-  vec3 lighting = ambient + diffuse + specular;
+  float distance = length(light.position - fragPos);
+  float attenuation = 1.0 / (light.constant + light.linear * distance + light.quadratic * (distance * distance));  
 
-  if(!unlit) {
-    fragColor = vec4(lighting, 1.0) * texture(texture2D, texCoord);
-  } else {
-    fragColor = texture(texture2D, texCoord);
-  }
-}
-
-
-
-
+  return (ambient + diffuse + specular) * attenuation;
+} 

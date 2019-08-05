@@ -7,6 +7,8 @@
 #include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/math/math.hpp"
 
+#include <string>
+
 namespace GLEngine
 {
 
@@ -41,6 +43,10 @@ void Transform::SetScale(const glm::vec3 &scale)
     m_scale = scale;
 }
 
+void Transform::Translate(const glm::vec3 &translation)
+{
+    this->SetPosition(this->GetPosition() + translation);
+}
 void Transform::Rotate(const glm::vec3 &rotation) // 0 - 360 (degrees)
 {
     this->SetRotation(this->GetRotation() + rotation);
@@ -132,6 +138,35 @@ void Transform::RecalcTransformationMatrix() {
     m_transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
     m_inverseTransformationMatrix = glm::inverse(m_transformationMatrix);
     m_normalMatrix = glm::transpose(m_inverseTransformationMatrix);
+}
+
+std::string Transform::DebugStr() {
+    std::string str = "";
+    str.append("[");
+    str.append(std::to_string(m_position.x));
+    str.append(", ");
+    str.append(std::to_string(m_position.y));
+    str.append(", ");
+    str.append(std::to_string(m_position.z));
+    str.append("], ");
+
+    str.append("[");
+    str.append(std::to_string(m_rotation.x));
+    str.append(", ");
+    str.append(std::to_string(m_rotation.y));
+    str.append(", ");
+    str.append(std::to_string(m_rotation.z));
+    str.append("], ");
+
+    str.append("[");
+    str.append(std::to_string(m_scale.x));
+    str.append(", ");
+    str.append(std::to_string(m_scale.y));
+    str.append(", ");
+    str.append(std::to_string(m_scale.z));
+    str.append("]");
+
+    return str;
 }
 
 } // namespace GLEngine

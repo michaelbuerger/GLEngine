@@ -21,23 +21,27 @@ ShaderProgram::ShaderProgram(const GLchar *vertexShaderAddress, const char *frag
     m_ID = CreateShaderProgramFromAddresses(vertexShaderAddress, fragmentShaderAddress);
 }
 
-void ShaderProgram::Uniform(const GLchar* name, const GLfloat &value) const
-{
-    glUniform1f(glGetUniformLocation(m_ID, name), value);
-}
-void ShaderProgram::Uniform(const GLchar* name, const GLint &value) const
+void ShaderProgram::UniformBool(const GLchar* name, const bool &value) const
 {
     glUniform1i(glGetUniformLocation(m_ID, name), value);
 }
-void ShaderProgram::Uniform(const GLchar* name, const GLuint &value) const
+void ShaderProgram::UniformFloat(const GLchar* name, const GLfloat &value) const
+{
+    glUniform1f(glGetUniformLocation(m_ID, name), value);
+}
+void ShaderProgram::UniformInt(const GLchar* name, const GLint &value) const
+{
+    glUniform1i(glGetUniformLocation(m_ID, name), value);
+}
+void ShaderProgram::UniformUint(const GLchar* name, const GLuint &value) const
 {
     glUniform1ui(glGetUniformLocation(m_ID, name), value);
 }
-void ShaderProgram::Uniform(const GLchar* name, const glm::vec3 &value) const
+void ShaderProgram::UniformVec3(const GLchar* name, const glm::vec3 &value) const
 {
     glUniform3fv(glGetUniformLocation(m_ID, name), 1, glm::value_ptr(value));
 }
-void ShaderProgram::Uniform(const GLchar* name, const glm::mat4 &value) const
+void ShaderProgram::UniformMat4(const GLchar* name, const glm::mat4 &value) const
 {
     glUniformMatrix4fv(glGetUniformLocation(m_ID, name), 1, GL_FALSE, glm::value_ptr(value));
 }

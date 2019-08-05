@@ -23,6 +23,12 @@ public:
     const std::shared_ptr<Texture> &GetTexture() const;
     GLuint GetVertexCount() const;
 
+    void BindVAO() const;
+    void UnbindVAO() const;
+
+    void BindTexture() const;
+    void UnbindTexture() const;
+
     /* Bind vao and texture */
     void Bind() const;
     /* Unbind vao and texture */

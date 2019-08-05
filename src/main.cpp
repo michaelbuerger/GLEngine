@@ -15,6 +15,7 @@
 #include "GLEngine/graphics/ShaderProgram.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/math/math.hpp"
+#include "GLEngine/input/Input.hpp"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -94,10 +95,12 @@ int main()
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    std::shared_ptr<Texture> testTexture;
+    // Note: Diffuse map is multiplied by ambient and diffuse lighting, Specular is only for specular
+    // Diffuse map can be used for both maps and it would be effectively equivalent to the old kind of texture handling
+    std::shared_ptr<Texture> diffuseMap;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        testTexture = std::make_shared<Texture>("textures/test-texture.png", STBI_rgb, true);
+        diffuseMap = std::make_shared<Texture>("textures/container-diffuse.png", GL_TEXTURE0, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -105,7 +108,18 @@ int main()
         exit(-1);
     }
 
-    Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), testTexture);
+    std::shared_ptr<Texture> specularMap;
+    try
+    { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
+        specularMap = std::make_shared<Texture>("textures/container-specular.png", GL_TEXTURE1, STBI_rgb, true);
+    }
+    catch (std::exception &e)
+    {
+        std::cout << e.what() << std::endl;
+        exit(-1);
+    }
+
+    Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), diffuseMap);
 
     ShaderProgram shaderProgram = ShaderProgram(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -117,31 +131,107 @@ int main()
     glDepthFunc(GL_LESS);
 
     Transform transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Camera camera = Camera(Transform(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)), 
+        90.0f, 16.0f/9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())
     {
-        transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
+        //transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
 
-        Camera camera = Camera(Transform(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)), 
-        90.0f, 16.0f/9.0f, 100.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if(KeyPressed(window, GLE_KEY_A))
+        {
+            camera.transform.Translate(glm::vec3(-0.03f, 0.0f, 0.0f));
+        } else if(KeyPressed(window, GLE_KEY_D))
+        {
+            camera.transform.Translate(glm::vec3(0.03f, 0.0f, 0.0f));
+        }
+        if(KeyPressed(window, GLE_KEY_W))
+        {
+            camera.transform.Translate(glm::vec3(0.0f, 0.0f, -0.3f));
+        } else if(KeyPressed(window, GLE_KEY_S))
+        {
+            camera.transform.Translate(glm::vec3(0.0f, 0.0f, 0.3f));
+        }
+        if(KeyPressed(window, GLE_KEY_Q))
+        {
+            camera.transform.Rotate(glm::vec3(0.0f, 1.0f, 0.0f));
+        } else if(KeyPressed(window, GLE_KEY_E))
+        {
+            camera.transform.Rotate(glm::vec3(0.0f, -1.0f, 0.0f));
+        }
 
         shaderProgram.Bind();
         model.Bind();
+        specularMap->Bind();
 
-        shaderProgram.Uniform("modelMatrix", transform.GetMatrix());
-        shaderProgram.Uniform("viewMatrix", camera.GetViewMatrix());
-        shaderProgram.Uniform("projectionMatrix", camera.GetProjectionMatrix());
-        shaderProgram.Uniform("normalMatrix", transform.GetNormalMatrix());
-        shaderProgram.Uniform("pointLightPosition", glm::vec3(3.0f, 0.0f, 3.0f));
+        shaderProgram.UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
+        shaderProgram.UniformMat4("viewMatrix", camera.GetViewMatrix());
 
-        // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
-        glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
+        shaderProgram.UniformUint("pointLightCount", 3);
+        shaderProgram.UniformUint("directionalLightCount", 1);
+
+        // Point lights
+        shaderProgram.UniformVec3("pointLight[0].position", glm::vec3(1.2f, 1.0f, 2.0f));
+        shaderProgram.UniformVec3("pointLight[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
+        shaderProgram.UniformVec3("pointLight[0].ambientMultiplier", glm::vec3(0.2f, 0.2f, 0.2f));
+        shaderProgram.UniformVec3("pointLight[0].diffuseMultiplier", glm::vec3(0.5f, 0.5f, 0.5f));
+        shaderProgram.UniformVec3("pointLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
+        shaderProgram.UniformFloat("pointLight[0].constant", 1);
+        shaderProgram.UniformFloat("pointLight[0].linear", 0.0014);
+        shaderProgram.UniformFloat("pointLight[0].quadratic", 0.000007);
+
+        shaderProgram.UniformVec3("pointLight[1].position", glm::vec3(1.2f, 1.0f, 2.0f));
+        shaderProgram.UniformVec3("pointLight[1].color", glm::vec3(1.0f, 1.0f, 1.0f));
+        shaderProgram.UniformVec3("pointLight[1].ambientMultiplier", glm::vec3(0.2f, 0.2f, 0.2f));
+        shaderProgram.UniformVec3("pointLight[1].diffuseMultiplier", glm::vec3(0.5f, 0.5f, 0.5f));
+        shaderProgram.UniformVec3("pointLight[1].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
+        shaderProgram.UniformFloat("pointLight[1].constant", 1);
+        shaderProgram.UniformFloat("pointLight[1].linear", 0.0014);
+        shaderProgram.UniformFloat("pointLight[1].quadratic", 0.000007);
+
+        shaderProgram.UniformVec3("pointLight[2].position", glm::vec3(1.2f, 1.0f, 2.0f));
+        shaderProgram.UniformVec3("pointLight[2].color", glm::vec3(1.0f, 1.0f, 1.0f));
+        shaderProgram.UniformVec3("pointLight[2].ambientMultiplier", glm::vec3(0.2f, 0.2f, 0.2f));
+        shaderProgram.UniformVec3("pointLight[2].diffuseMultiplier", glm::vec3(0.5f, 0.5f, 0.5f));
+        shaderProgram.UniformVec3("pointLight[2].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
+        shaderProgram.UniformFloat("pointLight[2].constant", 1);
+        shaderProgram.UniformFloat("pointLight[2].linear", 0.0014);
+        shaderProgram.UniformFloat("pointLight[2].quadratic", 0.000007);
+
+        // Directional lights
+        shaderProgram.UniformVec3("directionalLight[0].direction", glm::vec3(1.2f, 1.0f, 2.0f));
+        shaderProgram.UniformVec3("directionalLight[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
+        shaderProgram.UniformVec3("directionalLight[0].ambientMultiplier", glm::vec3(0.2f, 0.2f, 0.2f));
+        shaderProgram.UniformVec3("directionalLight[0].diffuseMultiplier", glm::vec3(0.5f, 0.5f, 0.5f));
+        shaderProgram.UniformVec3("directionalLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        // Material
+        shaderProgram.UniformInt("material.diffuseMap", 0);
+        shaderProgram.UniformInt("material.specularMap", 1);
+        shaderProgram.UniformVec3("material.color", glm::vec3(1.0f, 0.0f, 0.0f));
+        shaderProgram.UniformFloat("material.shininess", 64);
+        shaderProgram.UniformBool("material.useTexture", GL_TRUE);
+        shaderProgram.UniformBool("material.unlit", GL_FALSE);
+
+        for(unsigned int i = 0; i < 10; i++)
+        {
+            transform.SetPosition(glm::vec3(i*2, i*2, i*2));
+            transform.SetRotation(glm::vec3(20.0f*i, 20.0f*i, 20.0f*i));
+
+            shaderProgram.UniformMat4("modelMatrix", transform.GetMatrix());
+            shaderProgram.UniformMat4("normalMatrix", transform.GetNormalMatrix());
+
+            // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
+            glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
+        }
 
         glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
     }
 

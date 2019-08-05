@@ -16,11 +16,12 @@ public:
     ShaderProgram(const GLuint &vertexShaderID, const GLuint &fragmentShaderID, const bool &shouldDeleteShaders);
     ShaderProgram(const GLchar *vertexShaderAddress, const char *fragmentShaderAddress);
 
-    void Uniform(const GLchar* name, const GLfloat &value) const;
-    void Uniform(const GLchar* name, const GLint &value) const;
-    void Uniform(const GLchar* name, const GLuint &value) const;
-    void Uniform(const GLchar* name, const glm::vec3 &value) const;
-    void Uniform(const GLchar* name, const glm::mat4 &value) const;
+    void UniformBool(const GLchar* name, const bool &value) const;
+    void UniformFloat(const GLchar* name, const GLfloat &value) const;
+    void UniformInt(const GLchar* name, const GLint &value) const;
+    void UniformUint(const GLchar* name, const GLuint &value) const;
+    void UniformVec3(const GLchar* name, const glm::vec3 &value) const;
+    void UniformMat4(const GLchar* name, const glm::mat4 &value) const;
 
     void Bind();
     void Unbind();

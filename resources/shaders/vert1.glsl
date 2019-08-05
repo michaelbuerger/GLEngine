@@ -9,12 +9,8 @@ uniform mat4 viewMatrix; // Inverse of camera's transform
 uniform mat4 projectionMatrix; // Projection or orthographic, for scaling based on distance from camera
 uniform mat4 normalMatrix;
 
-uniform vec3 pointLightPosition; // TODO: Add functionality for multiple lights
-
 out vec2 texCoord;
 out vec3 normal;
-
-out vec3 pointLightPos;
 
 out vec3 fragPos; // position of vertex in modelSpace. TODO: Find out if OpenGL interpolates these per fragment
 
@@ -24,8 +20,6 @@ void main()
 
   texCoord = aTexCoord;
   normal = mat3(viewMatrix * normalMatrix) * aNormal;
-
-  pointLightPos = vec3(viewMatrix * vec4(pointLightPosition, 1.0));
 
   fragPos = vec3(viewMatrix * modelMatrix * vec4(aPos, 1.0));
 }

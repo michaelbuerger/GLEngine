@@ -12,19 +12,12 @@ namespace GLEngine
 
 ImageHandler Texture::imageHandler = ImageHandler();
 
-Texture::Texture() // TODO: Implement default constructor to make texture from purple and black
-{
-    this->image = Image();
-    this->GenTextureID();
-    m_texParamNames = std::vector<GLuint>();
-    m_texParamValues = std::vector<GLuint>();
-}
-
 /* Load texture from resources */
-Texture::Texture(const char *address, const int &loadFormat, const bool &shouldGenerateMipmaps)
+Texture::Texture(const char *address, const GLuint &textureSlot, const int &loadFormat, const bool &shouldGenerateMipmaps)
 {
     this->image = Texture::imageHandler.LoadImageFromAddress(ResPathRelative(address).c_str(), loadFormat, true);
     this->GenTextureID();
+    m_textureSlot = textureSlot;
     this->Create(shouldGenerateMipmaps);
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
@@ -33,26 +26,31 @@ Texture::Texture(const Texture &texture)
 {
     this->image = texture.GetImage();
     this->textureID = texture.GetGLID();
+    m_textureSlot = texture.GetTextureSlot();
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
 }
 
 /* Creates texture from previously loaded image data */
-Texture::Texture(const Image &image, const bool &shouldGenerateMipmaps)
+Texture::Texture(const Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps)
 {
     this->image = image;
     GenTextureID();
+    m_textureSlot = textureSlot;
     this->Create(shouldGenerateMipmaps);
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
 }
 
+/* Texture bind will only override another if it is on the same texture slot */
 void Texture::Bind() const
 {
+    glActiveTexture(m_textureSlot);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
 }
 void Texture::Unbind() const
 {
+    glActiveTexture(m_textureSlot);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -83,6 +81,32 @@ void Texture::SetIntParameters(const std::vector<GLuint> &texParamNames, const s
     }
 }
 
+/* Get OpenGL texture ID */
+GLuint Texture::GetGLID() const
+{
+    return this->textureID;
+}
+
+Image Texture::GetImage() const
+{
+    return this->image;
+}
+
+GLuint Texture::GetTextureSlot() const
+{
+    return m_textureSlot;
+}
+
+void Texture::GenTextureID()
+{
+    glGenTextures(1, &this->textureID);
+    if (this->textureID == 0)
+    {
+        std::cout << "Could not generate texture ID" << std::endl;
+        // Update to use logging and handle other possible errors (request error log from OpenGL)
+    }
+}
+
 void Texture::Create(const bool &shouldGenerateMipmaps)
 {
     if (this->textureID != 0)
@@ -109,27 +133,6 @@ void Texture::Create(const bool &shouldGenerateMipmaps)
     // Googled cause = trying to free pointer that wasn't allocated with malloc (might even be stack allocated)
     // For now this might cause memory leaks but it is in debug mode so that's not a real issue
     // Look into this
-}
-
-/* Get OpenGL texture ID */
-GLuint Texture::GetGLID() const
-{
-    return this->textureID;
-}
-
-Image Texture::GetImage() const
-{
-    return this->image;
-}
-
-void Texture::GenTextureID()
-{
-    glGenTextures(1, &this->textureID);
-    if (this->textureID == 0)
-    {
-        std::cout << "Could not generate texture ID" << std::endl;
-        // Update to use logging and handle other possible errors (request error log from OpenGL)
-    }
 }
 
 Texture::~Texture()
