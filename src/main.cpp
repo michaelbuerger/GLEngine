@@ -95,6 +95,25 @@ int main()
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
+    /* --- --- */
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(2.0f, 5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f, 3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f, 2.0f, -2.5f),
+        glm::vec3(1.5f, 0.2f, -1.5f),
+        glm::vec3(-1.3f, 1.0f, -1.5f)};
+
+    glm::vec3 pointLightPositions[] = {
+        glm::vec3(0.7f, 0.2f, 2.0f),
+        glm::vec3(2.3f, -3.3f, -4.0f),
+        glm::vec3(-4.0f, 2.0f, -12.0f),
+        glm::vec3(0.0f, 0.0f, -3.0f)};
+
     // Note: Diffuse map is multiplied by ambient and diffuse lighting, Specular is only for specular
     // Diffuse map can be used for both maps and it would be effectively equivalent to the old kind of texture handling
     std::shared_ptr<Texture> diffuseMap;
@@ -118,25 +137,6 @@ int main()
         std::cout << e.what() << std::endl;
         exit(-1);
     }
-
-    /* --- --- */
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)};
-
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3(0.7f, 0.2f, 2.0f),
-        glm::vec3(2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f, 2.0f, -12.0f),
-        glm::vec3(0.0f, 0.0f, -3.0f)};
 
     Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), diffuseMap);
 
@@ -193,9 +193,8 @@ int main()
 
         // Point lights
         shaderProgram.UniformVec3("pointLight[0].position", pointLightPositions[0]);
-        shaderProgram.UniformVec3("pointLight[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
         shaderProgram.UniformVec3("pointLight[0].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[0].diffuseMultiplier", glm::vec3(0.8f, 0.8f, 0.8f));
+        shaderProgram.UniformVec3("pointLight[0].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
         shaderProgram.UniformVec3("pointLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
         // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
         shaderProgram.UniformFloat("pointLight[0].constant", 1.0f);
@@ -203,9 +202,8 @@ int main()
         shaderProgram.UniformFloat("pointLight[0].quadratic", 0.032f);
 
         shaderProgram.UniformVec3("pointLight[1].position", pointLightPositions[1]);
-        shaderProgram.UniformVec3("pointLight[1].color", glm::vec3(1.0f, 1.0f, 1.0f));
         shaderProgram.UniformVec3("pointLight[1].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[1].diffuseMultiplier", glm::vec3(0.8f, 0.8f, 0.8f));
+        shaderProgram.UniformVec3("pointLight[1].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
         shaderProgram.UniformVec3("pointLight[1].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
         // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
         shaderProgram.UniformFloat("pointLight[1].constant", 1.0f);
@@ -213,9 +211,8 @@ int main()
         shaderProgram.UniformFloat("pointLight[1].quadratic", 0.032f);
 
         shaderProgram.UniformVec3("pointLight[2].position", pointLightPositions[2]);
-        shaderProgram.UniformVec3("pointLight[2].color", glm::vec3(1.0f, 1.0f, 1.0f));
         shaderProgram.UniformVec3("pointLight[2].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[2].diffuseMultiplier", glm::vec3(0.8f, 0.8f, 0.8f));
+        shaderProgram.UniformVec3("pointLight[2].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
         shaderProgram.UniformVec3("pointLight[2].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
         // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
         shaderProgram.UniformFloat("pointLight[2].constant", 1.0f);
@@ -223,9 +220,8 @@ int main()
         shaderProgram.UniformFloat("pointLight[2].quadratic", 0.032f);
 
         shaderProgram.UniformVec3("pointLight[3].position", pointLightPositions[3]);
-        shaderProgram.UniformVec3("pointLight[3].color", glm::vec3(1.0f, 1.0f, 1.0f));
         shaderProgram.UniformVec3("pointLight[3].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[3].diffuseMultiplier", glm::vec3(0.8f, 0.8f, 0.8f));
+        shaderProgram.UniformVec3("pointLight[3].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
         shaderProgram.UniformVec3("pointLight[3].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
         // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
         shaderProgram.UniformFloat("pointLight[3].constant", 1.0f);
@@ -234,10 +230,22 @@ int main()
 
         // Directional lights
         shaderProgram.UniformVec3("directionalLight[0].direction", glm::vec3(1.2f, 1.0f, 2.0f));
-        shaderProgram.UniformVec3("directionalLight[0].color", glm::vec3(1.0f, 1.0f, 1.0f));
-        shaderProgram.UniformVec3("directionalLight[0].ambientMultiplier", glm::vec3(0.2f, 0.2f, 0.2f));
-        shaderProgram.UniformVec3("directionalLight[0].diffuseMultiplier", glm::vec3(0.5f, 0.5f, 0.5f));
+        shaderProgram.UniformVec3("directionalLight[0].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
+        shaderProgram.UniformVec3("directionalLight[0].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
         shaderProgram.UniformVec3("directionalLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+
+        // Spot lights
+        shaderProgram.UniformVec3("spotLight[0].position", camera.transform.GetPosition());
+        shaderProgram.UniformVec3("spotLight[0].direction", glm::vec3(0.0f, 0.0f, -1.0f));
+        shaderProgram.UniformFloat("spotLight[0].cutoff", glm::cos(glm::radians(12.5f)));      // cutoff of x degrees
+        shaderProgram.UniformFloat("spotLight[0].cutoffOuter", glm::cos(glm::radians(17.5f))); // cutoff of x degrees
+        shaderProgram.UniformVec3("spotLight[0].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
+        shaderProgram.UniformVec3("spotLight[0].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
+        shaderProgram.UniformVec3("spotLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
+        shaderProgram.UniformFloat("spotLight[0].constant", 1.0f);
+        shaderProgram.UniformFloat("spotLight[0].linear", 0.09f);
+        shaderProgram.UniformFloat("spotLight[0].quadratic", 0.032f);
 
         // Material
         shaderProgram.UniformInt("material.diffuseMap", 0);
@@ -245,7 +253,7 @@ int main()
         model.BindTexture();
         specularMap->Bind();
         shaderProgram.UniformVec3("material.color", glm::vec3(1.0f, 0.0f, 0.0f));
-        shaderProgram.UniformFloat("material.shininess", 64);
+        shaderProgram.UniformFloat("material.shininess", 128);
         shaderProgram.UniformBool("material.useTexture", GL_TRUE);
         shaderProgram.UniformBool("material.unlit", GL_FALSE);
 

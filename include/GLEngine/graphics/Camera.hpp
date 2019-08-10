@@ -3,11 +3,17 @@
 
 #include "GLEngine/graphics/Transform.hpp"
 
-namespace GLEngine {
+namespace GLEngine
+{
 
-enum ProjectionMode { GLE_CAMERA_MODE_PERSPECTIVE, GLE_CAMERA_MODE_ORTHOGRAPHIC };
+enum ProjectionMode
+{
+    GLE_CAMERA_MODE_PERSPECTIVE,
+    GLE_CAMERA_MODE_ORTHOGRAPHIC
+};
 
-class Camera {
+class Camera
+{
 public:
     Camera(const Transform &transform);
     Camera(const Transform &transform, const float &fov, const float &aspectRatio, const float &viewDistance, const ProjectionMode &projectionMode);
@@ -18,13 +24,12 @@ public:
     void SetViewDistance(const float &viewDistance);
     void SetProjectionMode(const ProjectionMode &cameraMode);
 
-    Transform GetTransform() const;
     float GetFov() const;
     float GetAspectRatio() const;
     float GetViewDistance() const;
     ProjectionMode GetProjectionMode() const;
 
-    glm::mat4 GetViewMatrix(); // Inverse of transformation matrix
+    glm::mat4 GetViewMatrix();       // Inverse of transformation matrix
     glm::mat4 GetProjectionMatrix(); // Perspective or Orthographic
 
     Transform transform;
@@ -45,6 +50,6 @@ private:
     void RecalcViewMatrix();
     void RecalcProjectionMatrix();
 };
-}
+} // namespace GLEngine
 
 #endif

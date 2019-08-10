@@ -30,9 +30,11 @@ public:
     //glm::quat GetRotation() const;
     glm::vec3 GetScale() const;
 
+    /* BROKEN */
     glm::vec3 Forward();
     //glm::vec3 Up();
 
+    /* BROKEN */
     glm::vec3 ForwardOfInverse(); // Forward based on inverse transformation matrix
     //glm::vec3 UpOfInverse(); // Up based on inverse transformation matrix
 

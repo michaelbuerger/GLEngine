@@ -16,10 +16,9 @@ out vec3 fragPos; // position of vertex in modelSpace. TODO: Find out if OpenGL 
 
 void main()
 {
-  gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
+  fragPos = vec3(modelMatrix * vec4(aPos, 1.0));
+  gl_Position = projectionMatrix * viewMatrix * vec4(fragPos, 1.0);
 
   texCoord = aTexCoord;
   normal = mat3(normalMatrix) * aNormal;
-
-  fragPos = vec3(modelMatrix * vec4(aPos, 1.0));
 }
