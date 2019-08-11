@@ -14,6 +14,8 @@ class Transform
 {
 public:
     Transform();
+    Transform(const glm::vec3 &position);
+    Transform(const glm::vec3 &position, const glm::vec3 &rotation);
     Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
     //Transform(const glm::vec3 &position, const glm::quat &rotation, const glm::vec3 &scale);
 

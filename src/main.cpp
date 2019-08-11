@@ -13,6 +13,9 @@
 #include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/graphics/Camera.hpp"
 #include "GLEngine/graphics/ShaderProgram.hpp"
+#include "GLEngine/graphics/PointLight.hpp"
+#include "GLEngine/graphics/DirectionalLight.hpp"
+#include "GLEngine/graphics/SpotLight.hpp"
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/math/math.hpp"
 #include "GLEngine/input/Input.hpp"
@@ -187,65 +190,34 @@ int main()
         shaderProgram.Bind();
         model.BindVAO();
 
+        // matrices that don't change with the model transform
         shaderProgram.UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
         shaderProgram.UniformMat4("viewMatrix", camera.GetViewMatrix());
         shaderProgram.UniformVec3("viewPos", camera.transform.GetPosition());
 
+        // Lights generic
+        shaderProgram.UniformInt("directionalLightCount", 1);
+        shaderProgram.UniformInt("pointLightCount", 4);
+        shaderProgram.UniformInt("spotLightCount", 1);
+
         // Point lights
-        shaderProgram.UniformVec3("pointLight[0].position", pointLightPositions[0]);
-        shaderProgram.UniformVec3("pointLight[0].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[0].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
-        shaderProgram.UniformVec3("pointLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
-        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
-        shaderProgram.UniformFloat("pointLight[0].constant", 1.0f);
-        shaderProgram.UniformFloat("pointLight[0].linear", 0.09f);
-        shaderProgram.UniformFloat("pointLight[0].quadratic", 0.032f);
-
-        shaderProgram.UniformVec3("pointLight[1].position", pointLightPositions[1]);
-        shaderProgram.UniformVec3("pointLight[1].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[1].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
-        shaderProgram.UniformVec3("pointLight[1].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
-        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
-        shaderProgram.UniformFloat("pointLight[1].constant", 1.0f);
-        shaderProgram.UniformFloat("pointLight[1].linear", 0.09f);
-        shaderProgram.UniformFloat("pointLight[1].quadratic", 0.032f);
-
-        shaderProgram.UniformVec3("pointLight[2].position", pointLightPositions[2]);
-        shaderProgram.UniformVec3("pointLight[2].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[2].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
-        shaderProgram.UniformVec3("pointLight[2].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
-        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
-        shaderProgram.UniformFloat("pointLight[2].constant", 1.0f);
-        shaderProgram.UniformFloat("pointLight[2].linear", 0.09f);
-        shaderProgram.UniformFloat("pointLight[2].quadratic", 0.032f);
-
-        shaderProgram.UniformVec3("pointLight[3].position", pointLightPositions[3]);
-        shaderProgram.UniformVec3("pointLight[3].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("pointLight[3].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
-        shaderProgram.UniformVec3("pointLight[3].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
-        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
-        shaderProgram.UniformFloat("pointLight[3].constant", 1.0f);
-        shaderProgram.UniformFloat("pointLight[3].linear", 0.09f);
-        shaderProgram.UniformFloat("pointLight[3].quadratic", 0.032f);
+        PointLight pointLight0 = PointLight(pointLightPositions[0], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+        PointLight pointLight1 = PointLight(pointLightPositions[1], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+        PointLight pointLight2 = PointLight(pointLightPositions[2], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+        PointLight pointLight3 = PointLight(pointLightPositions[3], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+        pointLight0.Uniform(shaderProgram, 0);
+        pointLight1.Uniform(shaderProgram, 1);
+        pointLight2.Uniform(shaderProgram, 2);
+        pointLight3.Uniform(shaderProgram, 3);
 
         // Directional lights
-        shaderProgram.UniformVec3("directionalLight[0].direction", glm::vec3(1.2f, 1.0f, 2.0f));
-        shaderProgram.UniformVec3("directionalLight[0].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("directionalLight[0].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
-        shaderProgram.UniformVec3("directionalLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
+        DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
+        directionalLight0.Uniform(shaderProgram, 0);
 
         // Spot lights
-        shaderProgram.UniformVec3("spotLight[0].position", camera.transform.GetPosition());
-        shaderProgram.UniformVec3("spotLight[0].direction", glm::vec3(0.0f, 0.0f, -1.0f));
-        shaderProgram.UniformFloat("spotLight[0].cutoff", glm::cos(glm::radians(12.5f)));      // cutoff of x degrees
-        shaderProgram.UniformFloat("spotLight[0].cutoffOuter", glm::cos(glm::radians(17.5f))); // cutoff of x degrees
-        shaderProgram.UniformVec3("spotLight[0].ambientMultiplier", glm::vec3(0.05f, 0.05f, 0.05f));
-        shaderProgram.UniformVec3("spotLight[0].diffuseMultiplier", glm::vec3(0.7f, 0.7f, 0.7f));
-        shaderProgram.UniformVec3("spotLight[0].specularMultiplier", glm::vec3(1.0f, 1.0f, 1.0f));
-        // http://wiki.ogre3d.org/tiki-index.php?page=-Point+Light+Attenuation
-        shaderProgram.UniformFloat("spotLight[0].constant", 1.0f);
-        shaderProgram.UniformFloat("spotLight[0].linear", 0.09f);
-        shaderProgram.UniformFloat("spotLight[0].quadratic", 0.032f);
+        SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), glm::vec3(0.0f, 0.0f, -1.0f), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+        // if spotLight0 initialization was to be moved out of loop: spotLight0.position = camera.transform.GetPosition();
+        spotLight0.Uniform(shaderProgram, 0);
 
         // Material
         shaderProgram.UniformInt("material.diffuseMap", 0);
@@ -262,6 +234,7 @@ int main()
             transform.SetPosition(cubePositions[i]);
             transform.SetRotation(glm::vec3(20.0f * i, 20.0f * i, 20.0f * i));
 
+            // matrices that do change with the model transform
             shaderProgram.UniformMat4("modelMatrix", transform.GetMatrix());
             shaderProgram.UniformMat4("normalMatrix", transform.GetNormalMatrix());
 

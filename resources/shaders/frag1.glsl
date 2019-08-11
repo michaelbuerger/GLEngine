@@ -55,19 +55,19 @@ struct SpotLight
   float quadratic; 
 };
 
-#define NUM_DIRECTIONAL_LIGHTS 1 // for array sizing
-#define NUM_POINT_LIGHTS 4
-#define NUM_SPOT_LIGHTS 1
+#define MAX_DIRECTIONAL_LIGHTS 16 // for array sizing, should generally oversize these
+#define MAX_POINT_LIGHTS 16
+#define MAX_SPOT_LIGHTS 16
 
-#define NUM_USE_DIRECTIONAL_LIGHTS NUM_DIRECTIONAL_LIGHTS // how many to actually use in calculation (useful for debugging)
-#define NUM_USE_POINT_LIGHTS NUM_POINT_LIGHTS
-#define NUM_USE_SPOT_LIGHTS NUM_SPOT_LIGHTS
+uniform int directionalLightCount;
+uniform int pointLightCount;
+uniform int spotLightCount;
 
 uniform Material material;
 
-uniform DirectionalLight directionalLight[NUM_DIRECTIONAL_LIGHTS];
-uniform PointLight pointLight[NUM_POINT_LIGHTS];
-uniform SpotLight spotLight[NUM_SPOT_LIGHTS];
+uniform DirectionalLight directionalLight[MAX_DIRECTIONAL_LIGHTS];
+uniform PointLight pointLight[MAX_POINT_LIGHTS];
+uniform SpotLight spotLight[MAX_SPOT_LIGHTS];
 
 uniform vec3 viewPos; // camera position
 
@@ -87,17 +87,21 @@ void main()
 
   vec3 result = vec3(0.0, 0.0, 0.0);
 
-  for(int i=0; i < NUM_USE_DIRECTIONAL_LIGHTS; i++)
+  int directionalLightCountClamped = clamp(directionalLightCount, 0, MAX_DIRECTIONAL_LIGHTS);
+  int pointLightCountClamped = clamp(pointLightCount, 0, MAX_POINT_LIGHTS);
+  int spotLightCountClamped = clamp(spotLightCount, 0, MAX_SPOT_LIGHTS);
+
+  for(int i=0; i < directionalLightCountClamped; i++)
   {
     result += CalcDirectionalLight(directionalLight[i], ambientColor, diffuseColor, specularColor);
   }
 
-  for(int i=0; i < NUM_USE_POINT_LIGHTS; i++)
+  for(int i=0; i < pointLightCountClamped; i++)
   {
     result += CalcPointLight(pointLight[i], ambientColor, diffuseColor, specularColor);
   }
 
-  for(int i=0; i < NUM_USE_SPOT_LIGHTS; i++)
+  for(int i=0; i < spotLightCountClamped; i++)
   {
     result += CalcSpotLight(spotLight[i], ambientColor, diffuseColor, specularColor);
   }
