@@ -10,51 +10,73 @@ namespace GLEngine
 
 Image::Image()
 {
-    this->loadFormat = -1;
-    this->width = -1;
-    this->height = -1;
-    this->colorChannels = -1;
-    this->imageData = nullptr;
+    m_loadFormat = -1;
+    m_width = -1;
+    m_height = -1;
+    m_colorChannels = -1;
+    m_imageData = nullptr;
+    m_canBeFreed = false;
 }
 
+/* NOTE: This assumes that image data is properly loaded by stbi_image, no checks are performed */
 Image::Image(const int &loadFormat, const int &width, const int &height, const int &colorChannels, unsigned char *imageData)
 {
-    this->loadFormat = loadFormat;
-    this->width = width;
-    this->height = height;
-    this->colorChannels = colorChannels;
-    this->imageData = imageData;
+    m_loadFormat = loadFormat;
+    m_width = width;
+    m_height = height;
+    m_colorChannels = colorChannels;
+    m_imageData = imageData;
+    m_canBeFreed = true;
 }
 
 int Image::GetLoadFormat() const
 {
-    return this->loadFormat;
+    return m_loadFormat;
 }
 int Image::GetWidth() const
 {
-    return this->width;
+    return m_width;
 }
 int Image::GetHeight() const
 {
-    return this->height;
+    return m_height;
 }
 int Image::GetColorChannels() const
 {
-    return this->colorChannels;
+    return m_colorChannels;
 }
 
 unsigned char *Image::GetImageData() const
 {
-    return this->imageData;
+    return m_imageData;
 }
 
 GLuint Image::GetGLFormat() const
 {
-    if (this->loadFormat == STBI_rgb_alpha || this->loadFormat == STBI_grey_alpha)
+    if (m_loadFormat == STBI_rgb_alpha || m_loadFormat == STBI_grey_alpha)
     {
         return GL_RGBA;
     }
 
     return GL_RGB;
 }
+
+bool Image::CanBeFreed() const
+{
+    return m_canBeFreed;
+}
+
+void Image::Free()
+{
+    if (m_canBeFreed)
+    {
+        stbi_image_free(m_imageData);
+    }
+}
+
+Image::~Image()
+{
+    this->Free();
+}
+
 } // namespace GLEngine

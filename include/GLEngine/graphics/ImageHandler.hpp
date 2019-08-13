@@ -34,11 +34,6 @@ public:
 
     /* Load image data to heap allocated section in memory */
     Image LoadImageFromAddress(const char *address, const int &imageLoadFormat, const bool &flipVertical);
-    /* Free individual images */
-    void FreeImage(const Image &image);
-
-private:
-    std::vector<unsigned char *> loadedImageData; // Not entirely necessary, leaving in for possible later use
 };
 
 } // namespace GLEngine

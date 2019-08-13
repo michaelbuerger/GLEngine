@@ -15,7 +15,6 @@ namespace GLEngine
 
 ImageHandler::ImageHandler()
 {
-    loadedImageData = std::vector<unsigned char *>();
 }
 
 /* Load image file of given width, height, and channels to heap allocated section in memory */
@@ -24,24 +23,7 @@ unsigned char *ImageHandler::LoadImageDataFromAddress(const char *address, int *
     stbi_set_flip_vertically_on_load(flipVertical);
 
     unsigned char *imageData = stbi_load(address, ret_width, ret_height, ret_colorChannels, imageLoadFormat);
-    if (imageData)
-    {
-        this->loadedImageData.push_back(imageData);
-    }
     return imageData;
-}
-
-/* Free individual images */
-void ImageHandler::FreeImageData(unsigned char *imageData)
-{
-    free(imageData);                                          // Free image data
-    for (size_t i = 0; i < this->loadedImageData.size(); i++) // Try to find in loaded image data vector, if found remove it
-    {
-        if (imageData == this->loadedImageData.at(i))
-        {
-            this->loadedImageData.erase(this->loadedImageData.begin() + i);
-        }
-    }
 }
 
 /* Load image data to heap allocated section in memory */
@@ -49,6 +31,7 @@ Image ImageHandler::LoadImageFromAddress(const char *address, const int &imageLo
 {
     int colorChannels, width, height;
     unsigned char *imageData = LoadImageDataFromAddress(address, &width, &height, &colorChannels, imageLoadFormat, flipVertical);
+    std::cout << imageData[0] << std::endl;
 
     if (!imageData)
     {
@@ -62,9 +45,4 @@ Image ImageHandler::LoadImageFromAddress(const char *address, const int &imageLo
     return image;
 }
 
-/* Free individual image data pointers */
-void ImageHandler::FreeImage(const Image &image)
-{
-    this->FreeImageData(image.GetImageData());
-}
 } // namespace GLEngine

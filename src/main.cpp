@@ -156,6 +156,18 @@ int main()
     Camera camera = Camera(Transform(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
                            90.0f, 16.0f / 9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
+    // Point lights initialization
+    PointLight pointLight0 = PointLight(pointLightPositions[0], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight1 = PointLight(pointLightPositions[1], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight2 = PointLight(pointLightPositions[2], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight3 = PointLight(pointLightPositions[3], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+
+    // Directional lights initialization
+    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+    // Spot lights initialization
+    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), glm::vec3(0.0f, 0.0f, -1.0f), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())
@@ -200,23 +212,17 @@ int main()
         shaderProgram.UniformInt("pointLightCount", 4);
         shaderProgram.UniformInt("spotLightCount", 1);
 
-        // Point lights
-        PointLight pointLight0 = PointLight(pointLightPositions[0], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-        PointLight pointLight1 = PointLight(pointLightPositions[1], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-        PointLight pointLight2 = PointLight(pointLightPositions[2], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-        PointLight pointLight3 = PointLight(pointLightPositions[3], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+        // Point lights uniform
         pointLight0.Uniform(shaderProgram, 0);
         pointLight1.Uniform(shaderProgram, 1);
         pointLight2.Uniform(shaderProgram, 2);
         pointLight3.Uniform(shaderProgram, 3);
 
-        // Directional lights
-        DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
+        // Directional lights uniform
         directionalLight0.Uniform(shaderProgram, 0);
 
-        // Spot lights
-        SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), glm::vec3(0.0f, 0.0f, -1.0f), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-        // if spotLight0 initialization was to be moved out of loop: spotLight0.position = camera.transform.GetPosition();
+        spotLight0.position = camera.transform.GetPosition();
+        // Spot lights uniform
         spotLight0.Uniform(shaderProgram, 0);
 
         // Material

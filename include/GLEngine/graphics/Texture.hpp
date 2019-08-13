@@ -6,6 +6,7 @@
 #include "GLEngine/graphics/Image.hpp"
 
 #include <vector>
+#include <memory>
 
 namespace GLEngine
 {
@@ -21,7 +22,7 @@ public:
     Texture(const Texture &texture);
 
     /* Creates texture from previously loaded image */
-    Texture(const Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps);
+    Texture(Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps);
 
     void Bind() const;
     void Unbind() const;
@@ -33,21 +34,16 @@ public:
     /* Binds texID, sets integer parameters based on below names and values, must recall Create(), unbinds texID */
     void SetIntParameters(const std::vector<GLuint> &texParamNames, const std::vector<GLuint> &texParamValues);
 
-    void SetUniformName(const char *uniformName); // Must call before the texture is 
-
-    Image GetImage() const;
     /* Get OpenGL texture ID */
     GLuint GetGLID() const;
 
     GLuint GetTextureSlot() const;
 
-    ~Texture();
-
-    Image image;
+    std::shared_ptr<Image> image;
 
 private:
     //Image image;
-    GLuint textureID;
+    GLuint m_textureID;
     GLuint m_textureSlot;
 
     void GenTextureID();

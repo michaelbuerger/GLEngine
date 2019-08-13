@@ -2,10 +2,12 @@
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/ImageHandler.hpp"
 #include "GLEngine/io/io.hpp"
+#include "GLEngine/logging/Log.hpp"
 
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <memory>
 
 namespace GLEngine
 {
@@ -15,7 +17,7 @@ ImageHandler Texture::imageHandler = ImageHandler();
 /* Load texture from resources */
 Texture::Texture(const char *address, const GLuint &textureSlot, const int &loadFormat, const bool &shouldGenerateMipmaps)
 {
-    this->image = Texture::imageHandler.LoadImageFromAddress(ResPathRelative(address).c_str(), loadFormat, true);
+    this->image = std::make_shared<Image>(Texture::imageHandler.LoadImageFromAddress(ResPathRelative(address).c_str(), loadFormat, true));
     this->GenTextureID();
     m_textureSlot = textureSlot;
     this->Create(shouldGenerateMipmaps);
@@ -24,17 +26,17 @@ Texture::Texture(const char *address, const GLuint &textureSlot, const int &load
 }
 Texture::Texture(const Texture &texture)
 {
-    this->image = texture.GetImage();
-    this->textureID = texture.GetGLID();
+    this->image = texture.image;
+    m_textureID = texture.GetGLID();
     m_textureSlot = texture.GetTextureSlot();
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
 }
 
 /* Creates texture from previously loaded image data */
-Texture::Texture(const Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps)
+Texture::Texture(Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps)
 {
-    this->image = image;
+    this->image = std::make_shared<Image>(image);
     GenTextureID();
     m_textureSlot = textureSlot;
     this->Create(shouldGenerateMipmaps);
@@ -46,7 +48,7 @@ Texture::Texture(const Image &image, const GLuint &textureSlot, const bool &shou
 void Texture::Bind() const
 {
     glActiveTexture(m_textureSlot);
-    glBindTexture(GL_TEXTURE_2D, this->textureID);
+    glBindTexture(GL_TEXTURE_2D, m_textureID);
 }
 void Texture::Unbind() const
 {
@@ -84,12 +86,7 @@ void Texture::SetIntParameters(const std::vector<GLuint> &texParamNames, const s
 /* Get OpenGL texture ID */
 GLuint Texture::GetGLID() const
 {
-    return this->textureID;
-}
-
-Image Texture::GetImage() const
-{
-    return this->image;
+    return m_textureID;
 }
 
 GLuint Texture::GetTextureSlot() const
@@ -99,24 +96,35 @@ GLuint Texture::GetTextureSlot() const
 
 void Texture::GenTextureID()
 {
-    glGenTextures(1, &this->textureID);
-    if (this->textureID == 0)
+    glGenTextures(1, &m_textureID);
+    if (m_textureID == 0)
     {
-        std::cout << "Could not generate texture ID" << std::endl;
-        // Update to use logging and handle other possible errors (request error log from OpenGL)
+        GLE_ENGINE_ERROR("{}", "\"In method Texture::GenTextureID.\". Failed to generate texture ID.");
+        // Update to handle other possible errors (request error log from OpenGL)
     }
 }
 
 void Texture::Create(const bool &shouldGenerateMipmaps)
 {
-    if (this->textureID != 0)
+    std::cout << "Entered create" << std::endl;
+    if (m_textureID != 0)
     {
         this->Bind();
         for (size_t i = 0; i < std::min(m_texParamNames.size(), m_texParamValues.size()); i++)
         {
+            std::cout << "Before gltexparameteri" << std::endl;
             glTexParameteri(GL_TEXTURE_2D, m_texParamNames[i], m_texParamValues[i]);
+            std::cout << "After gltexparameteri" << std::endl;
         }
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, this->image.GetWidth(), this->image.GetHeight(), 0, this->image.GetGLFormat(), GL_UNSIGNED_BYTE, this->image.GetImageData());
+        std::cout << "Before glteximage2d" << std::endl;
+        std::cout << this->image->GetImageData()[0] << std::endl;
+        std::cout << "Test 1" << std::endl;
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+        glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, this->image->GetGLFormat(), this->image->GetWidth(), this->image->GetHeight(), 0, this->image->GetGLFormat(), GL_UNSIGNED_BYTE, this->image->GetImageData());
+        std::cout << "After glteximage2d" << std::endl;
         if (shouldGenerateMipmaps)
         {
             glGenerateMipmap(GL_TEXTURE_2D);
@@ -126,18 +134,8 @@ void Texture::Create(const bool &shouldGenerateMipmaps)
     }
     else
     {
-        // Add call noting textureID not being generated
+        GLE_ENGINE_ERROR("{}", "In method \"Texture::Create\". Failed to create texture, m_textureID == 0.");
     }
-
-    // TODO: Texture::imageHandler.FreeImage(image); This segfaults for some reason
-    // Googled cause = trying to free pointer that wasn't allocated with malloc (might even be stack allocated)
-    // For now this might cause memory leaks but it is in debug mode so that's not a real issue
-    // Look into this
-}
-
-Texture::~Texture()
-{
-    Texture::imageHandler.FreeImage(this->image);
 }
 
 } // namespace GLEngine
