@@ -7,8 +7,10 @@ all:
 	@echo "make valgrind              | Runs valgrind on latest built binary of GLEngine"
 	@echo "make line-count            | Runs cloc on GLEngine code"
 	@echo "make line-count-all        | Runs cloc on all files in the local directory, including any extra downloaded files and resources"
-	@echo "make clean                 | Runs all clean commands like: 'clean-*'"
+	@echo "make clean                 | Runs clean-bin, clean-build, and clean-debug"
 	@echo "make clean-bin             | Clears binary directory"
+	@echo "make clean-build           | Clears build directory"
+	@echo "make clean-debug           | Clears debug directory"
 
 build-execute-project:
 	make build-project
@@ -42,6 +44,14 @@ line-count-all:
 
 clean:
 	make clean-bin
+	make clean-build
+	make clean-debug 
 
 clean-bin:
 	rm -rf bin/*
+
+clean-build:
+	rm -rf build/*
+
+clean-debug:
+	rm -rf cmake-build-debug/*
