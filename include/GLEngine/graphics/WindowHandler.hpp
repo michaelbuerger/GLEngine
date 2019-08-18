@@ -10,9 +10,6 @@ namespace GLEngine
 
 class WindowHandler
 {
-private:
-    std::vector<GLFWwindow *> windows;
-
 public:
     /* Initializes GLFW */
     WindowHandler();
@@ -24,7 +21,10 @@ public:
     void DestroyWindow(GLFWwindow *window);
 
     /* Destroys all windows */
-    ~WindowHandler();
+    ~WindowHandler(); // TODO: Replace this with per-window destructor once Window class is created
+
+private:
+    std::vector<GLFWwindow *> m_windows;
 };
 
 } // namespace GLEngine

@@ -1,5 +1,6 @@
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/graphics.hpp"
+#include "GLEngine/logging/Log.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -9,12 +10,12 @@ namespace GLEngine
 
 WindowHandler::WindowHandler()
 {
-    windows = std::vector<GLFWwindow *>();
+    m_windows = std::vector<GLFWwindow *>();
 
     if (!glfwInit())
     {
-        std::cout << "Failed to initialize GLFW" << std::endl;
-        exit(-1); // Update to use logging
+        GLE_ENGINE_ERROR("In method \"WindowHandler::WindowHandler\": Failed to initialize GLFW");
+        exit(-1); // Change to throwing exception
     }
 }
 
@@ -32,21 +33,21 @@ GLFWwindow *WindowHandler::CreateWindow(const int &width, const int &height, con
     glfwDefaultWindowHints();
     if (!window)
     {
-        std::cout << "Failed to create window \"" << title << "\"" << std::endl;
-        exit(-1); // Update to use logging
+        GLE_ENGINE_ERROR("In method \"WindowHandler::CreateWindow\": Failed to create window with title \"{}\"", title);
+        exit(-1); // Change to throwing exception
     }
 
     glfwMakeContextCurrent(window);
 
-    windows.push_back(window);
+    m_windows.push_back(window);
     return window;
 }
 
 bool WindowHandler::ShouldAnyWindowClose()
 {
-    for (size_t i = 0; i < this->windows.size(); i++)
+    for (size_t i = 0; i < m_windows.size(); i++)
     {
-        if (glfwWindowShouldClose(this->windows.at(i)))
+        if (glfwWindowShouldClose(m_windows.at(i)))
         {
             return true;
         }
@@ -56,11 +57,11 @@ bool WindowHandler::ShouldAnyWindowClose()
 
 void WindowHandler::DestroyWindow(GLFWwindow *window)
 {
-    for (size_t i = 0; i < this->windows.size(); i++) // remove from windows list if applicable
+    for (size_t i = 0; i < m_windows.size(); i++) // remove from windows list if applicable
     {
-        if (this->windows.at(i) == window)
+        if (m_windows.at(i) == window)
         {
-            this->windows.erase(this->windows.begin() + i);
+            m_windows.erase(m_windows.begin() + i);
             break;
         }
     }
@@ -70,9 +71,9 @@ void WindowHandler::DestroyWindow(GLFWwindow *window)
 
 WindowHandler::~WindowHandler()
 {
-    for (size_t i = 0; i < this->windows.size(); i++)
+    for (size_t i = 0; i < m_windows.size(); i++)
     {
-        glfwDestroyWindow(this->windows.at(i));
+        glfwDestroyWindow(m_windows.at(i));
     }
     glfwTerminate();
 }
