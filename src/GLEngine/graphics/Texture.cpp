@@ -1,6 +1,5 @@
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/graphics/Texture.hpp"
-#include "GLEngine/graphics/ImageHandler.hpp"
 #include "GLEngine/io/io.hpp"
 #include "GLEngine/logging/Log.hpp"
 
@@ -12,12 +11,10 @@
 namespace GLEngine
 {
 
-ImageHandler Texture::imageHandler = ImageHandler();
-
 /* Load texture from resources */
 Texture::Texture(const char *address, const GLuint &textureSlot, const int &loadFormat, const bool &shouldGenerateMipmaps)
 {
-    this->image = std::make_shared<Image>(Texture::imageHandler.LoadImageFromAddress(ResPathRelative(address).c_str(), loadFormat, true));
+    this->image = std::make_shared<Image>(address, loadFormat, true);
     this->GenTextureID();
     m_textureSlot = textureSlot;
     this->Create(shouldGenerateMipmaps);

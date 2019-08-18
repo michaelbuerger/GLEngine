@@ -2,7 +2,6 @@
 #define GLE_TEXTURE_HPP
 
 #include "GLEngine/graphics/graphics.hpp"
-#include "GLEngine/graphics/ImageHandler.hpp"
 #include "GLEngine/graphics/Image.hpp"
 
 #include <vector>
@@ -15,8 +14,6 @@ namespace GLEngine
 class Texture
 {
 public:
-    static class ImageHandler imageHandler;
-
     /* Load texture from resources */
     Texture(const char *address, const GLuint &textureSlot, const int &loadFormat, const bool &shouldGenerateMipmaps);
     Texture(const Texture &texture);

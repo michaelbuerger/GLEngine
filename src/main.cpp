@@ -7,7 +7,6 @@
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/Renderer.hpp"
 #include "GLEngine/graphics/Texture.hpp"
-#include "GLEngine/graphics/ImageHandler.hpp"
 #include "GLEngine/graphics/Model.hpp"
 #include "GLEngine/graphics/ModelHandler.hpp"
 #include "GLEngine/graphics/Transform.hpp"
@@ -122,7 +121,7 @@ int main()
     std::shared_ptr<Texture> diffuseMap;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        diffuseMap = std::make_shared<Texture>("textures/container-diffuse.png", GL_TEXTURE0, STBI_rgb, true);
+        diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/container-diffuse.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -133,7 +132,7 @@ int main()
     std::shared_ptr<Texture> specularMap;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        specularMap = std::make_shared<Texture>("textures/container-specular.png", GL_TEXTURE1, STBI_rgb, true);
+        specularMap = std::make_shared<Texture>(ResPathRelative("textures/container-specular.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
     }
     catch (std::exception &e)
     {

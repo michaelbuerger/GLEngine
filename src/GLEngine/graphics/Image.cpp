@@ -1,5 +1,7 @@
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/graphics/Image.hpp"
+#include "GLEngine/logging/Log.hpp"
+#include "GLEngine/exceptions.hpp"
 
 #include "stb/stb_image.h"
 
@@ -21,6 +23,34 @@ Image::Image()
 Image::Image(const int &loadFormat, const int &width, const int &height, const int &colorChannels, unsigned char *imageData)
 {
     m_loadFormat = loadFormat;
+    m_width = width;
+    m_height = height;
+    m_colorChannels = colorChannels;
+    m_imageData = imageData;
+}
+
+/* Note that right now, flipVertical is only an option when loading image from file */
+Image::Image(const char *address, const int &loadFormat, const bool &flipVertical)
+{
+    m_loadFormat = loadFormat;
+    m_width = -1;
+    m_height = -1;
+    m_colorChannels = -1;
+    m_imageData = nullptr;
+
+    int colorChannels, width, height;
+
+    stbi_set_flip_vertically_on_load(flipVertical);
+    unsigned char *imageData = stbi_load(address, &width, &height, &colorChannels, loadFormat);
+
+    if (imageData == nullptr)
+    {
+        GLE_ENGINE_ERROR("In method \"Image::Image\":");
+        GLE_ENGINE_ERROR("Loaded image data from \"{}\" is null", address);
+        GLE_ENGINE_ERROR("stbi failure reason is: {}", stbi_failure_reason());
+        throw GLE_IMAGE_DATA_NULL();
+    }
+
     m_width = width;
     m_height = height;
     m_colorChannels = colorChannels;
