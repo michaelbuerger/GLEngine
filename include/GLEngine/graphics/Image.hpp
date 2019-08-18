@@ -20,9 +20,6 @@ public:
     unsigned char *GetImageData() const;
     GLuint GetGLFormat() const;
 
-    bool CanBeFreed() const; // returns m_canBeFreed;
-    void Free();             // frees image data if canBeFreed == true
-
     ~Image();
 
 private:
@@ -30,8 +27,6 @@ private:
     int m_width, m_height, m_colorChannels;
 
     unsigned char *m_imageData;
-
-    bool m_canBeFreed;
 };
 
 } // namespace GLEngine

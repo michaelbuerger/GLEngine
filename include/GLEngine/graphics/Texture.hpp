@@ -42,7 +42,6 @@ public:
     std::shared_ptr<Image> image;
 
 private:
-    //Image image;
     GLuint m_textureID;
     GLuint m_textureSlot;
 

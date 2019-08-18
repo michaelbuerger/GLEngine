@@ -106,25 +106,18 @@ void Texture::GenTextureID()
 
 void Texture::Create(const bool &shouldGenerateMipmaps)
 {
-    std::cout << "Entered create" << std::endl;
     if (m_textureID != 0)
     {
         this->Bind();
         for (size_t i = 0; i < std::min(m_texParamNames.size(), m_texParamValues.size()); i++)
         {
-            std::cout << "Before gltexparameteri" << std::endl;
             glTexParameteri(GL_TEXTURE_2D, m_texParamNames[i], m_texParamValues[i]);
-            std::cout << "After gltexparameteri" << std::endl;
         }
-        std::cout << "Before glteximage2d" << std::endl;
-        std::cout << this->image->GetImageData()[0] << std::endl;
-        std::cout << "Test 1" << std::endl;
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
         glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
         glTexImage2D(GL_TEXTURE_2D, 0, this->image->GetGLFormat(), this->image->GetWidth(), this->image->GetHeight(), 0, this->image->GetGLFormat(), GL_UNSIGNED_BYTE, this->image->GetImageData());
-        std::cout << "After glteximage2d" << std::endl;
         if (shouldGenerateMipmaps)
         {
             glGenerateMipmap(GL_TEXTURE_2D);
