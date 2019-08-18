@@ -60,6 +60,9 @@ http://paulbourke.net/dataformats/obj/
 https://en.wikipedia.org/wiki/Wavefront_.obj_file
 
 https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues
+
+3rd Party GUI:
+https://github.com/ocornut/imgui
 */
 
 int main()
