@@ -8,7 +8,7 @@
 #include "GLEngine/graphics/Renderer.hpp"
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/Model.hpp"
-#include "GLEngine/graphics/ModelHandler.hpp"
+#include "GLEngine/graphics/ModelLoading.hpp"
 #include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/graphics/Camera.hpp"
 #include "GLEngine/graphics/ShaderProgram.hpp"

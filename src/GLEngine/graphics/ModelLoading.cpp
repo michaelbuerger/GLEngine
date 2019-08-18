@@ -3,7 +3,7 @@
 
 /* Figure out way to generate texcoords and normals */
 
-#include "GLEngine/graphics/ModelHandler.hpp"
+#include "GLEngine/graphics/ModelLoading.hpp"
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/logging/Log.hpp"
 #include "GLEngine/defines.hpp"
