@@ -252,6 +252,5 @@ int main()
         glfwPollEvents();
     }
 
-    windowHandler.~WindowHandler();
     return 0;
 }
