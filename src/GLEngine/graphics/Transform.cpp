@@ -100,24 +100,6 @@ glm::vec3 Transform::GetScale() const
     return m_scale;
 }
 
-/* BROKEN */
-glm::vec3 Transform::Forward()
-{
-    return glm::normalize(glm::vec3(this->GetMatrix()[2]));
-}
-/*glm::vec3 Transform::Up() {
-
-}*/
-
-/* BROKEN */
-glm::vec3 Transform::ForwardOfInverse()
-{
-    return glm::normalize(glm::vec3(this->GetMatrixInverse()[2]));
-}
-/*glm::vec3 Transform::UpOfInverse() {
-
-}*/
-
 glm::mat4 Transform::GetMatrix()
 {
     if (m_transformationMatrixNeedsRecalc)
