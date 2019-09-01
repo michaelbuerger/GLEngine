@@ -12,7 +12,6 @@ set (header_dir "${PROJECT_SOURCE_DIR}/include")
 set (test_dir "${PROJECT_SOURCE_DIR}/test")
 
 file (GLOB_RECURSE source_files "${source_dir}/*.cpp")
-file (GLOB_RECURSE header_files "${header_dir}/*.hpp" "${header_dir}/*.h")
 
 set (EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/bin")
 
@@ -23,7 +22,7 @@ add_subdirectory ("${PROJECT_SOURCE_DIR}/glfw/")
 
 add_subdirectory ("${PROJECT_SOURCE_DIR}/glew-2.1.0/build/cmake/")
 
-add_executable (GLEngine ${source_files} ${header_files})
+add_executable (GLEngine ${source_files})
 
 target_link_libraries (GLEngine glfw glew ${PROJECT_SOURCE_DIR}/CPPModelLibrary/libCPPModelLibrary.a)
 target_include_directories (
@@ -33,4 +32,5 @@ target_include_directories (
 	glew-2.1.0/include/
 	spdlog-1.x/include/
 	CPPModelLibrary/include/
+	include/imgui/
 )

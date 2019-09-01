@@ -31,6 +31,8 @@
 #include "CPPML/loading/loading.hpp"
 #include "CPPML/loading/OBJ.hpp"
 
+#include <imgui/imgui.h> // the GLEngine way of including things, #include "imgui.h" works too for compatibility with the lib
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -95,6 +97,22 @@ int main()
     {
         std::cout << "Error: " << glewGetErrorString(err) << std::endl;
     }
+
+    /* Setup Dear ImGui context */
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO &io = ImGui::GetIO();
+    (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    /* Dear ImGui style */
+    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsClassic();
+    // ImGui::StyleColorsLight();
+
+    /* Load ImGui fonts */
+    // use default font for now
 
     /* Print useful information */
     std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
@@ -186,11 +204,11 @@ int main()
         }
         if (KeyPressed(window, GLE_KEY_W))
         {
-            camera.transform.Translate(glm::vec3(0.0f, 0.0f, -0.3f));
+            camera.transform.Translate(glm::vec3(0.0f, 0.0f, -0.03f));
         }
         else if (KeyPressed(window, GLE_KEY_S))
         {
-            camera.transform.Translate(glm::vec3(0.0f, 0.0f, 0.3f));
+            camera.transform.Translate(glm::vec3(0.0f, 0.0f, 0.03f));
         }
         if (KeyPressed(window, GLE_KEY_Q))
         {
