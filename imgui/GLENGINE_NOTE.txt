@@ -1,0 +1,2 @@
+The imgui directory serves to contain the misc directory and the LICENSE.txt file only.
+All header and source files can be found in include/ and src/ directories respectively.
