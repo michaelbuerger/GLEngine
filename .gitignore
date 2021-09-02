@@ -8,6 +8,7 @@ bin/
 .vscode/
 .idea/
 cmake-build-debug/
+/include/glm/
 
 ### Linux ###
 *~
