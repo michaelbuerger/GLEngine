@@ -1,6 +1,5 @@
 #include "GLEngine/graphics/graphics.hpp"
 
-#define GLE_RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
 #include "GLEngine/defines.hpp"
 #include "GLEngine/logging/Log.hpp"
 #include "GLEngine/io/io.hpp"

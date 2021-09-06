@@ -6,7 +6,7 @@
 
 /* TODO: Figure out a better place for this, so it can be changed if needed */
 #ifndef GLE_RESOURCES_PATH
-#define GLE_RESOURCES_PATH "/home/michaelbuerger/Documents/Programming Projects/GLEngine/resources/"
+#define GLE_RESOURCES_PATH "./resources/"
 #endif
 
 #endif
