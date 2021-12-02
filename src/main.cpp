@@ -20,9 +20,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 
 #include "stb/stb_image.h"
 
@@ -88,7 +86,7 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.CreateWindow(1900, 1000, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -128,7 +126,8 @@ int main()
         glm::vec3(1.3f, -2.0f, -2.5f),
         glm::vec3(1.5f, 2.0f, -2.5f),
         glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f)};
+        glm::vec3(-1.3f, 1.0f, -1.5f),
+        };
 
     glm::vec3 pointLightPositions[] = {
         glm::vec3(0.7f, 0.2f, 2.0f),
@@ -142,6 +141,7 @@ int main()
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
         diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/container-diffuse.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
+        // diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/jeep.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -153,6 +153,7 @@ int main()
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
         specularMap = std::make_shared<Texture>(ResPathRelative("textures/container-specular.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
+        // specularMap = std::make_shared<Texture>(ResPathRelative("textures/jeep.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -161,6 +162,7 @@ int main()
     }
 
     Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), diffuseMap);
+    // Model model = CreateModelFromOBJFile(ResPathRelative("models/jeep.obj").c_str(), diffuseMap);
 
     ShaderProgram shaderProgram = ShaderProgram(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -185,7 +187,7 @@ int main()
     DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     // Spot lights initialization
-    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), glm::vec3(0.0f, 0.0f, -1.0f), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
@@ -193,21 +195,37 @@ int main()
     {
         //transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
 
+        glm::vec3 playerForward = camera.transform.GetForward();
+        glm::vec3 playerRight = camera.transform.GetRight();
+        glm::vec3 playerUp = camera.transform.GetRight();
+
         if (KeyPressed(window, GLE_KEY_A))
         {
-            camera.transform.Translate(glm::vec3(-0.03f, 0.0f, 0.0f));
+            camera.transform.Translate(playerRight * -0.03f);
         }
         else if (KeyPressed(window, GLE_KEY_D))
         {
-            camera.transform.Translate(glm::vec3(0.03f, 0.0f, 0.0f));
+            camera.transform.Translate(playerRight * 0.03f);
+        }
+
+        if (KeyPressed(window, GLE_KEY_P))
+        {
+            // need to find way to rotate around player local x-axis (axis parallel to transform right)
+            camera.transform.Rotate(glm::vec3(1.0f, 0.0f, 0.0f));
+        }
+
+        if (KeyPressed(window, GLE_KEY_L))
+        {
+            // need to find way to rotate around player local x-axis (axis parallel to transform right)
+            camera.transform.Rotate(glm::vec3(-1.0f, 0.0f, 0.0f));
         }
         if (KeyPressed(window, GLE_KEY_W))
         {
-            camera.transform.Translate(glm::vec3(0.0f, 0.0f, -0.03f));
+            camera.transform.Translate(playerForward * 0.03f);
         }
         else if (KeyPressed(window, GLE_KEY_S))
         {
-            camera.transform.Translate(glm::vec3(0.0f, 0.0f, 0.03f));
+            camera.transform.Translate(playerForward * -0.03f);
         }
         if (KeyPressed(window, GLE_KEY_Q))
         {
@@ -217,6 +235,8 @@ int main()
         {
             camera.transform.Rotate(glm::vec3(0.0f, -1.0f, 0.0f));
         }
+
+        std::cout << camera.transform.DebugStr() << std::endl << std::endl;
 
         shaderProgram.Bind();
         model.BindVAO();
@@ -241,6 +261,7 @@ int main()
         directionalLight0.Uniform(shaderProgram, 0);
 
         spotLight0.position = camera.transform.GetPosition();
+        spotLight0.direction = playerForward;
         // Spot lights uniform
         spotLight0.Uniform(shaderProgram, 0);
 
@@ -254,9 +275,23 @@ int main()
         shaderProgram.UniformBool("material.useTexture", GL_TRUE);
         shaderProgram.UniformBool("material.unlit", GL_FALSE);
 
+        /* This many draw calls has to be a performance issue, need to look into batched rendering */
         for (unsigned int i = 0; i < 10; i++)
         {
             transform.SetPosition(cubePositions[i]);
+            transform.SetRotation(glm::vec3(20.0f * i, 20.0f * i, 20.0f * i));
+
+            // matrices that do change with the model transform
+            shaderProgram.UniformMat4("modelMatrix", transform.GetMatrix());
+            shaderProgram.UniformMat4("normalMatrix", transform.GetNormalMatrix());
+
+            // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
+            glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
+        }
+
+        for (unsigned int i = 0; i < 10; i++)
+        {
+            transform.SetPosition(cubePositions[i] + glm::vec3(0.0f, 0.0f, -10.0f));
             transform.SetRotation(glm::vec3(20.0f * i, 20.0f * i, 20.0f * i));
 
             // matrices that do change with the model transform

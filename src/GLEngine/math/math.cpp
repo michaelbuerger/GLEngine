@@ -11,11 +11,17 @@ namespace GLEngine
 {
 float degreeClamp(const float &x)
 {
-    if (x >= 0)
+    if(x < 0) // only calculate clamped value if needed
     {
-        return ((x / 360) - std::floor(x / 360)) * 360;
+        return 360 - fmodf32(-x, 360);
     }
-    return 360 - degreeClamp(std::abs(x));
+
+    if(x > 360)  // only calculate clamped value if needed
+    {
+        return 0 + fmodf32(x, 360);
+    }
+
+    return x;
 }
 
 glm::vec3 degreeClamp(const glm::vec3 &v)
@@ -24,9 +30,24 @@ glm::vec3 degreeClamp(const glm::vec3 &v)
     return glm::vec3(degreeClamp(v.x), degreeClamp(v.y), degreeClamp(v.z));
 }
 
-glm::quat eulerToQuat(const glm::vec3 &eulerAngles) { // takes radians in order XYZ and returns quaternion
-    return glm::angleAxis(eulerAngles.x, glm::vec3(1, 0, 0)) 
-    * glm::angleAxis(eulerAngles.y, glm::vec3(0, 1, 0)) 
-    * glm::angleAxis(eulerAngles.z, glm::vec3(0, 0, 1));
+glm::quat eulerToQuat(const glm::vec3 &eulerAngles) { // takes euler angles in degrees (in order XYZ) and returns quaternion
+    return glm::angleAxis(glm::radians(eulerAngles.x), glm::vec3(1, 0, 0)) 
+    * glm::angleAxis(glm::radians(eulerAngles.y), glm::vec3(0, 1, 0)) 
+    * glm::angleAxis(glm::radians(eulerAngles.z), glm::vec3(0, 0, 1));
+}
+
+float sinDegrees(const float &degrees)
+{
+    return glm::sin(glm::radians(degrees));
+}
+
+float cosDegrees(const float &degrees)
+{
+    return glm::cos(glm::radians(degrees));
+}
+
+float tanDegrees(const float &degrees)
+{
+    return glm::tan(glm::radians(degrees));
 }
 } // namespace GLEngine

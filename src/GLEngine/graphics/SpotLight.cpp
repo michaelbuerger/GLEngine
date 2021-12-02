@@ -6,12 +6,12 @@
 namespace GLEngine
 {
 
-SpotLight::SpotLight(const glm::vec3 &position, const glm::vec3 &rotation, const float &cutoffDegrees, const float &cutoffOuterDegrees,
+SpotLight::SpotLight(const glm::vec3 &position, const glm::vec3 &direction, const float &cutoffDegrees, const float &cutoffOuterDegrees,
                      const glm::vec3 &ambientMultiplier, const glm::vec3 &diffuseMultiplier, const glm::vec3 &specularMultiplier,
                      const float &constant, const float &linear, const float &quadratic)
 {
     this->position = position;
-    this->rotation = rotation;
+    this->direction = direction;
     this->ambientMultiplier = ambientMultiplier;
     this->diffuseMultiplier = diffuseMultiplier;
     this->specularMultiplier = specularMultiplier;
@@ -25,7 +25,7 @@ SpotLight::SpotLight(const glm::vec3 &position, const glm::vec3 &rotation, const
 void SpotLight::Uniform(const ShaderProgram &shaderProgram, const GLuint &structArrayIndex)
 {
     shaderProgram.UniformVec3(("spotLight[" + std::to_string(structArrayIndex) + "].position").c_str(), this->position);
-    shaderProgram.UniformVec3(("spotLight[" + std::to_string(structArrayIndex) + "].direction").c_str(), this->rotation);
+    shaderProgram.UniformVec3(("spotLight[" + std::to_string(structArrayIndex) + "].direction").c_str(), this->direction);
     shaderProgram.UniformFloat(("spotLight[" + std::to_string(structArrayIndex) + "].cutoff").c_str(), glm::cos(glm::radians(this->cutoffDegrees)));
     shaderProgram.UniformFloat(("spotLight[" + std::to_string(structArrayIndex) + "].cutoffOuter").c_str(), glm::cos(glm::radians(this->cutoffOuterDegrees)));
     shaderProgram.UniformVec3(("spotLight[" + std::to_string(structArrayIndex) + "].ambientMultiplier").c_str(), this->ambientMultiplier);

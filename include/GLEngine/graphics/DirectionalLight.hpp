@@ -11,12 +11,11 @@ namespace GLEngine
 class DirectionalLight
 {
 public:
-    DirectionalLight(const glm::vec3 &position,
-                     const glm::vec3 &ambientMultiplier, const glm::vec3 &diffuseMultiplier, const glm::vec3 &specularMultiplier);
+    DirectionalLight(const glm::vec3 &direction, const glm::vec3 &ambientMultiplier, const glm::vec3 &diffuseMultiplier, const glm::vec3 &specularMultiplier);
 
     void Uniform(const ShaderProgram &shaderProgram, const GLuint &structArrayIndex);
 
-    glm::vec3 rotation;
+    glm::vec3 direction;
 
     glm::vec3 ambientMultiplier;
     glm::vec3 diffuseMultiplier;

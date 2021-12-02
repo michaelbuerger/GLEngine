@@ -11,14 +11,14 @@ namespace GLEngine
 class SpotLight
 {
 public:
-    SpotLight(const glm::vec3 &position, const glm::vec3 &rotation, const float &cutoffDegrees, const float &cutoffOuterDegrees,
+    SpotLight(const glm::vec3 &position, const glm::vec3 &direction, const float &cutoffDegrees, const float &cutoffOuterDegrees,
               const glm::vec3 &ambientMultiplier, const glm::vec3 &diffuseMultiplier, const glm::vec3 &specularMultiplier,
               const float &constant, const float &linear, const float &quadratic);
 
     void Uniform(const ShaderProgram &shaderProgram, const GLuint &structArrayIndex);
 
     glm::vec3 position;
-    glm::vec3 rotation;
+    glm::vec3 direction;
 
     glm::vec3 ambientMultiplier;
     glm::vec3 diffuseMultiplier;
