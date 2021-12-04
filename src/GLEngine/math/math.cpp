@@ -6,6 +6,8 @@
 #include <glm/gtx/quaternion.hpp>
 
 #include <cmath>
+#include <string>
+#include <sstream>
 
 namespace GLEngine
 {
@@ -49,5 +51,12 @@ float cosDegrees(const float &degrees)
 float tanDegrees(const float &degrees)
 {
     return glm::tan(glm::radians(degrees));
+}
+
+std::string debugVec3(glm::vec3 vec)
+{
+    std::stringstream strStream;
+    strStream << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]";
+    return strStream.str();
 }
 } // namespace GLEngine

@@ -86,7 +86,7 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1900, 1000, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -140,8 +140,8 @@ int main()
     std::shared_ptr<Texture> diffuseMap;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/container-diffuse.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
-        // diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/jeep.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
+        // diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/container-diffuse.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
+        diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -152,8 +152,8 @@ int main()
     std::shared_ptr<Texture> specularMap;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        specularMap = std::make_shared<Texture>(ResPathRelative("textures/container-specular.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
-        // specularMap = std::make_shared<Texture>(ResPathRelative("textures/jeep.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
+        // specularMap = std::make_shared<Texture>(ResPathRelative("textures/container-specular.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
+        specularMap = std::make_shared<Texture>(ResPathRelative("textures/solidwhite.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -161,8 +161,9 @@ int main()
         exit(-1);
     }
 
-    Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), diffuseMap);
-    // Model model = CreateModelFromOBJFile(ResPathRelative("models/jeep.obj").c_str(), diffuseMap);
+    // Model model = CreateModelFromOBJFile(ResPathRelative("models/dog.obj").c_str(), diffuseMap);
+    // Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), diffuseMap);
+    Model model = CreateModelFromOBJFile(ResPathRelative("models/smoothsphere.obj").c_str(), diffuseMap);
 
     ShaderProgram shaderProgram = ShaderProgram(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
@@ -187,7 +188,19 @@ int main()
     DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
 
     // Spot lights initialization
-    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+
+    // Game loop variables
+    float xAxisAngleDelta = 0.0f;
+    float yAxisAngleDelta = 0.0f;
+    float rotateSpeed = 1.0f;
+
+    glm::quat xRotation;
+    glm::quat yRotation;
+
+    glm::vec3 playerForward = camera.transform.GetForward();
+    glm::vec3 playerRight = camera.transform.GetRight();
+    glm::vec3 playerUp = camera.transform.GetRight();
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
@@ -195,9 +208,9 @@ int main()
     {
         //transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
 
-        glm::vec3 playerForward = camera.transform.GetForward();
-        glm::vec3 playerRight = camera.transform.GetRight();
-        glm::vec3 playerUp = camera.transform.GetRight();
+        playerForward = camera.transform.GetForward();
+        playerRight = camera.transform.GetRight();
+        playerUp = camera.transform.GetRight();
 
         if (KeyPressed(window, GLE_KEY_A))
         {
@@ -207,18 +220,6 @@ int main()
         {
             camera.transform.Translate(playerRight * 0.03f);
         }
-
-        if (KeyPressed(window, GLE_KEY_P))
-        {
-            // need to find way to rotate around player local x-axis (axis parallel to transform right)
-            camera.transform.Rotate(glm::vec3(1.0f, 0.0f, 0.0f));
-        }
-
-        if (KeyPressed(window, GLE_KEY_L))
-        {
-            // need to find way to rotate around player local x-axis (axis parallel to transform right)
-            camera.transform.Rotate(glm::vec3(-1.0f, 0.0f, 0.0f));
-        }
         if (KeyPressed(window, GLE_KEY_W))
         {
             camera.transform.Translate(playerForward * 0.03f);
@@ -227,16 +228,21 @@ int main()
         {
             camera.transform.Translate(playerForward * -0.03f);
         }
-        if (KeyPressed(window, GLE_KEY_Q))
-        {
-            camera.transform.Rotate(glm::vec3(0.0f, 1.0f, 0.0f));
-        }
-        else if (KeyPressed(window, GLE_KEY_E))
-        {
-            camera.transform.Rotate(glm::vec3(0.0f, -1.0f, 0.0f));
-        }
+
+        if (KeyPressed(window, GLE_KEY_Q)) { yAxisAngleDelta = -rotateSpeed; }
+        if (KeyPressed(window, GLE_KEY_E)) { yAxisAngleDelta = rotateSpeed; }
+
+        if (KeyPressed(window, GLE_KEY_P)) { xAxisAngleDelta = rotateSpeed; }
+        if (KeyPressed(window, GLE_KEY_L)) { xAxisAngleDelta = -rotateSpeed; }
+
+        camera.transform.Rotate(xAxisAngleDelta, yAxisAngleDelta, 0);
+
+        xAxisAngleDelta = 0;
+        yAxisAngleDelta = 0;
 
         std::cout << camera.transform.DebugStr() << std::endl << std::endl;
+        std::cout << xAxisAngleDelta << " " << yAxisAngleDelta << std::endl;
+        std::cout << debugVec3(playerForward) << std::endl;
 
         shaderProgram.Bind();
         model.BindVAO();

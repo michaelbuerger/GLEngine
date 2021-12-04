@@ -49,14 +49,15 @@ void Transform::SetPosition(const glm::vec3 &position)
 void Transform::SetRotation(const glm::vec3 &rotation) // 0 - 360 (degrees)
 {
     m_transformationMatrixNeedsRecalc = true;
-    m_quaternionNeedsRecalc = true;
-    m_rotation = degreeClamp(rotation);
+    m_quaternion = eulerToQuat(glm::radians(rotation));
+    m_RecalcRightUpForward();
 }
 void Transform::SetQuaternion(const glm::quat &quaternion)
 {
-    m_quaternionNeedsRecalc = false; // override need for recalc based on euler angles (as quat is explicitly set here)
+    m_transformationMatrixNeedsRecalc = true;
     m_quaternion = quaternion;
-    this->SetRotation(glm::eulerAngles(m_quaternion));
+
+    m_RecalcRightUpForward();
 }
 void Transform::SetScale(const glm::vec3 &scale)
 {
@@ -68,9 +69,15 @@ void Transform::Translate(const glm::vec3 &translation)
 {
     this->SetPosition(this->GetPosition() + translation);
 }
-void Transform::Rotate(const glm::vec3 &rotation) // 0 - 360 (degrees)
+
+void Transform::Rotate(const float &pitch, const float &yaw, const float &roll)
 {
-    this->SetRotation(this->GetRotation() + rotation);
+    m_transformationMatrixNeedsRecalc = true;
+    m_quaternion = m_quaternion * glm::angleAxis(glm::radians(pitch), VEC3F_RIGHT);
+    m_quaternion *= glm::angleAxis(-glm::radians(yaw), VEC3F_UP);
+    m_quaternion *= glm::angleAxis(glm::radians(roll), VEC3F_FORWARD);
+
+    m_RecalcRightUpForward();
 }
 
 glm::mat4 CreateTransformationMatrix(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
@@ -98,18 +105,12 @@ glm::vec3 Transform::GetPosition() const
 {
     return m_position;
 }
-glm::vec3 Transform::GetRotation() const // 0 - 360 (degrees)
+glm::vec3 Transform::GetRotation() const  // this doesn't really operate right, something off with domain of angles
 {
-    return m_rotation;
+    return glm::degrees(glm::eulerAngles(m_quaternion));
 }
 glm::quat Transform::GetQuaternion() // should use internally unless it is known for sure that quaternion does not need to be recalculated
 {
-    if(m_quaternionNeedsRecalc)
-    {
-        m_quaternion = eulerToQuat(m_rotation); // doesn't call this->SetQuaternion() as this recalculates eulerAngles
-
-        m_quaternionNeedsRecalc = false;
-    }
     return m_quaternion;
 }
 glm::vec3 Transform::GetScale() const
@@ -162,19 +163,22 @@ void Transform::RecalcTransformationMatrixIfNeeded()
     if(m_transformationMatrixNeedsRecalc) 
     {
         glm::mat4 translationMatrix = glm::translate(glm::mat4(1.0f), m_position);
-        glm::mat4 rotationMatrix = glm::toMat4(this->GetQuaternion());
+        glm::mat4 rotationMatrix = glm::toMat4(m_quaternion);
         glm::mat4 scaleMatrix = glm::scale(glm::mat4(1.0f), m_scale);
 
         m_transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
         m_inverseTransformationMatrix = glm::inverse(m_transformationMatrix);
         m_normalMatrix = glm::transpose(m_inverseTransformationMatrix);
 
-        m_right = glm::normalize(glm::vec3(m_inverseTransformationMatrix[0])) * glm::vec3(1.0f, 1.0f, -1.0f);
-        m_up = glm::normalize(glm::vec3(m_inverseTransformationMatrix[1])) * glm::vec3(1.0f, 1.0f, 1.0f);
-        m_forward = glm::normalize(glm::vec3(m_inverseTransformationMatrix[2])) * glm::vec3(1.0f, 1.0f, -1.0f); // flip z-axis
-
         m_transformationMatrixNeedsRecalc = false;
     }
+}
+
+void Transform::m_RecalcRightUpForward()
+{
+    m_right = m_quaternion * VEC3F_RIGHT;
+    m_up = m_quaternion * VEC3F_UP;
+    m_forward = m_quaternion * VEC3F_FORWARD;
 }
 
 std::string Transform::DebugStr() const
@@ -195,12 +199,14 @@ std::string Transform::DebugStr(uint precision) const
     strStream << m_position.z;
     strStream << "], \n";
 
+    glm::vec3 eulerAngles = this->GetRotation();
+
     strStream << "Rotation [";
-    strStream << m_rotation.x;
+    strStream << eulerAngles.x;
     strStream << ", ";
-    strStream << m_rotation.y;
+    strStream << eulerAngles.y;
     strStream << ", ";
-    strStream << m_rotation.z;
+    strStream << eulerAngles.z;
     strStream << "], \n";
 
     strStream << "Scale    [";
