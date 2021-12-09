@@ -15,7 +15,7 @@ bool KeyPressed(GLFWwindow *window, const GLEkey &key)
 }
 bool KeyHeld(GLFWwindow *window, const GLEkey &key)
 {
-    return glfwGetKey(window, key) == GLFW_REPEAT;
+    return glfwGetKey(window, key) == GLFW_REPEAT; // this apparently isn't even reported unless a key callback is produced
 }
 bool KeyReleased(GLFWwindow *window, const GLEkey &key)
 {
@@ -53,7 +53,7 @@ const char *GetLocalizedKeyName(const GLEkey &key)
 
 /* --- Mouse --- */
 
-/* GLE_CURSOR_MODE_WRAP: Uses GLFW's disabled cursor mode, will hide the cursor and lock it to the center of the window */
+/* GLE_CURSOR_MODE_WRAP: Uses GLFW's disabled cursor mode, will hide the cursor and lock it to somewhere in the window */
 /* TODO: Test what this returns when polling mouse pos (same as callback btw), either mouse pos that isn't limited to the window size or mouse pos delta of last frame */
 
 /* GLE_CURSOR_MODE_NORMAL: Normal mode, GLE_CURSOR_MODE_HIDDEN: Hides the mouse but everything else acts the same */

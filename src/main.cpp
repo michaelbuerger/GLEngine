@@ -86,7 +86,7 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1280, 720, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.CreateWindow(1920, 1080, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -190,17 +190,18 @@ int main()
     // Spot lights initialization
     SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
+    // For fps camera
+    SetCursorMode(window, GLE_CURSOR_MODE_WRAP);
+    UseRawMouseMotion(window);
+
     // Game loop variables
-    float xAxisAngleDelta = 0.0f;
-    float yAxisAngleDelta = 0.0f;
-    float rotateSpeed = 1.0f;
-
-    glm::quat xRotation;
-    glm::quat yRotation;
-
     glm::vec3 playerForward = camera.transform.GetForward();
     glm::vec3 playerRight = camera.transform.GetRight();
     glm::vec3 playerUp = camera.transform.GetRight();
+
+    glm::vec3 previousCursorPosition;
+    glm::vec3 currentCursorPosition;
+    glm::vec3 cursorPositionDelta;
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
@@ -212,37 +213,29 @@ int main()
         playerRight = camera.transform.GetRight();
         playerUp = camera.transform.GetRight();
 
-        if (KeyPressed(window, GLE_KEY_A))
+        if(KeyPressed(window, GLE_KEY_A) || KeyPressed(window, GLE_KEY_LEFT)) { camera.transform.Translate(playerRight * -0.03f); }
+        else if(KeyPressed(window, GLE_KEY_D) || KeyPressed(window, GLE_KEY_RIGHT)) { camera.transform.Translate(playerRight * 0.03f); }
+
+        if(KeyPressed(window, GLE_KEY_W) || KeyPressed(window, GLE_KEY_UP)) { camera.transform.Translate(playerForward * 0.03f); }
+        else if(KeyPressed(window, GLE_KEY_S) || KeyPressed(window, GLE_KEY_DOWN)) { camera.transform.Translate(playerForward * -0.03f); }
+
+        if(KeyPressed(window, GLE_KEY_Q)) { camera.transform.Rotate(0.0f, 0.0f, -1.0f); }
+        else if(KeyPressed(window, GLE_KEY_E)) { camera.transform.Rotate(0.0f, 0.0f, 1.0f); }
+
+        if(KeyPressed(window, GLE_KEY_ESCAPE))
         {
-            camera.transform.Translate(playerRight * -0.03f);
-        }
-        else if (KeyPressed(window, GLE_KEY_D))
-        {
-            camera.transform.Translate(playerRight * 0.03f);
-        }
-        if (KeyPressed(window, GLE_KEY_W))
-        {
-            camera.transform.Translate(playerForward * 0.03f);
-        }
-        else if (KeyPressed(window, GLE_KEY_S))
-        {
-            camera.transform.Translate(playerForward * -0.03f);
+            glfwSetWindowShouldClose(window, true); // force close
         }
 
-        if (KeyPressed(window, GLE_KEY_Q)) { yAxisAngleDelta = -rotateSpeed; }
-        if (KeyPressed(window, GLE_KEY_E)) { yAxisAngleDelta = rotateSpeed; }
+        previousCursorPosition = currentCursorPosition;
+        currentCursorPosition = GetCursorPosition(window);
+        cursorPositionDelta = currentCursorPosition - previousCursorPosition;
 
-        if (KeyPressed(window, GLE_KEY_P)) { xAxisAngleDelta = rotateSpeed; }
-        if (KeyPressed(window, GLE_KEY_L)) { xAxisAngleDelta = -rotateSpeed; }
-
-        camera.transform.Rotate(xAxisAngleDelta, yAxisAngleDelta, 0);
-
-        xAxisAngleDelta = 0;
-        yAxisAngleDelta = 0;
+        camera.transform.Rotate(-cursorPositionDelta.y * 0.2f, cursorPositionDelta.x * 0.2f, 0.0f);
+        // z-roll happens
+        // need to further investigate control schemes but this really isn't an actual issue rn
 
         std::cout << camera.transform.DebugStr() << std::endl << std::endl;
-        std::cout << xAxisAngleDelta << " " << yAxisAngleDelta << std::endl;
-        std::cout << debugVec3(playerForward) << std::endl;
 
         shaderProgram.Bind();
         model.BindVAO();

@@ -11,6 +11,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <iostream>
 
 namespace GLEngine
 {
@@ -73,9 +74,16 @@ void Transform::Translate(const glm::vec3 &translation)
 void Transform::Rotate(const float &pitch, const float &yaw, const float &roll)
 {
     m_transformationMatrixNeedsRecalc = true;
+
+    // XYZ
     m_quaternion = m_quaternion * glm::angleAxis(glm::radians(pitch), VEC3F_RIGHT);
     m_quaternion *= glm::angleAxis(-glm::radians(yaw), VEC3F_UP);
     m_quaternion *= glm::angleAxis(glm::radians(roll), VEC3F_FORWARD);
+
+    // YXZ
+    /*m_quaternion = m_quaternion * glm::angleAxis(-glm::radians(yaw), VEC3F_UP);
+    m_quaternion *= glm::angleAxis(glm::radians(pitch), VEC3F_RIGHT);
+    m_quaternion *= glm::angleAxis(glm::radians(roll), VEC3F_FORWARD);*/
 
     m_RecalcRightUpForward();
 }
@@ -105,7 +113,7 @@ glm::vec3 Transform::GetPosition() const
 {
     return m_position;
 }
-glm::vec3 Transform::GetRotation() const  // this doesn't really operate right, something off with domain of angles
+glm::vec3 Transform::GetRotation() const
 {
     return glm::degrees(glm::eulerAngles(m_quaternion));
 }
