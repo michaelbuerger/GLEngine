@@ -50,7 +50,8 @@ void Transform::SetPosition(const glm::vec3 &position)
 void Transform::SetRotation(const glm::vec3 &rotation) // 0 - 360 (degrees)
 {
     m_transformationMatrixNeedsRecalc = true;
-    m_quaternion = eulerToQuat(glm::radians(rotation));
+    m_quaternion = QUATF_IDENTITY;
+    this->Rotate(rotation);
     m_RecalcRightUpForward();
 }
 void Transform::SetQuaternion(const glm::quat &quaternion)
@@ -86,6 +87,11 @@ void Transform::Rotate(const float &pitch, const float &yaw, const float &roll)
     m_quaternion *= glm::angleAxis(glm::radians(roll), VEC3F_FORWARD);*/
 
     m_RecalcRightUpForward();
+}
+
+void Transform::Rotate(const glm::vec3 &rotationXYZ)
+{
+    this->Rotate(rotationXYZ.x, rotationXYZ.y, rotationXYZ.z);
 }
 
 glm::mat4 CreateTransformationMatrix(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale)
@@ -176,7 +182,7 @@ void Transform::RecalcTransformationMatrixIfNeeded()
 
         m_transformationMatrix = translationMatrix * (rotationMatrix * scaleMatrix);
         m_inverseTransformationMatrix = glm::inverse(m_transformationMatrix);
-        m_normalMatrix = glm::transpose(m_inverseTransformationMatrix);
+        m_normalMatrix = glm::transpose(m_inverseTransformationMatrix); // swap rows with columns
 
         m_transformationMatrixNeedsRecalc = false;
     }

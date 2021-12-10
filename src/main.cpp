@@ -6,6 +6,7 @@
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/Renderer.hpp"
 #include "GLEngine/graphics/Texture.hpp"
+#include "GLEngine/graphics/Material.hpp"
 #include "GLEngine/graphics/Model.hpp"
 #include "GLEngine/graphics/ModelLoading.hpp"
 #include "GLEngine/graphics/Transform.hpp"
@@ -64,6 +65,23 @@ https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glv
 https://github.com/ocornut/imgui
 */
 
+/*
+REFACTOR:
+- [X] Texture --> material
+- [X] Get rid of references to texture in model
+- [ ] GameObject --> model + material
+- [ ] Model + material manager (resource manager)
+- [ ] Lights --> use transform
+- [ ] Light manager
+- [ ] Scene manager --> resource manager + light manager + shader program- + interface w rendering
+*/
+
+/*
+- [X] Time.deltaTime equivalent
+- [X] Bouncy ball
+- [ ] Batched/indexed (better) rendering
+*/
+
 int main()
 {
     Log::Init(spdlog::level::trace);
@@ -116,32 +134,15 @@ int main()
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
     /* --- --- */
-    glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(2.0f, 5.0f, -15.0f),
-        glm::vec3(-1.5f, -2.2f, -2.5f),
-        glm::vec3(-3.8f, -2.0f, -12.3f),
-        glm::vec3(2.4f, -0.4f, -3.5f),
-        glm::vec3(-1.7f, 3.0f, -7.5f),
-        glm::vec3(1.3f, -2.0f, -2.5f),
-        glm::vec3(1.5f, 2.0f, -2.5f),
-        glm::vec3(1.5f, 0.2f, -1.5f),
-        glm::vec3(-1.3f, 1.0f, -1.5f),
-        };
 
-    glm::vec3 pointLightPositions[] = {
-        glm::vec3(0.7f, 0.2f, 2.0f),
-        glm::vec3(2.3f, -3.3f, -4.0f),
-        glm::vec3(-4.0f, 2.0f, -12.0f),
-        glm::vec3(0.0f, 0.0f, -3.0f)};
-
-    // Note: Diffuse map is multiplied by ambient and diffuse lighting, Specular is only for specular
-    // Diffuse map can be used for both maps and it would be effectively equivalent to the old kind of texture handling
-    std::shared_ptr<Texture> diffuseMap;
+    std::shared_ptr<Texture> concreteTexture;
+    std::shared_ptr<Texture> allWhiteTexture;
+    std::shared_ptr<Texture> testTexture;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        // diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/container-diffuse.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
-        diffuseMap = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
+        concreteTexture = std::make_shared<Texture>(ResPathRelative("textures/concrete.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
+        allWhiteTexture = std::make_shared<Texture>(ResPathRelative("textures/solidwhite.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
+        testTexture = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -149,23 +150,18 @@ int main()
         exit(-1);
     }
 
-    std::shared_ptr<Texture> specularMap;
-    try
-    { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        // specularMap = std::make_shared<Texture>(ResPathRelative("textures/container-specular.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
-        specularMap = std::make_shared<Texture>(ResPathRelative("textures/solidwhite.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
-    }
-    catch (std::exception &e)
-    {
-        std::cout << e.what() << std::endl;
-        exit(-1);
-    }
+    std::shared_ptr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
-    // Model model = CreateModelFromOBJFile(ResPathRelative("models/dog.obj").c_str(), diffuseMap);
-    // Model model = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str(), diffuseMap);
-    Model model = CreateModelFromOBJFile(ResPathRelative("models/smoothsphere.obj").c_str(), diffuseMap);
+    bool unlit1 = false;
+    std::shared_ptr<Material> shinyOrangeMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 256, false, glm::vec3(0.925f, 0.607f, 0.015f));
+    std::shared_ptr<Material> concreteMaterial = std::make_shared<Material>(concreteTexture, allWhiteTexture, shaderProgram, unlit1, 32);
+    std::shared_ptr<Material> testMaterial = std::make_shared<Material>(testTexture, allWhiteTexture, shaderProgram, unlit1, 512);
+    std::shared_ptr<Material> shinyPurpleMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 256, false, glm::vec3(0.8f, 0.1f, 0.5f));
 
-    ShaderProgram shaderProgram = ShaderProgram(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
+    Model cube = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str());
+    Model ground = CreateModelFromOBJFile(ResPathRelative("models/plane.obj").c_str());
+
+    Model sphere = CreateModelFromOBJFile(ResPathRelative("models/smoothsphere.obj").c_str());
 
     glfwMakeContextCurrent(window); // TODO: Figure out dependance on this line (like what code needs the context)
 
@@ -175,14 +171,15 @@ int main()
     glDepthFunc(GL_LESS);
 
     Transform transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-    Camera camera = Camera(Transform(glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
+    Camera camera = Camera(Transform(glm::vec3(0.0f, 5.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
                            90.0f, 16.0f / 9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
+    Transform groundTransform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f));
 
     // Point lights initialization
-    PointLight pointLight0 = PointLight(pointLightPositions[0], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-    PointLight pointLight1 = PointLight(pointLightPositions[1], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-    PointLight pointLight2 = PointLight(pointLightPositions[2], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-    PointLight pointLight3 = PointLight(pointLightPositions[3], glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight0 = PointLight(glm::vec3(5.0f, 8.0f, 5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight1 = PointLight(glm::vec3(-5.0f, 8.0f, 5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight2 = PointLight(glm::vec3(5.0f, 8.0f, -5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight3 = PointLight(glm::vec3(-5.0f, 8.0f, -5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     // Directional lights initialization
     DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
@@ -192,7 +189,7 @@ int main()
 
     // For fps camera
     SetCursorMode(window, GLE_CURSOR_MODE_WRAP);
-    UseRawMouseMotion(window);
+    //UseRawMouseMotion(window);
 
     // Game loop variables
     glm::vec3 playerForward = camera.transform.GetForward();
@@ -203,24 +200,46 @@ int main()
     glm::vec3 currentCursorPosition;
     glm::vec3 cursorPositionDelta;
 
+    float playerTranslateSpeed = 10.0f;
+    float playerRollSpeed = 180.0f;
+    float playerSensitivity = 35.0f;
+
+    glm::vec3 spherePosition = glm::vec3(0.0f, 5.0f, 0.0f);
+    glm::vec3 sphereVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    float sphereRadius = 0.5f;
+    Transform sphereTransform(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(sphereRadius, sphereRadius, sphereRadius));
+
+    // for filtering out first n cursorPositions as they give random values for first 1 or 2 calls when cursorMode disabled
+    // this is a GLFW issue that has not been solved for like 3 years for some reason, maybe I can go fix it myself at some point
+    // could also write wrapper methods for handling cursor position deltas for similar use cases that handles this
+    int cursorPositionRequestCount = 0;
+    int cursorPositionRequestThreshold = 2; // 2 == ignore first two calls
+
+    // frame delta info
+    double lastFrameTime = 0.0;
+    double currentFrameTime = 0.0;
+    float deltaTime = 0.0; // time in seconds between last frame and current frame (multiply by speeds to get per second movement)
+
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())
     {
-        //transform.Rotate(glm::vec3(0.0f, 0.5f, 0.0f));
+        lastFrameTime = currentFrameTime;
+        currentFrameTime = glfwGetTime();
+        deltaTime = currentFrameTime - lastFrameTime;
 
         playerForward = camera.transform.GetForward();
         playerRight = camera.transform.GetRight();
         playerUp = camera.transform.GetRight();
 
-        if(KeyPressed(window, GLE_KEY_A) || KeyPressed(window, GLE_KEY_LEFT)) { camera.transform.Translate(playerRight * -0.03f); }
-        else if(KeyPressed(window, GLE_KEY_D) || KeyPressed(window, GLE_KEY_RIGHT)) { camera.transform.Translate(playerRight * 0.03f); }
+        if(KeyPressed(window, GLE_KEY_A) || KeyPressed(window, GLE_KEY_LEFT)) { camera.transform.Translate(playerRight * -playerTranslateSpeed * deltaTime); }
+        else if(KeyPressed(window, GLE_KEY_D) || KeyPressed(window, GLE_KEY_RIGHT)) { camera.transform.Translate(playerRight * playerTranslateSpeed * deltaTime); }
 
-        if(KeyPressed(window, GLE_KEY_W) || KeyPressed(window, GLE_KEY_UP)) { camera.transform.Translate(playerForward * 0.03f); }
-        else if(KeyPressed(window, GLE_KEY_S) || KeyPressed(window, GLE_KEY_DOWN)) { camera.transform.Translate(playerForward * -0.03f); }
+        if(KeyPressed(window, GLE_KEY_W) || KeyPressed(window, GLE_KEY_UP)) { camera.transform.Translate(playerForward * playerTranslateSpeed * deltaTime); }
+        else if(KeyPressed(window, GLE_KEY_S) || KeyPressed(window, GLE_KEY_DOWN)) { camera.transform.Translate(playerForward * -playerTranslateSpeed * deltaTime); }
 
-        if(KeyPressed(window, GLE_KEY_Q)) { camera.transform.Rotate(0.0f, 0.0f, -1.0f); }
-        else if(KeyPressed(window, GLE_KEY_E)) { camera.transform.Rotate(0.0f, 0.0f, 1.0f); }
+        if(KeyPressed(window, GLE_KEY_Q)) { camera.transform.Rotate(0.0f, 0.0f, -playerRollSpeed * deltaTime); }
+        else if(KeyPressed(window, GLE_KEY_E)) { camera.transform.Rotate(0.0f, 0.0f, playerRollSpeed * deltaTime); }
 
         if(KeyPressed(window, GLE_KEY_ESCAPE))
         {
@@ -231,79 +250,74 @@ int main()
         currentCursorPosition = GetCursorPosition(window);
         cursorPositionDelta = currentCursorPosition - previousCursorPosition;
 
-        camera.transform.Rotate(-cursorPositionDelta.y * 0.2f, cursorPositionDelta.x * 0.2f, 0.0f);
+        if(cursorPositionRequestCount <= cursorPositionRequestThreshold)
+        {
+            cursorPositionDelta = VEC3F_ZERO; // ignore delta
+            cursorPositionRequestCount++;
+        }
+
+        camera.transform.Rotate(-cursorPositionDelta.y * playerSensitivity * deltaTime, cursorPositionDelta.x * playerSensitivity * deltaTime, 0.0f);
+
         // z-roll happens
-        // need to further investigate control schemes but this really isn't an actual issue rn
+        // need to further investigate control schemes (e.g. fps cam where y rotation occurs purely on WORLD y axis and there is no z rot)
 
         std::cout << camera.transform.DebugStr() << std::endl << std::endl;
 
-        shaderProgram.Bind();
-        model.BindVAO();
+        shaderProgram->Bind();
 
         // matrices that don't change with the model transform
-        shaderProgram.UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
-        shaderProgram.UniformMat4("viewMatrix", camera.GetViewMatrix());
-        shaderProgram.UniformVec3("viewPos", camera.transform.GetPosition());
+        shaderProgram->UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
+        shaderProgram->UniformMat4("viewMatrix", camera.GetViewMatrix());
+        shaderProgram->UniformVec3("viewPos", camera.transform.GetPosition());
 
         // Lights generic
-        shaderProgram.UniformInt("directionalLightCount", 1);
-        shaderProgram.UniformInt("pointLightCount", 4);
-        shaderProgram.UniformInt("spotLightCount", 1);
+        shaderProgram->UniformInt("directionalLightCount", 0);
+        shaderProgram->UniformInt("pointLightCount", 4);
+        shaderProgram->UniformInt("spotLightCount", 0);
 
         // Point lights uniform
-        pointLight0.Uniform(shaderProgram, 0);
-        pointLight1.Uniform(shaderProgram, 1);
-        pointLight2.Uniform(shaderProgram, 2);
-        pointLight3.Uniform(shaderProgram, 3);
+        pointLight0.Uniform(*shaderProgram, 0);
+        pointLight1.Uniform(*shaderProgram, 1);
+        pointLight2.Uniform(*shaderProgram, 2);
+        pointLight3.Uniform(*shaderProgram, 3);
 
         // Directional lights uniform
-        directionalLight0.Uniform(shaderProgram, 0);
+        directionalLight0.Uniform(*shaderProgram, 0);
 
         spotLight0.position = camera.transform.GetPosition();
         spotLight0.direction = playerForward;
         // Spot lights uniform
-        spotLight0.Uniform(shaderProgram, 0);
+        spotLight0.Uniform(*shaderProgram, 0);
 
-        // Material
-        shaderProgram.UniformInt("material.diffuseMap", 0);
-        shaderProgram.UniformInt("material.specularMap", 1);
-        model.BindTexture();
-        specularMap->Bind();
-        shaderProgram.UniformVec3("material.color", glm::vec3(1.0f, 0.0f, 0.0f));
-        shaderProgram.UniformFloat("material.shininess", 128);
-        shaderProgram.UniformBool("material.useTexture", GL_TRUE);
-        shaderProgram.UniformBool("material.unlit", GL_FALSE);
+        concreteMaterial->Bind();
+        ground.Bind(); // bind vao
 
-        /* This many draw calls has to be a performance issue, need to look into batched rendering */
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            transform.SetPosition(cubePositions[i]);
-            transform.SetRotation(glm::vec3(20.0f * i, 20.0f * i, 20.0f * i));
+        // matrices that do change with the model transform
+        shaderProgram->UniformMat4("modelMatrix", groundTransform.GetMatrix());
+        shaderProgram->UniformMat4("normalMatrix", groundTransform.GetNormalMatrix());
+        glDrawElements(GL_TRIANGLES, ground.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
-            // matrices that do change with the model transform
-            shaderProgram.UniformMat4("modelMatrix", transform.GetMatrix());
-            shaderProgram.UniformMat4("normalMatrix", transform.GetNormalMatrix());
-
-            // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
-            glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
-        }
-
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            transform.SetPosition(cubePositions[i] + glm::vec3(0.0f, 0.0f, -10.0f));
-            transform.SetRotation(glm::vec3(20.0f * i, 20.0f * i, 20.0f * i));
-
-            // matrices that do change with the model transform
-            shaderProgram.UniformMat4("modelMatrix", transform.GetMatrix());
-            shaderProgram.UniformMat4("normalMatrix", transform.GetNormalMatrix());
-
-            // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // wireframe
-            glDrawElements(GL_TRIANGLES, model.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
-        }
+        shinyPurpleMaterial->Bind();
+        sphere.Bind();
+        shaderProgram->UniformMat4("modelMatrix", sphereTransform.GetMatrix());
+        shaderProgram->UniformMat4("normalMatrix", sphereTransform.GetNormalMatrix());
+        glDrawElements(GL_TRIANGLES, sphere.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
         glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
+
+        /* Basic Physics Sim Stuff */
+        sphereTransform.SetPosition(spherePosition);
+        // step
+        spherePosition += sphereVelocity * deltaTime;
+        sphereVelocity += glm::vec3(0.0f, -9.8f * deltaTime, 0.0f);
+
+        if(spherePosition.y - sphereRadius <= groundTransform.GetPosition().y) // "collision" with ground
+        {
+            spherePosition.y = groundTransform.GetPosition().y + sphereRadius;
+            sphereVelocity *= glm::vec3(0.0f, -1.0f, 0.0f);
+        }
     }
 
     return 0;

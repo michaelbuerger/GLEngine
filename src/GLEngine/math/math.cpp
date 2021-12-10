@@ -34,7 +34,7 @@ glm::vec3 degreeClamp(const glm::vec3 &v)
 
 glm::quat eulerToQuat(const glm::vec3 &eulerAngles) { // takes euler angles in degrees (in order XYZ) and returns quaternion
     return glm::angleAxis(glm::radians(eulerAngles.x), glm::vec3(1, 0, 0)) 
-    * glm::angleAxis(glm::radians(eulerAngles.y), glm::vec3(0, 1, 0)) 
+    * glm::angleAxis(-glm::radians(eulerAngles.y), glm::vec3(0, 1, 0)) 
     * glm::angleAxis(glm::radians(eulerAngles.z), glm::vec3(0, 0, 1));
 }
 

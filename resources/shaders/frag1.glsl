@@ -1,20 +1,20 @@
 #version 330 core
 
-in vec2 texCoord;
-in vec3 normal;
+in vec2 texCoord; // interpolated texcoord of given fragment
+in vec3 normal; // normal of given fragment (same for whole face, probably different for NURBS)
 
-in vec3 fragPos;
+in vec3 fragPos; // position of fragment in world space
 
-out vec4 fragColor;
+out vec4 fragColor; // output color of given fragment (RGBA)
 
 struct Material
 {
   sampler2D diffuseMap;
   sampler2D specularMap;
-  vec3 color; // !!! ignored right now !!!
-  float shininess; // Doesn't matter if unlit == false
-  bool useTexture; // !!! ignored right now !!!
-  bool unlit; // !!! ignored right now !!!
+  vec3 color;
+  float shininess;
+  bool useTexture;
+  bool unlit;
 };
 
 struct DirectionalLight
@@ -81,29 +81,44 @@ void main()
   vec3 diffuseColor;
   vec3 specularColor;
 
-  ambientColor = vec3(texture(material.diffuseMap, texCoord));
-  diffuseColor = vec3(texture(material.diffuseMap, texCoord));
-  specularColor = vec3(texture(material.specularMap, texCoord));
+  if(material.useTexture)
+  {
+    // ambientColor = vec3(texture(material.diffuseMap, texCoord));
+    diffuseColor = vec3(texture(material.diffuseMap, texCoord));
+    ambientColor = diffuseColor;
+    specularColor = vec3(texture(material.specularMap, texCoord));
+  } else
+  {
+    diffuseColor = material.color;
+    ambientColor = material.color;
+    specularColor = vec3(1.0, 1.0, 1.0);
+  }
 
   vec3 result = vec3(0.0, 0.0, 0.0);
 
-  int directionalLightCountClamped = clamp(directionalLightCount, 0, MAX_DIRECTIONAL_LIGHTS);
-  int pointLightCountClamped = clamp(pointLightCount, 0, MAX_POINT_LIGHTS);
-  int spotLightCountClamped = clamp(spotLightCount, 0, MAX_SPOT_LIGHTS);
-
-  for(int i=0; i < directionalLightCountClamped; i++)
+  if(material.unlit == false)
   {
-    result += CalcDirectionalLight(directionalLight[i], ambientColor, diffuseColor, specularColor);
-  }
+    int directionalLightCountClamped = clamp(directionalLightCount, 0, MAX_DIRECTIONAL_LIGHTS);
+    int pointLightCountClamped = clamp(pointLightCount, 0, MAX_POINT_LIGHTS);
+    int spotLightCountClamped = clamp(spotLightCount, 0, MAX_SPOT_LIGHTS);
 
-  for(int i=0; i < pointLightCountClamped; i++)
-  {
-    result += CalcPointLight(pointLight[i], ambientColor, diffuseColor, specularColor);
-  }
+    for(int i=0; i < directionalLightCountClamped; i++)
+    {
+      result += CalcDirectionalLight(directionalLight[i], ambientColor, diffuseColor, specularColor);
+    }
 
-  for(int i=0; i < spotLightCountClamped; i++)
+    for(int i=0; i < pointLightCountClamped; i++)
+    {
+      result += CalcPointLight(pointLight[i], ambientColor, diffuseColor, specularColor);
+    }
+
+    for(int i=0; i < spotLightCountClamped; i++)
+    {
+      result += CalcSpotLight(spotLight[i], ambientColor, diffuseColor, specularColor);
+    }
+  } else
   {
-    result += CalcSpotLight(spotLight[i], ambientColor, diffuseColor, specularColor);
+    result = diffuseColor;
   }
 
   fragColor = vec4(result, 1.0);

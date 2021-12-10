@@ -24,6 +24,7 @@ public:
 
     void Translate(const glm::vec3 &translation);
     void Rotate(const float &pitch, const float &yaw, const float &roll);
+    void Rotate(const glm::vec3 &rotationXYZ);
 
     glm::vec3 GetPosition() const;
     glm::vec3 GetRotation() const;

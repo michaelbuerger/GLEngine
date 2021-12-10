@@ -1,12 +1,42 @@
-/* Options to pass to GLEngine Standard Shader
- * Color (bool) (true = add color multiplier to whatever follows, false = use vec4(1.0, 1.0, 1.0, 1.0))
- * Texture (bool) (true = assume that a texture will be passed, false = use vec4(1.0, 1.0, 1.0, 1.0))
- * Lighting (bool) (true = use properties below, false = unlit)
- *     Shininess (float) (higher = more shiny/less rough)
- *     Per light (passed as an array of structs or an array of each property)
- *         Light strength (float)
- *         Light color (vec3)
- *         Ambient strength (float) (0 = off)
- *         Diffuse strength (float) (0 = off)
- *         Specular strength (float) (0 = off)
- */
+#include <glm/glm.hpp>
+
+#include "GLEngine/graphics/Texture.hpp"
+#include "GLEngine/graphics/ShaderProgram.hpp"
+
+#ifndef GLE_MATERIAL_HPP
+#define GLE_MATERIAL_HPP
+
+namespace GLEngine
+{
+
+class Material
+{
+public:
+    Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram);
+    Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
+            const bool &unlit);
+    Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
+            const bool &unlit, const float &shininess);
+    Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
+            const bool &unlit, const float &shininess, const bool &useTexture, const glm::vec3 &color);
+private:
+    void m_Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
+            const bool &unlit, const float &shininess, const bool &useTexture, const glm::vec3 &color);
+public:
+    std::shared_ptr<Texture> diffuse;
+    std::shared_ptr<Texture> specular;
+    std::shared_ptr<ShaderProgram> shaderProgram;
+    
+    bool useTexture;
+    glm::vec3 color; // to use if useTexture == false
+    float shininess; // should be some power of 2
+    bool unlit; // specifies whether lighting applies to material
+
+public:
+    void Bind();
+    void Unbind();
+};
+
+}
+
+#endif

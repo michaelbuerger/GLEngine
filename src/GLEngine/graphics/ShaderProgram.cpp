@@ -50,4 +50,9 @@ void ShaderProgram::Bind()
 {
     glUseProgram(m_ID);
 }
+
+void ShaderProgram::Unbind() // calling this is unnecessary, one can simply bind another program
+{
+    glUseProgram(0);
+}
 }

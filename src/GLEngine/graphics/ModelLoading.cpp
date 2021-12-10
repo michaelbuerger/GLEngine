@@ -91,7 +91,7 @@ GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], c
     return vao;
 }
 
-Model CreateModelFromOBJFile(const char *address, std::shared_ptr<Texture> texture)
+Model CreateModelFromOBJFile(const char *address)
 {
 
     std::unique_ptr<GLfloat[]> vertices;
@@ -113,7 +113,7 @@ Model CreateModelFromOBJFile(const char *address, std::shared_ptr<Texture> textu
 
     GLuint vao = CreateVAO_MultiVBO(vertices.get(), texcoords.get(), normals.get(), indices, vertexCount); // Look into better way of doing this, right now these unique ptrs don't get freed ever because of .get
 
-    Model model = Model(vao, vertexCount, texture);
+    Model model = Model(vao, vertexCount);
 
     return model;
 }

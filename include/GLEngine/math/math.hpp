@@ -8,6 +8,8 @@
 #define VEC3F_UP glm::vec3(0.0f, 1.0f, 0.0f)
 #define VEC3F_FORWARD glm::vec3(0.0f, 0.0f, -1.0f)
 
+#define QUATF_IDENTITY glm::quat(1.0f, 0.0f, 0.0f, 0.0f); // rotation equivalent to -z heading
+
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <string>

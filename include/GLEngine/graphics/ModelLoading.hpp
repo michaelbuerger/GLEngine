@@ -20,7 +20,7 @@ namespace GLEngine
 GLuint CreateVAO(const GLfloat data[], const GLuint indices[], const GLsizeiptr &dataSizeBytes, const GLsizeiptr &indicesSizeBytes); // Note for GLsizeiptr args, sizeof operator on arrays are sufficient
 GLuint CreateVAO_MultiVBO(const GLfloat vertices[], const GLfloat texcoords[], const GLfloat normals[], const GLuint indices[], const GLuint &vertexCount);
 
-Model CreateModelFromOBJFile(const char *address, std::shared_ptr<Texture> texture);
+Model CreateModelFromOBJFile(const char *address);
 } // namespace GLEngine
 
 #endif
