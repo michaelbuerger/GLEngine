@@ -7,5 +7,4 @@
 /* Scans FILE till newline, does nothing with any scanned information */
 int ScanTillNewline(FILE* file);
 
-
 #endif
