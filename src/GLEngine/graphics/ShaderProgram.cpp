@@ -37,6 +37,10 @@ void ShaderProgram::UniformUint(const GLchar* name, const GLuint &value) const
 {
     glUniform1ui(glGetUniformLocation(m_ID, name), value);
 }
+void ShaderProgram::UniformVec2(const GLchar* name, const glm::vec2 &value) const
+{
+    glUniform2fv(glGetUniformLocation(m_ID, name), 1, glm::value_ptr(value));
+}
 void ShaderProgram::UniformVec3(const GLchar* name, const glm::vec3 &value) const
 {
     glUniform3fv(glGetUniformLocation(m_ID, name), 1, glm::value_ptr(value));
@@ -46,13 +50,18 @@ void ShaderProgram::UniformMat4(const GLchar* name, const glm::mat4 &value) cons
     glUniformMatrix4fv(glGetUniformLocation(m_ID, name), 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void ShaderProgram::Bind()
+void ShaderProgram::Bind() const
 {
     glUseProgram(m_ID);
 }
 
-void ShaderProgram::Unbind() // calling this is unnecessary, one can simply bind another program
+void ShaderProgram::Unbind() const // calling this is unnecessary, one can simply bind another program
 {
     glUseProgram(0);
+}
+
+GLuint ShaderProgram::GetID() const
+{
+    return m_ID;
 }
 }

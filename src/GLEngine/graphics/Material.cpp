@@ -38,6 +38,7 @@ namespace GLEngine
         this->shininess = shininess;
         this->useTexture = useTexture;
         this->color = color;
+        this->tiling = glm::vec2(1, 1);
     }
 
     void Material::Bind()
@@ -48,6 +49,7 @@ namespace GLEngine
         {
             this->shaderProgram->UniformInt("material.diffuseMap", GLE_MATERIAL_DIFFUSE_TEX_SLOT); // specify texture slot of diffuse map
             this->shaderProgram->UniformInt("material.specularMap", GLE_MATERIAL_SPECULAR_TEX_SLOT); // specify texture slot of specular map
+            this->shaderProgram->UniformVec2("material.tiling", this->tiling);
             
             this->diffuse->Bind();
             this->specular->Bind();
@@ -61,7 +63,7 @@ namespace GLEngine
         this->shaderProgram->UniformBool("material.useTexture", this->useTexture);
     }
 
-    void Material::Unbind()
+    void Material::Unbind() const
     {
         this->shaderProgram->Unbind();
         this->diffuse->Unbind();

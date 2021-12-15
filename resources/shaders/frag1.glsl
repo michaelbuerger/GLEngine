@@ -15,6 +15,7 @@ struct Material
   float shininess;
   bool useTexture;
   bool unlit;
+  vec2 tiling;
 };
 
 struct DirectionalLight
@@ -84,9 +85,9 @@ void main()
   if(material.useTexture)
   {
     // ambientColor = vec3(texture(material.diffuseMap, texCoord));
-    diffuseColor = vec3(texture(material.diffuseMap, texCoord));
+    diffuseColor = vec3(texture(material.diffuseMap, texCoord*material.tiling));
     ambientColor = diffuseColor;
-    specularColor = vec3(texture(material.specularMap, texCoord));
+    specularColor = vec3(texture(material.specularMap, texCoord*material.tiling));
   } else
   {
     diffuseColor = material.color;

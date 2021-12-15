@@ -2,4 +2,8 @@
 
 namespace GLEngine
 {
+    Renderer::Renderer()
+    {
+
+    }
 }

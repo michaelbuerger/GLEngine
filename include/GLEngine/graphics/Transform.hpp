@@ -18,6 +18,10 @@ public:
     Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);
 
     void SetPosition(const glm::vec3 &position);
+    void SetPositionX(const float &x);
+    void SetPositionY(const float &y);
+    void SetPositionZ(const float &z);
+
     void SetRotation(const glm::vec3 &rotation); // 0 - 360 (degrees)
     void SetQuaternion(const glm::quat &quaternion);
     void SetScale(const glm::vec3 &scale);

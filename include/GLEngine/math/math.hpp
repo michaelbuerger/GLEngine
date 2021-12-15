@@ -25,6 +25,8 @@ float cosDegrees(const float &degrees);
 float tanDegrees(const float &degrees);
 
 std::string debugVec3(glm::vec3 vec);
+
+double randomRange(const double &min, const double &max);
 } // namespace GLEngine
 
 #endif

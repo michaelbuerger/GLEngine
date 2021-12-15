@@ -59,4 +59,17 @@ std::string debugVec3(glm::vec3 vec)
     strStream << "[" << vec.x << ", " << vec.y << ", " << vec.z << "]";
     return strStream.str();
 }
+
+double randomRange(const double &min, const double &max)
+{
+    if(min >= max) { return min; } 
+
+    // generate double between 0 and 1
+    double normalizedRandom = (double) std::rand() / RAND_MAX;
+    // figure out total span of interval/range
+    double rangeLength = max - min;
+
+    // convert 0->1 to 0->length of range, then offset by min to map to min->max
+    return (normalizedRandom * rangeLength) + min;
+}
 } // namespace GLEngine

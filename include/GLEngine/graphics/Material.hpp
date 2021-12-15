@@ -31,10 +31,11 @@ public:
     glm::vec3 color; // to use if useTexture == false
     float shininess; // should be some power of 2
     bool unlit; // specifies whether lighting applies to material
+    glm::vec2 tiling; // defaults to (1, 1), non-uints --> undefined behaviour
 
 public:
     void Bind();
-    void Unbind();
+    void Unbind() const;
 };
 
 }

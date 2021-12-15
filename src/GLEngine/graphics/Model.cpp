@@ -10,15 +10,15 @@
 namespace GLEngine
 {
 
-Model::Model(const GLuint &vao, const GLuint &vertexCount)
+Model::Model(const GLuint &vao, const GLuint &indicesCount)
 {
     m_vao = vao;
-    m_vertexCount = vertexCount;
+    m_indices = indicesCount;
 }
 Model::Model(const Model &model)
 {
     m_vao = model.GetVAO();
-    m_vertexCount = model.GetVertexCount();
+    m_indices = model.GetIndicesCount();
 }
 
 GLuint Model::GetVAO() const
@@ -26,9 +26,9 @@ GLuint Model::GetVAO() const
     return m_vao;
 }
 
-GLuint Model::GetVertexCount() const
+GLuint Model::GetIndicesCount() const
 {
-    return m_vertexCount;
+    return m_indices;
 }
 
 void Model::Bind() const

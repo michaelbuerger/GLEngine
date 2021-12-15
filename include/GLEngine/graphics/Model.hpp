@@ -15,18 +15,18 @@ class Model
 public:
     // Model(); // Create model with some primitive
     // Model(const GLuint& vao); // Create model with vao
-    Model(const GLuint &vao, const GLuint &vertexCount);
+    Model(const GLuint &vao, const GLuint &indicesCount);
     Model(const Model &model);
 
     GLuint GetVAO() const;
-    GLuint GetVertexCount() const;
+    GLuint GetIndicesCount() const;
 
     void Bind() const;
     void Unbind() const;
 
 private:
     GLuint m_vao;
-    GLuint m_vertexCount;
+    GLuint m_indices;
 };
 
 } // namespace GLEngine

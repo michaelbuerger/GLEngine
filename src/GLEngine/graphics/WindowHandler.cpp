@@ -1,6 +1,7 @@
 #include "GLEngine/graphics/WindowHandler.hpp"
 #include "GLEngine/graphics/graphics.hpp"
 #include "GLEngine/logging/Log.hpp"
+#include "GLEngine/defines.hpp"
 
 #include <iostream>
 #include <algorithm>
@@ -21,8 +22,8 @@ WindowHandler::WindowHandler()
 
 GLFWwindow *WindowHandler::CreateWindow(const int &width, const int &height, const char *title, GLFWmonitor *monitor, GLFWwindow *share, const std::vector<int> &windowHintNames, const std::vector<int> &windowHintValues)
 {
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLE_OPENGL_VERSION_MAJOR);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLE_OPENGL_VERSION_MINOR);
 
     for (size_t i = 0; i < std::min(windowHintNames.size(), windowHintValues.size()); i++)
     {

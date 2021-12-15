@@ -47,6 +47,22 @@ void Transform::SetPosition(const glm::vec3 &position)
     m_transformationMatrixNeedsRecalc = true;
     m_position = position;
 }
+void Transform::SetPositionX(const float &x)
+{
+    m_transformationMatrixNeedsRecalc = true;
+    m_position.x = x;
+}
+void Transform::SetPositionY(const float &y)
+{
+    m_transformationMatrixNeedsRecalc = true;
+    m_position.y = y;
+}
+void Transform::SetPositionZ(const float &z)
+{
+    m_transformationMatrixNeedsRecalc = true;
+    m_position.z = z;
+}
+
 void Transform::SetRotation(const glm::vec3 &rotation) // 0 - 360 (degrees)
 {
     m_transformationMatrixNeedsRecalc = true;

@@ -8,6 +8,7 @@
 #include "GLEngine/graphics/Texture.hpp"
 #include "GLEngine/graphics/Material.hpp"
 #include "GLEngine/graphics/Model.hpp"
+#include "GLEngine/graphics/GameObject.hpp"
 #include "GLEngine/graphics/ModelLoading.hpp"
 #include "GLEngine/graphics/Transform.hpp"
 #include "GLEngine/graphics/Camera.hpp"
@@ -38,6 +39,7 @@
 #include <exception>
 #include <memory>
 #include <cmath>
+#include <sstream>
 
 using namespace GLEngine;
 
@@ -69,11 +71,8 @@ https://github.com/ocornut/imgui
 REFACTOR:
 - [X] Texture --> material
 - [X] Get rid of references to texture in model
-- [ ] GameObject --> model + material
-- [ ] Model + material manager (resource manager)
-- [ ] Lights --> use transform
-- [ ] Light manager
-- [ ] Scene manager --> resource manager + light manager + shader program- + interface w rendering
+- [X] GameObject --> model + material + Transform
+- [ ] Renderer --> Takes in list of GameObjects
 */
 
 /*
@@ -81,6 +80,12 @@ REFACTOR:
 - [X] Bouncy ball
 - [ ] Batched/indexed (better) rendering
 */
+
+struct BouncyBall
+{
+    GameObject gameObject { GameObject(nullptr, nullptr) };
+    glm::vec3 velocity { VEC3F_ZERO };
+};
 
 int main()
 {
@@ -104,7 +109,7 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1920, 1080, "GLEngine Test Window 1", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.CreateWindow(1920, 1080, "GLEngine", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -112,6 +117,14 @@ int main()
     {
         std::cout << "Error: " << glewGetErrorString(err) << std::endl;
     }
+
+    /* OPENGL CONTEXT */
+    glfwMakeContextCurrent(window); // TODO: Figure out dependance on this line (like what code needs the context)
+
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 
     /* Setup Dear ImGui context */
     IMGUI_CHECKVERSION();
@@ -130,11 +143,9 @@ int main()
     // use default font for now
 
     /* Print useful information */
-    std::cout << "Latest supported OpenGL version on this system is " << glGetString(GL_VERSION) << std::endl;
     std::cout << "GLEngine is currently using OpenGL version " << GLE_OPENGL_VERSION_MAJOR << "." << GLE_OPENGL_VERSION_MINOR << std::endl;
 
-    /* --- --- */
-
+    /* TEXTURES */
     std::shared_ptr<Texture> concreteTexture;
     std::shared_ptr<Texture> allWhiteTexture;
     std::shared_ptr<Texture> testTexture;
@@ -142,7 +153,7 @@ int main()
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
         concreteTexture = std::make_shared<Texture>(ResPathRelative("textures/concrete.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
         allWhiteTexture = std::make_shared<Texture>(ResPathRelative("textures/solidwhite.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
-        testTexture = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
+        testTexture = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -152,28 +163,44 @@ int main()
 
     std::shared_ptr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
 
+    /* MATERIALS */
     bool unlit1 = false;
-    std::shared_ptr<Material> shinyOrangeMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 256, false, glm::vec3(0.925f, 0.607f, 0.015f));
+    std::shared_ptr<Material> shinyOrangeMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 512, false, glm::vec3(0.925f, 0.607f, 0.015f));
     std::shared_ptr<Material> concreteMaterial = std::make_shared<Material>(concreteTexture, allWhiteTexture, shaderProgram, unlit1, 32);
-    std::shared_ptr<Material> testMaterial = std::make_shared<Material>(testTexture, allWhiteTexture, shaderProgram, unlit1, 512);
-    std::shared_ptr<Material> shinyPurpleMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 256, false, glm::vec3(0.8f, 0.1f, 0.5f));
+    std::shared_ptr<Material> testMaterial1 = std::make_shared<Material>(testTexture, allWhiteTexture, shaderProgram, unlit1, 512);
+    std::shared_ptr<Material> shinyPurpleMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 512, false, glm::vec3(0.8f, 0.1f, 0.5f));
 
-    Model cube = CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str());
-    Model ground = CreateModelFromOBJFile(ResPathRelative("models/plane.obj").c_str());
+    /* MODELS */
+    std::shared_ptr<Model> cube = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str()));
+    std::shared_ptr<Model> plane = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/plane.obj").c_str()));
+    std::shared_ptr<Model> sphere = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/smoothsphere.obj").c_str()));
+    std::shared_ptr<Model> dog = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/dog.obj").c_str()));
 
-    Model sphere = CreateModelFromOBJFile(ResPathRelative("models/smoothsphere.obj").c_str());
-
-    glfwMakeContextCurrent(window); // TODO: Figure out dependance on this line (like what code needs the context)
-
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-
-    Transform transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-    Camera camera = Camera(Transform(glm::vec3(0.0f, 5.0f, 3.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
+    /* SCENE */
+    Camera camera = Camera(Transform(glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3(-45.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
                            90.0f, 16.0f / 9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
-    Transform groundTransform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(10.0f, 1.0f, 10.0f));
+
+    testMaterial1->tiling = glm::vec2(6.0f, 6.0f); // sets tiling multiplier, affects anything referencing this material
+    GameObject ground = GameObject(plane, testMaterial1, Transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(12.0f, 1.0f, 12.0f)));
+
+    /* BALLS */
+
+    uint bouncyBallsCount = 512;
+    BouncyBall bouncyBalls[bouncyBallsCount];
+
+    float minX = -10.0f, maxX = 10.0f, minY = 5.0f, maxY = 10.0f, minZ = -10.0f, maxZ = 10.0f;
+    float minBallScale = 0.25f, maxBallScale = 0.35f;
+
+    for(uint i=0; i<bouncyBallsCount; i++)
+    {
+        glm::vec3 ballPosition = glm::vec3((float)randomRange(minX, maxX), (float)randomRange(minY, maxY), (float)randomRange(minZ, maxZ));
+        float ballScale = randomRange(minBallScale, maxBallScale);
+
+        // create bouncy ball with given ballPosition, ballScale, and default velocity of vec3(zero)
+        bouncyBalls[i].gameObject.model = sphere;
+        bouncyBalls[i].gameObject.material = shinyPurpleMaterial;
+        bouncyBalls[i].gameObject.transform = Transform(ballPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(ballScale, ballScale, ballScale));
+    }
 
     // Point lights initialization
     PointLight pointLight0 = PointLight(glm::vec3(5.0f, 8.0f, 5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
@@ -182,16 +209,12 @@ int main()
     PointLight pointLight3 = PointLight(glm::vec3(-5.0f, 8.0f, -5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     // Directional lights initialization
-    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(1.2f, 1.0f, 2.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f));
+    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(0.0f, -0.5f, -0.5f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.25f, 0.25f, 0.25f), glm::vec3(0.9f, 0.9f, 0.9f));
 
     // Spot lights initialization
     SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
-    // For fps camera
-    SetCursorMode(window, GLE_CURSOR_MODE_WRAP);
-    //UseRawMouseMotion(window);
-
-    // Game loop variables
+    /* GAME LOOP VARIABLES */
     glm::vec3 playerForward = camera.transform.GetForward();
     glm::vec3 playerRight = camera.transform.GetRight();
     glm::vec3 playerUp = camera.transform.GetRight();
@@ -201,13 +224,12 @@ int main()
     glm::vec3 cursorPositionDelta;
 
     float playerTranslateSpeed = 10.0f;
-    float playerRollSpeed = 180.0f;
-    float playerSensitivity = 35.0f;
+    float playerRollSpeed = 120.0f;
+    float playerSensitivity = 10.0f;
 
-    glm::vec3 spherePosition = glm::vec3(0.0f, 5.0f, 0.0f);
-    glm::vec3 sphereVelocity = glm::vec3(0.0f, 0.0f, 0.0f);
-    float sphereRadius = 0.5f;
-    Transform sphereTransform(glm::vec3(0.0f, 5.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(sphereRadius, sphereRadius, sphereRadius));
+    /* 6DOF CAMERA */
+    SetCursorMode(window, GLE_CURSOR_MODE_WRAP);
+    UseRawMouseMotion(window);
 
     // for filtering out first n cursorPositions as they give random values for first 1 or 2 calls when cursorMode disabled
     // this is a GLFW issue that has not been solved for like 3 years for some reason, maybe I can go fix it myself at some point
@@ -215,18 +237,27 @@ int main()
     int cursorPositionRequestCount = 0;
     int cursorPositionRequestThreshold = 2; // 2 == ignore first two calls
 
-    // frame delta info
+    /* TIME */
     double lastFrameTime = 0.0;
     double currentFrameTime = 0.0;
     float deltaTime = 0.0; // time in seconds between last frame and current frame (multiply by speeds to get per second movement)
+    std::stringstream windowTitle;
 
     std::cout << "Entering loop..." << std::endl;
     /* Loop */
     while (!windowHandler.ShouldAnyWindowClose())
     {
+        /* CALC DELTA TIME */
         lastFrameTime = currentFrameTime;
         currentFrameTime = glfwGetTime();
         deltaTime = currentFrameTime - lastFrameTime;
+
+        /* DISPLAY FPS WINDOW TITLE */
+        windowTitle << "GLEngine [" << (int) std::floor(1/deltaTime) << " FPS]";
+        glfwSetWindowTitle(window, windowTitle.str().c_str());
+        windowTitle.str(std::string()); // end-result same as .str(""), but more efficient on some compilers
+        windowTitle.clear();
+
 
         playerForward = camera.transform.GetForward();
         playerRight = camera.transform.GetRight();
@@ -271,7 +302,7 @@ int main()
         shaderProgram->UniformVec3("viewPos", camera.transform.GetPosition());
 
         // Lights generic
-        shaderProgram->UniformInt("directionalLightCount", 0);
+        shaderProgram->UniformInt("directionalLightCount", 1);
         shaderProgram->UniformInt("pointLightCount", 4);
         shaderProgram->UniformInt("spotLightCount", 0);
 
@@ -289,35 +320,43 @@ int main()
         // Spot lights uniform
         spotLight0.Uniform(*shaderProgram, 0);
 
-        concreteMaterial->Bind();
-        ground.Bind(); // bind vao
+        ground.Bind(); // draw ground
+        glDrawElements(GL_TRIANGLES, ground.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
-        // matrices that do change with the model transform
-        shaderProgram->UniformMat4("modelMatrix", groundTransform.GetMatrix());
-        shaderProgram->UniformMat4("normalMatrix", groundTransform.GetNormalMatrix());
-        glDrawElements(GL_TRIANGLES, ground.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
+        for(int i=0; i<bouncyBallsCount; i++)
+        {
+            // create reference to array element
+            BouncyBall &bouncyBall = bouncyBalls[i];
+            // could also do the following then dereference when referencing
+            // BouncyBall *bouncyBall = &bouncyBalls[i];
+            /* RENDER BOUNCY BALLS */
 
-        shinyPurpleMaterial->Bind();
-        sphere.Bind();
-        shaderProgram->UniformMat4("modelMatrix", sphereTransform.GetMatrix());
-        shaderProgram->UniformMat4("normalMatrix", sphereTransform.GetNormalMatrix());
-        glDrawElements(GL_TRIANGLES, sphere.GetVertexCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
+            bouncyBall.gameObject.Bind();
+            glDrawElements(GL_TRIANGLES, bouncyBall.gameObject.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
 
+            /* BOUNCY BALLS PHYSICS */
+            float gravityConstant = 9.81f;
+            float collisionVelocityMultiplier = 0.9f;
+
+            float sphereRadius = bouncyBall.gameObject.transform.GetScale().y;
+
+            // Collision
+            if(bouncyBall.gameObject.transform.GetPosition().y - sphereRadius <= ground.transform.GetPosition().y) // "collision" with ground
+            {
+                bouncyBall.gameObject.transform.SetPositionY(ground.transform.GetPosition().y + sphereRadius);
+                bouncyBall.velocity *= glm::vec3(0.0f, -collisionVelocityMultiplier, 0.0f);
+            }
+
+            // Step
+            bouncyBall.velocity += glm::vec3(0.0f, -2.0f*gravityConstant * deltaTime, 0.0f);
+            bouncyBall.gameObject.transform.Translate(bouncyBall.velocity * deltaTime);
+            bouncyBall.gameObject.transform.Rotate(glm::vec3(randomRange(0.0f, 1.0f), randomRange(0.0f, 1.0f), randomRange(0.0f, 1.0f)) * abs(bouncyBall.velocity.y) * deltaTime * 90.0f);
+        }
+
+        /* ----- */
         glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glfwPollEvents();
-
-        /* Basic Physics Sim Stuff */
-        sphereTransform.SetPosition(spherePosition);
-        // step
-        spherePosition += sphereVelocity * deltaTime;
-        sphereVelocity += glm::vec3(0.0f, -9.8f * deltaTime, 0.0f);
-
-        if(spherePosition.y - sphereRadius <= groundTransform.GetPosition().y) // "collision" with ground
-        {
-            spherePosition.y = groundTransform.GetPosition().y + sphereRadius;
-            sphereVelocity *= glm::vec3(0.0f, -1.0f, 0.0f);
-        }
     }
 
     return 0;
