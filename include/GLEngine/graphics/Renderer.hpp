@@ -1,23 +1,19 @@
-#include "GLEngine/graphics/GameObject.hpp"
-
 #ifndef GLE_RENDERER_HPP
 #define GLE_RENDERER_HPP
+
+#include "GLEngine/graphics/GameObject.hpp"
 
 namespace GLEngine
 {
 
 class Renderer
 {
-public: // constructors
-    Renderer();
+public:
+    static void Init();
+    static void Update();
 
-public: // public elements
-
-private: // private elements
-
-public: // public methods
-
-private: // private methods
+    static void Render(GameObject& gameObject);
+    static void RenderInstanced(GameObject& gameObject, const glm::mat4* transformationMatricesArrayPtr, const uint& instances);
 };
 
 } // namespace GLEngine

@@ -23,7 +23,6 @@ private: // private elements
 
 public: // public methods
     void Bind();
-    void Unbind() const;
 
 private: // private methods
 };

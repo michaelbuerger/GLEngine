@@ -19,9 +19,11 @@ public:
             const bool &unlit, const float &shininess);
     Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
             const bool &unlit, const float &shininess, const bool &useTexture, const glm::vec3 &color);
+    Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
+            const bool &unlit, const float &shininess, const bool &useTexture, const glm::vec3 &color, const bool &instanced);
 private:
     void m_Material(const std::shared_ptr<Texture> &diffuse, const std::shared_ptr<Texture> &specular, const std::shared_ptr<ShaderProgram> &shaderProgram,
-            const bool &unlit, const float &shininess, const bool &useTexture, const glm::vec3 &color);
+            const bool &unlit, const float &shininess, const bool &useTexture, const glm::vec3 &color, const bool &instanced);
 public:
     std::shared_ptr<Texture> diffuse;
     std::shared_ptr<Texture> specular;
@@ -32,10 +34,10 @@ public:
     float shininess; // should be some power of 2
     bool unlit; // specifies whether lighting applies to material
     glm::vec2 tiling; // defaults to (1, 1), non-uints --> undefined behaviour
+    bool instanced;
 
 public:
-    void Bind();
-    void Unbind() const;
+    void Bind() const;
 };
 
 }

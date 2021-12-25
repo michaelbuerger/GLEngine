@@ -24,10 +24,4 @@ namespace GLEngine
         this->material->shaderProgram->UniformMat4("modelMatrix", this->transform.GetMatrix());
         this->material->shaderProgram->UniformMat4("normalMatrix", this->transform.GetNormalMatrix());
     }
-
-    void GameObject::Unbind() const
-    {
-        this->material->Unbind();
-        this->model->Unbind();
-    }
 } // namespace GLEngine

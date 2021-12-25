@@ -3,6 +3,7 @@
 
 #include "GLEngine/defines.hpp"
 #include "GLEngine/graphics/graphics.hpp"
+#include "GLEngine/graphics/Transform.hpp"
 
 #include <memory>
 #include <utility>
@@ -22,11 +23,15 @@ public:
     GLuint GetIndicesCount() const;
 
     void Bind() const;
-    void Unbind() const;
+
+    void UploadInstanceData(const glm::mat4* transformMatrixArrayPtr, const GLuint &transformsCount);
 
 private:
     GLuint m_vao;
     GLuint m_indices;
+
+    GLuint m_instances = 0; // under normal circumstances these are irrelevant
+    GLuint m_instanceMatrixBuffer;
 };
 
 } // namespace GLEngine

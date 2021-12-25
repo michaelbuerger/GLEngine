@@ -81,12 +81,6 @@ REFACTOR:
 - [ ] Batched/indexed (better) rendering
 */
 
-struct BouncyBall
-{
-    GameObject gameObject { GameObject(nullptr, nullptr) };
-    glm::vec3 velocity { VEC3F_ZERO };
-};
-
 int main()
 {
     Log::Init(spdlog::level::trace);
@@ -121,10 +115,8 @@ int main()
     /* OPENGL CONTEXT */
     glfwMakeContextCurrent(window); // TODO: Figure out dependance on this line (like what code needs the context)
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    /* RENDER */
+    Renderer::Init();
 
     /* Setup Dear ImGui context */
     IMGUI_CHECKVERSION();
@@ -147,13 +139,21 @@ int main()
 
     /* TEXTURES */
     std::shared_ptr<Texture> concreteTexture;
+    std::shared_ptr<Texture> framedWhiteTexture;
     std::shared_ptr<Texture> allWhiteTexture;
     std::shared_ptr<Texture> testTexture;
+    std::shared_ptr<Texture> hughTexture;
+    std::shared_ptr<Texture> lilFrogDiffuseTexture;
+    std::shared_ptr<Texture> lilFrogSpecularTexture;
     try
     { // TODO: Look into cleaner way of doing this, so user of engine doesn't have to manually handle the exception
-        concreteTexture = std::make_shared<Texture>(ResPathRelative("textures/concrete.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
-        allWhiteTexture = std::make_shared<Texture>(ResPathRelative("textures/solidwhite.png").c_str(), GL_TEXTURE1, STBI_rgb, true);
-        testTexture = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), GL_TEXTURE0, STBI_rgb, true);
+        concreteTexture = std::make_shared<Texture>(ResPathRelative("textures/concrete.png").c_str(), STBI_rgb, true);
+        framedWhiteTexture = std::make_shared<Texture>(ResPathRelative("textures/framed-white.png").c_str(), STBI_rgb, true);
+        allWhiteTexture = std::make_shared<Texture>(ResPathRelative("textures/solid-white.png").c_str(), STBI_rgb, true);
+        testTexture = std::make_shared<Texture>(ResPathRelative("textures/test-texture.png").c_str(), STBI_rgb, true);
+        hughTexture = std::make_shared<Texture>(ResPathRelative("textures/hugh.png").c_str(), STBI_rgb, true);
+        lilFrogDiffuseTexture = std::make_shared<Texture>(ResPathRelative("textures/lil-frog-diffuse.png").c_str(), STBI_rgb, true);
+        lilFrogSpecularTexture = std::make_shared<Texture>(ResPathRelative("textures/lil-frog-specular.png").c_str(), STBI_rgb, true);
     }
     catch (std::exception &e)
     {
@@ -165,41 +165,57 @@ int main()
 
     /* MATERIALS */
     bool unlit1 = false;
-    std::shared_ptr<Material> shinyOrangeMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 512, false, glm::vec3(0.925f, 0.607f, 0.015f));
+    std::shared_ptr<Material> shinyOrangeMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 256, false, glm::vec3(0.925f, 0.607f, 0.015f));
     std::shared_ptr<Material> concreteMaterial = std::make_shared<Material>(concreteTexture, allWhiteTexture, shaderProgram, unlit1, 32);
-    std::shared_ptr<Material> testMaterial1 = std::make_shared<Material>(testTexture, allWhiteTexture, shaderProgram, unlit1, 512);
-    std::shared_ptr<Material> shinyPurpleMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 512, false, glm::vec3(0.8f, 0.1f, 0.5f));
+    std::shared_ptr<Material> testMaterial1 = std::make_shared<Material>(testTexture, allWhiteTexture, shaderProgram, unlit1, 256);
+    std::shared_ptr<Material> shinyPurpleMaterial = std::make_shared<Material>(nullptr, nullptr, shaderProgram, unlit1, 256, false, glm::vec3(0.8f, 0.1f, 0.5f));
+    std::shared_ptr<Material> hughMaterial = std::make_shared<Material>(hughTexture, allWhiteTexture, shaderProgram, unlit1, 256);
+
+    // when using lil-frog-specular, the texture appears all white, idk why
+    std::shared_ptr<Material> lilFrogMaterial = std::make_shared<Material>(lilFrogDiffuseTexture, allWhiteTexture, shaderProgram, unlit1, 128);
+    std::shared_ptr<Material> framedWhiteMaterial = std::make_shared<Material>(framedWhiteTexture, allWhiteTexture, shaderProgram, unlit1, 256);
 
     /* MODELS */
     std::shared_ptr<Model> cube = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/cube.obj").c_str()));
     std::shared_ptr<Model> plane = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/plane.obj").c_str()));
     std::shared_ptr<Model> sphere = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/smoothsphere.obj").c_str()));
     std::shared_ptr<Model> dog = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/dog.obj").c_str()));
+    std::shared_ptr<Model> hugh = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/hugh.obj").c_str()));
+    std::shared_ptr<Model> lilFrog = std::make_shared<Model>(CreateModelFromOBJFile(ResPathRelative("models/lil-frog.obj").c_str()));
 
     /* SCENE */
     Camera camera = Camera(Transform(glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3(-45.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
                            90.0f, 16.0f / 9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
-    testMaterial1->tiling = glm::vec2(6.0f, 6.0f); // sets tiling multiplier, affects anything referencing this material
-    GameObject ground = GameObject(plane, testMaterial1, Transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(12.0f, 1.0f, 12.0f)));
+    GameObject ground = GameObject(plane, concreteMaterial, Transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f)));
+    ground.material->tiling = glm::vec2(25, 25); // sets tiling multiplier, affects anything referencing this material
+
+    GameObject bouncyBallInstance = GameObject(cube, shinyPurpleMaterial, Transform());
 
     /* BALLS */
 
-    uint bouncyBallsCount = 512;
-    BouncyBall bouncyBalls[bouncyBallsCount];
+    uint bouncyBallsCount = 1024*1000;
+    std::vector<Transform> bouncyBallTransforms(bouncyBallsCount);
+    std::vector<glm::mat4> bouncyBallTransformationMatrices(bouncyBallsCount);
+    std::vector<glm::vec3> bouncyBallVelocities(bouncyBallsCount);
 
-    float minX = -10.0f, maxX = 10.0f, minY = 5.0f, maxY = 10.0f, minZ = -10.0f, maxZ = 10.0f;
-    float minBallScale = 0.25f, maxBallScale = 0.35f;
+    float boundsDist = 1000.0f;
+
+    float minX = -boundsDist, maxX = boundsDist,
+    minY = 5.0f, maxY = 100.0f,
+    minZ = -boundsDist, maxZ = boundsDist;
+    float minBallScale = 0.6f, maxBallScale = 0.6f;
 
     for(uint i=0; i<bouncyBallsCount; i++)
     {
         glm::vec3 ballPosition = glm::vec3((float)randomRange(minX, maxX), (float)randomRange(minY, maxY), (float)randomRange(minZ, maxZ));
+        glm::vec3 ballRotation = glm::vec3((float)randomRange(0, 360), (float)randomRange(0, 360), (float)randomRange(0, 360));
         float ballScale = randomRange(minBallScale, maxBallScale);
 
         // create bouncy ball with given ballPosition, ballScale, and default velocity of vec3(zero)
-        bouncyBalls[i].gameObject.model = sphere;
-        bouncyBalls[i].gameObject.material = shinyPurpleMaterial;
-        bouncyBalls[i].gameObject.transform = Transform(ballPosition, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(ballScale, ballScale, ballScale));
+        bouncyBallTransforms.at(i) = Transform(ballPosition, ballRotation*glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(ballScale, ballScale, ballScale));
+        bouncyBallTransformationMatrices.at(i) = bouncyBallTransforms.at(i).GetMatrix();
+        bouncyBallVelocities.at(i) = VEC3F_ZERO;
     }
 
     // Point lights initialization
@@ -209,7 +225,7 @@ int main()
     PointLight pointLight3 = PointLight(glm::vec3(-5.0f, 8.0f, -5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     // Directional lights initialization
-    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(0.0f, -0.5f, -0.5f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.25f, 0.25f, 0.25f), glm::vec3(0.9f, 0.9f, 0.9f));
+    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(0.0f, -0.5f, -0.5f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.9f, 0.9f, 0.9f));
 
     // Spot lights initialization
     SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
@@ -294,8 +310,6 @@ int main()
 
         std::cout << camera.transform.DebugStr() << std::endl << std::endl;
 
-        shaderProgram->Bind();
-
         // matrices that don't change with the model transform
         shaderProgram->UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
         shaderProgram->UniformMat4("viewMatrix", camera.GetViewMatrix());
@@ -320,43 +334,43 @@ int main()
         // Spot lights uniform
         spotLight0.Uniform(*shaderProgram, 0);
 
-        ground.Bind(); // draw ground
-        glDrawElements(GL_TRIANGLES, ground.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
-
+        /* RENDER */
+        Renderer::Render(ground);
+        
+        if(KeyPressed(window, GLE_KEY_P))
+        {
         for(int i=0; i<bouncyBallsCount; i++)
         {
-            // create reference to array element
-            BouncyBall &bouncyBall = bouncyBalls[i];
-            // could also do the following then dereference when referencing
-            // BouncyBall *bouncyBall = &bouncyBalls[i];
-            /* RENDER BOUNCY BALLS */
-
-            bouncyBall.gameObject.Bind();
-            glDrawElements(GL_TRIANGLES, bouncyBall.gameObject.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr); // draw with indexing
-
             /* BOUNCY BALLS PHYSICS */
             float gravityConstant = 9.81f;
-            float collisionVelocityMultiplier = 0.9f;
+            float collisionVelocityMultiplier = 0.5f;
 
-            float sphereRadius = bouncyBall.gameObject.transform.GetScale().y;
+            float sphereRadius = bouncyBallTransforms[i].GetScale().y;
+            sphereRadius *= 2.35f; // for frogs
 
             // Collision
-            if(bouncyBall.gameObject.transform.GetPosition().y - sphereRadius <= ground.transform.GetPosition().y) // "collision" with ground
+            if(bouncyBallTransforms.at(i).GetPosition().y - sphereRadius <= ground.transform.GetPosition().y) // "collision" with ground
             {
-                bouncyBall.gameObject.transform.SetPositionY(ground.transform.GetPosition().y + sphereRadius);
-                bouncyBall.velocity *= glm::vec3(0.0f, -collisionVelocityMultiplier, 0.0f);
+                bouncyBallTransforms.at(i).SetPositionY(ground.transform.GetPosition().y + sphereRadius);
+                bouncyBallVelocities.at(i) *= glm::vec3(0.0f, -collisionVelocityMultiplier, 0.0f);
             }
 
             // Step
-            bouncyBall.velocity += glm::vec3(0.0f, -2.0f*gravityConstant * deltaTime, 0.0f);
-            bouncyBall.gameObject.transform.Translate(bouncyBall.velocity * deltaTime);
-            bouncyBall.gameObject.transform.Rotate(glm::vec3(randomRange(0.0f, 1.0f), randomRange(0.0f, 1.0f), randomRange(0.0f, 1.0f)) * abs(bouncyBall.velocity.y) * deltaTime * 90.0f);
+            bouncyBallVelocities.at(i) += glm::vec3(0.0f, -2.0*gravityConstant * deltaTime /* * randomRange(0.7f, 1.0f) */, 0.0f);
+            bouncyBallTransforms.at(i).Translate(bouncyBallVelocities.at(i) * deltaTime);
+
+            // update matrices
+            bouncyBallTransformationMatrices.at(i) = bouncyBallTransforms.at(i).GetMatrix();
+        }
         }
 
+        Renderer::RenderInstanced(bouncyBallInstance, bouncyBallTransformationMatrices.data(), bouncyBallsCount);
+
         /* ----- */
-        glfwSwapBuffers(window); // Make sure to update this window variable when changing between windows
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glfwSwapBuffers(window); // Swap front and back buffer, make sure to update this window variable when changing between windows
         glfwPollEvents();
+
+        Renderer::Update();
     }
 
     return 0;

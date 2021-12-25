@@ -15,14 +15,13 @@ class Texture
 {
 public:
     /* Load texture from resources */
-    Texture(const char *address, const GLuint &textureSlot, const int &loadFormat, const bool &shouldGenerateMipmaps);
+    Texture(const char *address, const int &loadFormat, const bool &shouldGenerateMipmaps);
     Texture(const Texture &texture);
 
     /* Creates texture from previously loaded image */
-    Texture(Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps);
+    Texture(Image &image, const bool &shouldGenerateMipmaps);
 
-    void Bind() const;
-    void Unbind() const;
+    void Bind(const GLuint& textureSlot) const;
 
     /* TODO: Figure out if glTexImage2D actually needs to be recalled when changing params */
 
@@ -34,13 +33,10 @@ public:
     /* Get OpenGL texture ID */
     GLuint GetGLID() const;
 
-    GLuint GetTextureSlot() const;
-
     std::shared_ptr<Image> image;
 
 private:
     GLuint m_textureID;
-    GLuint m_textureSlot;
 
     void GenTextureID();
     void Create(const bool &shouldGenerateMipmaps);

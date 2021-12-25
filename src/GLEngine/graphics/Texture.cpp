@@ -12,11 +12,10 @@ namespace GLEngine
 {
 
 /* Load texture from resources */
-Texture::Texture(const char *address, const GLuint &textureSlot, const int &loadFormat, const bool &shouldGenerateMipmaps)
+Texture::Texture(const char *address, const int &loadFormat, const bool &shouldGenerateMipmaps)
 {
     this->image = std::make_shared<Image>(address, loadFormat, true);
     this->GenTextureID();
-    m_textureSlot = textureSlot;
     this->Create(shouldGenerateMipmaps);
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
@@ -25,32 +24,25 @@ Texture::Texture(const Texture &texture)
 {
     this->image = texture.image;
     m_textureID = texture.GetGLID();
-    m_textureSlot = texture.GetTextureSlot();
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
 }
 
 /* Creates texture from previously loaded image data */
-Texture::Texture(Image &image, const GLuint &textureSlot, const bool &shouldGenerateMipmaps)
+Texture::Texture(Image &image, const bool &shouldGenerateMipmaps)
 {
     this->image = std::make_shared<Image>(image);
-    GenTextureID();
-    m_textureSlot = textureSlot;
+    this->GenTextureID();
     this->Create(shouldGenerateMipmaps);
     m_texParamNames = std::vector<GLuint>();
     m_texParamValues = std::vector<GLuint>();
 }
 
 /* Texture bind will only override another if it is on the same texture slot */
-void Texture::Bind() const
+void Texture::Bind(const GLuint& textureSlot) const
 {
-    glActiveTexture(m_textureSlot);
+    glActiveTexture(textureSlot);
     glBindTexture(GL_TEXTURE_2D, m_textureID);
-}
-void Texture::Unbind() const
-{
-    glActiveTexture(m_textureSlot);
-    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 /* TODO: Figure out if glTexImage2D actually needs to be recalled when changing params */
@@ -86,11 +78,6 @@ GLuint Texture::GetGLID() const
     return m_textureID;
 }
 
-GLuint Texture::GetTextureSlot() const
-{
-    return m_textureSlot;
-}
-
 void Texture::GenTextureID()
 {
     glGenTextures(1, &m_textureID);
@@ -105,7 +92,7 @@ void Texture::Create(const bool &shouldGenerateMipmaps)
 {
     if (m_textureID != 0)
     {
-        this->Bind();
+        glBindTexture(GL_TEXTURE_2D, m_textureID);
         for (size_t i = 0; i < std::min(m_texParamNames.size(), m_texParamValues.size()); i++)
         {
             glTexParameteri(GL_TEXTURE_2D, m_texParamNames[i], m_texParamValues[i]);
@@ -119,8 +106,6 @@ void Texture::Create(const bool &shouldGenerateMipmaps)
         {
             glGenerateMipmap(GL_TEXTURE_2D);
         }
-
-        this->Unbind();
     }
     else
     {
