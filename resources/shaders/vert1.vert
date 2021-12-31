@@ -6,17 +6,17 @@ layout (location = 2) in vec3 aNormal;
 layout (location = 3) in mat4 instanceMatrix; // Transformation matrix for the model, used if instanced = true
 
 uniform mat4 modelMatrix; // Transformation matrix for the model, used if instanced = false
-
 uniform mat4 viewMatrix; // Inverse of camera's transform
 uniform mat4 projectionMatrix; // Projection or orthographic, for scaling based on distance from camera
 uniform mat4 normalMatrix;
+uniform mat4 lightSpaceMatrix;
 
 uniform bool instanced;
 
 out vec2 texCoord;
 out vec3 normal;
-
 out vec3 fragPos;
+out vec4 fragPosLightSpace;
 
 void main()
 {
@@ -35,4 +35,6 @@ void main()
 
   texCoord = aTexCoord; // pass texcoord to fragment shader to be interpolated between vertices
   normal = mat3(normalMatrix) * aNormal; // send normal direction after rotation and potentially non-uniform scaling
+
+  fragPosLightSpace = lightSpaceMatrix * vec4(fragPos, 1.0);
 }

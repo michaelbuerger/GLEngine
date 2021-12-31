@@ -1,9 +1,9 @@
-#version 330 core
+#version 420 core
 
 in vec2 texCoord; // interpolated texcoord of given fragment
 in vec3 normal; // normal of given fragment (same for whole face, probably different for NURBS)
-
 in vec3 fragPos; // position of fragment in world space
+in vec4 fragPosLightSpace;
 
 out vec4 fragColor; // output color of given fragment (RGBA)
 
@@ -66,6 +66,8 @@ uniform int spotLightCount;
 
 uniform Material material;
 
+layout (binding = 4) uniform sampler2D shadowMap;
+
 uniform DirectionalLight directionalLight[MAX_DIRECTIONAL_LIGHTS];
 uniform PointLight pointLight[MAX_POINT_LIGHTS];
 uniform SpotLight spotLight[MAX_SPOT_LIGHTS];
@@ -75,6 +77,11 @@ uniform vec3 viewPos; // camera position
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
 vec3 CalcPointLight(PointLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
 vec3 CalcSpotLight(SpotLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor);
+float CalculateShadow(vec3 lightDir);
+
+float LinearizeDepth(float depth);
+float near = 1.0; 
+float far = 20.0; 
 
 void main()
 {
@@ -123,6 +130,49 @@ void main()
   }
 
   fragColor = vec4(result, 1.0);
+  //fragColor = vec4(vec3(LinearizeDepth(gl_FragCoord.z)), 1.0);
+  //fragColor = vec4(vec3(gl_FragCoord.z), 1.0);
+}
+  
+float LinearizeDepth(float depth) 
+{
+    float z = depth * 2.0 - 1.0; // back to NDC 
+    return ((2.0 * near * far) / (far + near - z * (far - near))) / far;	
+}
+
+float CalculateShadow(vec3 lightDir)
+{
+  // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+
+    float bias = max(0.05 * (1.0 - dot(normal, -lightDir)), 0.005);
+
+    // PCF -- soften shadows
+    int sampleFactor = 2; // default 1 --> increase generally increases quality
+    float texelFactor = 0.5; // default 1 --> decreasing generally increases quality
+
+    float shadow = 0.0;
+    vec2 texelSize = texelFactor / textureSize(shadowMap, 0);
+    for(int x = -sampleFactor; x <= sampleFactor; ++x)
+    {
+        for(int y = -sampleFactor; y <= sampleFactor; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+
+    if(projCoords.z > 1.0)
+        shadow = 0.0;
+
+    return shadow;
 }
 
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor)
@@ -142,7 +192,8 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 ambientColor, vec3 diffus
   vec3 diffuse = diff * light.diffuseMultiplier * diffuseColor;
   vec3 specular = spec * light.diffuseMultiplier * specularColor;
 
-  return ambient + diffuse + specular;
+  float shadow = CalculateShadow(lightDir);
+  return ambient + (diffuse + specular) * (1.0 - shadow);
 }
 
 vec3 CalcPointLight(PointLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor)
@@ -167,7 +218,7 @@ vec3 CalcPointLight(PointLight light, vec3 ambientColor, vec3 diffuseColor, vec3
   vec3 diffuse = diff * light.diffuseMultiplier * diffuseColor * attenuation;
   vec3 specular = spec * light.specularMultiplier * specularColor * attenuation;
 
-  return (ambient + diffuse + specular);
+  return ambient + (diffuse + specular);
 }
 
 vec3 CalcSpotLight(SpotLight light, vec3 ambientColor, vec3 diffuseColor, vec3 specularColor)
@@ -199,5 +250,5 @@ vec3 CalcSpotLight(SpotLight light, vec3 ambientColor, vec3 diffuseColor, vec3 s
   vec3 diffuse = diff * light.diffuseMultiplier * diffuseColor * attenuation * intensity;
   vec3 specular = spec * light.specularMultiplier * specularColor * attenuation * intensity;
 
-  return ambient + diffuse + specular;
+  return ambient + (diffuse + specular);
 }

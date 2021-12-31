@@ -38,6 +38,7 @@ public:
 
 public:
     void Bind() const;
+    void BindSubShader(const std::shared_ptr<ShaderProgram> shaderProgram) const;
 };
 
 }

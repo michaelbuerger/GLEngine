@@ -23,6 +23,7 @@ private: // private elements
 
 public: // public methods
     void Bind();
+    void BindSubShader(const std::shared_ptr<ShaderProgram> shaderProgram);
 
 private: // private methods
 };

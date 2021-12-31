@@ -4,6 +4,9 @@
 
 namespace GLEngine
 {
+    bool Renderer::subShaderProgram = false;
+    std::shared_ptr<ShaderProgram> Renderer::shaderProgramSubstitutePtr = nullptr; // use case intended for shadow stuff
+
     void Renderer::Init()
     {
         glEnable(GL_CULL_FACE);
@@ -20,7 +23,14 @@ namespace GLEngine
     void Renderer::Render(GameObject& gameObject)
     {
         gameObject.material->instanced = false;
-        gameObject.Bind(); // bind material --> use shader program, bind model --> use vao
+        if(subShaderProgram && shaderProgramSubstitutePtr != nullptr)
+        {
+            gameObject.BindSubShader(shaderProgramSubstitutePtr);
+        } else
+        {
+            gameObject.Bind();
+        }
+
         // indices data nullptr as element array buffer (vbo) is expected within model (vao)
         glDrawElements(GL_TRIANGLES, gameObject.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr);
     } 
@@ -32,9 +42,15 @@ namespace GLEngine
             // if transforms size grows OR transforms data has not been uploaded before, create dynamic vertex buffer for transform data
             // then upload data to dynamic vertex buffer
             gameObject.model->UploadInstanceData(transformationMatricesArrayPtr, instances);
-
             gameObject.material->instanced = true;
-            gameObject.Bind();
+
+            if(subShaderProgram && shaderProgramSubstitutePtr != nullptr)
+            {
+                gameObject.BindSubShader(shaderProgramSubstitutePtr);
+            } else
+            {
+                gameObject.Bind();
+            }
             glDrawElementsInstanced(GL_TRIANGLES, gameObject.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr, instances);
         }
     }

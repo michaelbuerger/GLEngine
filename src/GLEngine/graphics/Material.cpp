@@ -54,12 +54,19 @@ namespace GLEngine
 
         if(useTexture)
         {
-            this->shaderProgram->UniformInt("material.diffuseMap", GLE_MATERIAL_DIFFUSE_TEX_SLOT); // specify texture slot of diffuse map
-            this->shaderProgram->UniformInt("material.specularMap", GLE_MATERIAL_SPECULAR_TEX_SLOT); // specify texture slot of specular map
+            this->shaderProgram->UniformInt("material.diffuseMap", GLE_MATERIAL_DIFFUSE_UNIFORM_ID); // specify texture slot of diffuse map
+            this->shaderProgram->UniformInt("material.specularMap", GLE_MATERIAL_SPECULAR_UNIFORM_ID); // specify texture slot of specular map
             this->shaderProgram->UniformVec2("material.tiling", this->tiling);
             
-            this->diffuse->Bind(GLE_MATERIAL_DIFFUSE_TEX_SLOT);
-            this->specular->Bind(GLE_MATERIAL_SPECULAR_TEX_SLOT);
+            if(this->diffuse != nullptr)
+            {
+                this->diffuse->Bind(GLE_MATERIAL_DIFFUSE_TEX_SLOT);
+            }
+
+            if(this->specular != nullptr)
+            {
+                this->specular->Bind(GLE_MATERIAL_SPECULAR_TEX_SLOT);
+            }
         } else
         { // useTexture == false --> replace diffuse with color and specular with (1.0f, 1.0f, 1.0f) (in shader)
             this->shaderProgram->UniformVec3("material.color", this->color);
@@ -70,6 +77,37 @@ namespace GLEngine
         this->shaderProgram->UniformBool("material.useTexture", this->useTexture);
 
         this->shaderProgram->UniformBool("instanced", this->instanced);
+    }
+
+    void Material::BindSubShader(const std::shared_ptr<ShaderProgram> shaderProgram) const
+    {
+        shaderProgram->Bind();
+
+        if(useTexture)
+        {
+            shaderProgram->UniformInt("material.diffuseMap", GLE_MATERIAL_DIFFUSE_UNIFORM_ID); // specify texture slot of diffuse map
+            shaderProgram->UniformInt("material.specularMap", GLE_MATERIAL_SPECULAR_UNIFORM_ID); // specify texture slot of specular map
+            shaderProgram->UniformVec2("material.tiling", this->tiling);
+            
+            if(this->diffuse != nullptr)
+            {
+                this->diffuse->Bind(GLE_MATERIAL_DIFFUSE_TEX_SLOT);
+            }
+
+            if(this->specular != nullptr)
+            {
+                this->specular->Bind(GLE_MATERIAL_SPECULAR_TEX_SLOT);
+            }
+        } else
+        { // useTexture == false --> replace diffuse with color and specular with (1.0f, 1.0f, 1.0f) (in shader)
+            shaderProgram->UniformVec3("material.color", this->color);
+        }
+
+        shaderProgram->UniformBool("material.unlit", this->unlit);
+        shaderProgram->UniformFloat("material.shininess", this->shininess);
+        shaderProgram->UniformBool("material.useTexture", this->useTexture);
+
+        shaderProgram->UniformBool("instanced", this->instanced);
     }
 
 } // namespace GLEngine

@@ -23,30 +23,37 @@ ShaderProgram::ShaderProgram(const GLchar *vertexShaderAddress, const char *frag
 
 void ShaderProgram::UniformBool(const GLchar* name, const bool &value) const
 {
+    this->Bind();
     glUniform1i(glGetUniformLocation(m_ID, name), value);
 }
 void ShaderProgram::UniformFloat(const GLchar* name, const GLfloat &value) const
 {
+    this->Bind();
     glUniform1f(glGetUniformLocation(m_ID, name), value);
 }
 void ShaderProgram::UniformInt(const GLchar* name, const GLint &value) const
 {
+    this->Bind();
     glUniform1i(glGetUniformLocation(m_ID, name), value);
 }
 void ShaderProgram::UniformUint(const GLchar* name, const GLuint &value) const
 {
+    this->Bind();
     glUniform1ui(glGetUniformLocation(m_ID, name), value);
 }
 void ShaderProgram::UniformVec2(const GLchar* name, const glm::vec2 &value) const
 {
+    this->Bind();
     glUniform2fv(glGetUniformLocation(m_ID, name), 1, glm::value_ptr(value));
 }
 void ShaderProgram::UniformVec3(const GLchar* name, const glm::vec3 &value) const
 {
+    this->Bind();
     glUniform3fv(glGetUniformLocation(m_ID, name), 1, glm::value_ptr(value));
 }
 void ShaderProgram::UniformMat4(const GLchar* name, const glm::mat4 &value) const
 {
+    this->Bind();
     glUniformMatrix4fv(glGetUniformLocation(m_ID, name), 1, GL_FALSE, glm::value_ptr(value));
 }
 

@@ -103,7 +103,10 @@ int main()
     windowHintNames.push_back(GLFW_CONTEXT_VERSION_MINOR);
     windowHintValues.push_back(GLE_OPENGL_VERSION_MINOR);
 
-    window = windowHandler.CreateWindow(1920, 1080, "GLEngine", nullptr, nullptr, windowHintNames, windowHintValues);
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
+
+    window = windowHandler.CreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "GLEngine", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -161,7 +164,8 @@ int main()
         exit(-1);
     }
 
-    std::shared_ptr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>(ResPathRelative("shaders/vert1.glsl").c_str(), ResPathRelative("shaders/frag1.glsl").c_str());
+    std::shared_ptr<ShaderProgram> shaderProgram = std::make_shared<ShaderProgram>(ResPathRelative("shaders/vert1.vert").c_str(), ResPathRelative("shaders/frag1.frag").c_str());
+    std::shared_ptr<ShaderProgram> simpleDepthShader = std::make_shared<ShaderProgram>(ResPathRelative("shaders/depth-vert1.vert").c_str(), ResPathRelative("shaders/depth-frag1.frag").c_str());
 
     /* MATERIALS */
     bool unlit1 = false;
@@ -187,24 +191,31 @@ int main()
     Camera camera = Camera(Transform(glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3(-45.0f, 0.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f)),
                            90.0f, 16.0f / 9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
-    GameObject ground = GameObject(plane, concreteMaterial, Transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(50.0f, 1.0f, 50.0f)));
-    ground.material->tiling = glm::vec2(25, 25); // sets tiling multiplier, affects anything referencing this material
 
     GameObject bouncyBallInstance = GameObject(cube, shinyPurpleMaterial, Transform());
 
-    /* BALLS */
-
-    uint bouncyBallsCount = 1024*1000;
+    uint bouncyBallsCount = 512;
     std::vector<Transform> bouncyBallTransforms(bouncyBallsCount);
     std::vector<glm::mat4> bouncyBallTransformationMatrices(bouncyBallsCount);
     std::vector<glm::vec3> bouncyBallVelocities(bouncyBallsCount);
 
-    float boundsDist = 1000.0f;
+    float boundsDist = 15.0f;
+
+    std::shared_ptr<ShaderProgram> shaderProgramDispShadowMap = std::make_shared<ShaderProgram>(ResPathRelative("shaders/disp-shadowmap/vert1.vert").c_str(), ResPathRelative("shaders/disp-shadowmap/frag1.frag").c_str());
+    auto transformDispShadowMap = Transform();
+    transformDispShadowMap.SetScale(glm::vec3(5.0f, 1.0f, 5.0f));
+    transformDispShadowMap.SetPosition(glm::vec3(boundsDist+transformDispShadowMap.GetScale().x, 0.0f, 0.0f));
 
     float minX = -boundsDist, maxX = boundsDist,
-    minY = 5.0f, maxY = 100.0f,
+    minY = 2.0f, maxY = boundsDist,
     minZ = -boundsDist, maxZ = boundsDist;
-    float minBallScale = 0.6f, maxBallScale = 0.6f;
+    float minBallScale = 0.5f, maxBallScale = 0.5f;
+
+    GameObject ground = GameObject(plane, testMaterial1, Transform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(boundsDist, 1.0f, boundsDist)));
+    ground.material->tiling = glm::vec2((int)boundsDist, (int)boundsDist); // sets tiling multiplier, affects anything referencing this material
+    
+    GameObject testCube1 = GameObject(cube, shinyPurpleMaterial, Transform());
+    testCube1.transform.SetPositionY(3.0f);
 
     for(uint i=0; i<bouncyBallsCount; i++)
     {
@@ -219,16 +230,16 @@ int main()
     }
 
     // Point lights initialization
-    PointLight pointLight0 = PointLight(glm::vec3(5.0f, 8.0f, 5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-    PointLight pointLight1 = PointLight(glm::vec3(-5.0f, 8.0f, 5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-    PointLight pointLight2 = PointLight(glm::vec3(5.0f, 8.0f, -5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
-    PointLight pointLight3 = PointLight(glm::vec3(-5.0f, 8.0f, -5.0f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight0 = PointLight(glm::vec3(5.0f, 12.0f, 5.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight1 = PointLight(glm::vec3(-5.0f, 8.0f, 5.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight2 = PointLight(glm::vec3(5.0f, 8.0f, -5.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    PointLight pointLight3 = PointLight(glm::vec3(-5.0f, 8.0f, -5.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     // Directional lights initialization
-    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(0.0f, -0.5f, -0.5f), glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.9f, 0.9f, 0.9f));
+    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(-10.0f, -10.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.9f, 0.9f, 0.9f));
 
     // Spot lights initialization
-    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
+    SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     /* GAME LOOP VARIABLES */
     glm::vec3 playerForward = camera.transform.GetForward();
@@ -253,6 +264,37 @@ int main()
     int cursorPositionRequestCount = 0;
     int cursorPositionRequestThreshold = 2; // 2 == ignore first two calls
 
+    /* SHADOW STUFF SETUP */
+    const uint SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+
+    uint depthmapTextureID;
+    glGenTextures(1, &depthmapTextureID);
+    glBindTexture(GL_TEXTURE_2D, depthmapTextureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    uint depthmapFBO;
+    glGenFramebuffers(1, &depthmapFBO);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
+    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthmapTextureID, 0);
+    glDrawBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    float shadowBounds = 30.0f;
+    float near_plane = -shadowBounds, far_plane = shadowBounds;
+    glm::mat4 lightProjection = glm::ortho(-shadowBounds, shadowBounds, -shadowBounds, shadowBounds, near_plane, far_plane);
+    glm::mat4 lightView = glm::lookAt(-directionalLight0.direction, VEC3F_ZERO, VEC3F_UP);
+    glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
+    Renderer::shaderProgramSubstitutePtr = simpleDepthShader;
+
+
     /* TIME */
     double lastFrameTime = 0.0;
     double currentFrameTime = 0.0;
@@ -273,7 +315,6 @@ int main()
         glfwSetWindowTitle(window, windowTitle.str().c_str());
         windowTitle.str(std::string()); // end-result same as .str(""), but more efficient on some compilers
         windowTitle.clear();
-
 
         playerForward = camera.transform.GetForward();
         playerRight = camera.transform.GetRight();
@@ -308,16 +349,20 @@ int main()
         // z-roll happens
         // need to further investigate control schemes (e.g. fps cam where y rotation occurs purely on WORLD y axis and there is no z rot)
 
-        std::cout << camera.transform.DebugStr() << std::endl << std::endl;
+        //std::cout << camera.transform.DebugStr() << std::endl << std::endl;
 
         // matrices that don't change with the model transform
         shaderProgram->UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
         shaderProgram->UniformMat4("viewMatrix", camera.GetViewMatrix());
         shaderProgram->UniformVec3("viewPos", camera.transform.GetPosition());
 
+        /*shaderProgram->UniformMat4("projectionMatrix", lightProjection);
+        shaderProgram->UniformMat4("viewMatrix", lightView);
+        shaderProgram->UniformVec3("viewPos", -directionalLight0.direction);*/
+
         // Lights generic
         shaderProgram->UniformInt("directionalLightCount", 1);
-        shaderProgram->UniformInt("pointLightCount", 4);
+        shaderProgram->UniformInt("pointLightCount", 0);
         shaderProgram->UniformInt("spotLightCount", 0);
 
         // Point lights uniform
@@ -334,9 +379,7 @@ int main()
         // Spot lights uniform
         spotLight0.Uniform(*shaderProgram, 0);
 
-        /* RENDER */
-        Renderer::Render(ground);
-        
+        /* PHYSICS */
         if(KeyPressed(window, GLE_KEY_P))
         {
         for(int i=0; i<bouncyBallsCount; i++)
@@ -346,7 +389,7 @@ int main()
             float collisionVelocityMultiplier = 0.5f;
 
             float sphereRadius = bouncyBallTransforms[i].GetScale().y;
-            sphereRadius *= 2.35f; // for frogs
+            // sphereRadius *= 2.35f; // for frogs
 
             // Collision
             if(bouncyBallTransforms.at(i).GetPosition().y - sphereRadius <= ground.transform.GetPosition().y) // "collision" with ground
@@ -364,12 +407,50 @@ int main()
         }
         }
 
+        /* RENDER */
+        
+        /* SHADOW RENDER */
+
+        /* SCENE RENDER 1 */
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glEnable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            Renderer::subShaderProgram = true;
+            //simpleDepthShader->UniformMat4("lightSpaceMatrix", lightSpaceMatrix);
+            simpleDepthShader->UniformMat4("lightSpaceMatrix", lightSpaceMatrix);
+            Renderer::Render(testCube1);
+            Renderer::Render(ground);
+            Renderer::RenderInstanced(bouncyBallInstance, bouncyBallTransformationMatrices.data(), bouncyBallsCount);
+            Renderer::subShaderProgram = false;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* SCENE RENDER 2 */
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+        Renderer::Update();
+        shaderProgramDispShadowMap->Bind();
+        plane->Bind();
+
+        glActiveTexture(GLE_MATERIAL_DIFFUSE_TEX_SLOT);
+        glBindTexture(GL_TEXTURE_2D, concreteTexture->GetGLID());
+        glActiveTexture(GLE_SHADOWMAP_TEX_SLOT);
+        glBindTexture(GL_TEXTURE_2D, depthmapTextureID);
+        shaderProgramDispShadowMap->UniformMat4("projectionMatrix", camera.GetProjectionMatrix());
+        shaderProgramDispShadowMap->UniformMat4("viewMatrix", camera.GetViewMatrix());
+        shaderProgramDispShadowMap->UniformMat4("modelMatrix", transformDispShadowMap.GetMatrix());
+        shaderProgramDispShadowMap->UniformInt("shadowMap", GLE_SHADOWMAP_UNIFORM_ID);
+
+        glDrawElements(GL_TRIANGLES, plane->GetIndicesCount(), GL_UNSIGNED_INT, nullptr);
+
+        shaderProgram->UniformMat4("lightSpaceMatrix", lightSpaceMatrix);
+        shaderProgram->UniformInt("shadowMap", GLE_SHADOWMAP_UNIFORM_ID);
+        Renderer::Render(ground);
+        Renderer::Render(testCube1);
         Renderer::RenderInstanced(bouncyBallInstance, bouncyBallTransformationMatrices.data(), bouncyBallsCount);
 
         /* ----- */
         glfwSwapBuffers(window); // Swap front and back buffer, make sure to update this window variable when changing between windows
         glfwPollEvents();
-
         Renderer::Update();
     }
 

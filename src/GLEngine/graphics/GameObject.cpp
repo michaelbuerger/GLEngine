@@ -24,4 +24,13 @@ namespace GLEngine
         this->material->shaderProgram->UniformMat4("modelMatrix", this->transform.GetMatrix());
         this->material->shaderProgram->UniformMat4("normalMatrix", this->transform.GetNormalMatrix());
     }
+
+    void GameObject::BindSubShader(const std::shared_ptr<ShaderProgram> shaderProgram)
+    {
+        this->material->BindSubShader(shaderProgram);
+        this->model->Bind();
+        // TODO: make these uniform names not hard-coded
+        shaderProgram->UniformMat4("modelMatrix", this->transform.GetMatrix());
+        shaderProgram->UniformMat4("normalMatrix", this->transform.GetNormalMatrix());
+    }
 } // namespace GLEngine
