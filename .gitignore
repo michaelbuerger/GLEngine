@@ -2,13 +2,12 @@
 build/
 !docs/build/
 bin/
-/glew-2.1.0/
 *.gch
 *.o
 .vscode/
 .idea/
 cmake-build-debug/
-/include/glm/
+test/GLEngine_test
 
 ### Linux ###
 *~

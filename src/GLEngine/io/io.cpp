@@ -12,9 +12,15 @@
 namespace GLEngine
 {
 
+std::string ResInfo::resPath = "./resources/";
+
+/*
+ * Redefine GLEngine::ResInfo::resPath to edit resources path
+ * default <-- resPath = "./resources/"
+ */
 std::string ResPathRelative(const char *address)
 {
-    std::string resAddress = GLE_RESOURCES_PATH;
+    std::string resAddress = ResInfo::resPath;
     resAddress.append(address);
 
     return resAddress;

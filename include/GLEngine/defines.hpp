@@ -15,9 +15,4 @@
 #define GLE_SHADOWMAP_TEX_SLOT GL_TEXTURE4 // default texture slot of shadow maps, uniform binding ->
 #define GLE_SHADOWMAP_UNIFORM_ID 4
 
-/* TODO: Figure out a better place for this, so it can be changed if needed */
-#ifndef GLE_RESOURCES_PATH
-#define GLE_RESOURCES_PATH "./resources/"
-#endif
-
 #endif

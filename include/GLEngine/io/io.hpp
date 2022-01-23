@@ -12,6 +12,11 @@
 namespace GLEngine
 {
 
+class ResInfo
+{
+public:
+    static std::string resPath;
+};
 std::string ResPathRelative(const char *address);
 
 unsigned long GetFileLength(std::ifstream &file);

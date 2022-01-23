@@ -24,7 +24,7 @@ build-project: # Builds project using setup cmake files
 
 execute-project: # Run generated executable
 	@echo "---------- PROGRAM OUTPUT ----------"
-	@bin/GLEngine
+	@test/GLEngine_test
 	@echo "---------- END OF OUTPUT -----------"
 
 qea:
