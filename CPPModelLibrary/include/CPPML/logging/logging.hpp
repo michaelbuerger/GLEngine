@@ -2,6 +2,6 @@
 #ifndef LOGGING_HPP
 #define LOGGING_HPP
 
-#include "Log.hpp"
+#include "CPPML/logging/Log.hpp"
 
 #endif
