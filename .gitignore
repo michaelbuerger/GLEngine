@@ -11,6 +11,8 @@ bin/
 cmake-build-debug/
 test/GLEngine_test
 glew-2.1.0/glew.pc
+CMakeFiles/
+CMakeCache.txt
 
 ### Linux ###
 *~
