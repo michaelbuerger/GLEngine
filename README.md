@@ -7,6 +7,6 @@ All documentation has moved over to [GitHub Pages](https://popwser.github.io/GLE
 
 ## Links
 
-**Documentation** <https://popwser.github.io/GLEngine/>  
+**Documentation** <https://michaelbuerger.github.io/GLEngine/>  
 **Trello**: <https://trello.com/b/Pl9kCp8s/glengine>  
 **GitHub**: <https://github.com/popwser/GLEngine>
