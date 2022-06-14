@@ -52,7 +52,7 @@ public:
     static glm::mat4 CreateScaleMatrix(const glm::vec3 &scale);
 
     std::string DebugStr() const;
-    std::string DebugStr(uint precision) const;
+    std::string DebugStr(unsigned int precision) const;
 
 private:
     void m_Transform(const glm::vec3 &position, const glm::vec3 &rotation, const glm::vec3 &scale);

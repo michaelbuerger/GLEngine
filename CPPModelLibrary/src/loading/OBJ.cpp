@@ -30,7 +30,7 @@ struct VertexNormal
 
 struct IndexedFaceVertex
 {
-    uint vertexPositionIndex, vertexTextureCoordsIndex, vertexNormalIndex;
+    unsigned int vertexPositionIndex, vertexTextureCoordsIndex, vertexNormalIndex;
 
     // detect collision in unordered_map
     bool operator==(const IndexedFaceVertex& other) const
@@ -61,15 +61,15 @@ struct hash_fn
     }
 };
 
-bool LoadOBJFile(FILE *file, std::vector<float>& retPositions, std::vector<float>& retTextureCoordinates, std::vector<float>& retNormals, std::vector<uint>& retIndices)
+bool LoadOBJFile(FILE *file, std::vector<float>& retPositions, std::vector<float>& retTextureCoordinates, std::vector<float>& retNormals, std::vector<unsigned int>& retIndices)
 {
     auto positionsPool = std::vector<VertexPosition>(); // contains all data specified by 'v'
     auto textureCoordinatesPool = std::vector<VertexTextureCoords>(); // contains all data specified by 'vt'
     auto normalsPool = std::vector<VertexNormal>(); // contains all data specified by 'vn'
 
     // for keeping track of duplicates + indicesIndex for faceVertices
-    auto indexedFaceVerticesIndexMap = std::unordered_map<IndexedFaceVertex, uint, hash_fn>();
-    uint currentIndicesIndex = 0;
+    auto indexedFaceVerticesIndexMap = std::unordered_map<IndexedFaceVertex, unsigned int, hash_fn>();
+    unsigned int currentIndicesIndex = 0;
 
     // FILE pointer invalid, file never opened or was closed before loading
     if(file == nullptr)
@@ -244,14 +244,14 @@ bool LoadOBJFile(FILE *file, std::vector<float>& retPositions, std::vector<float
 }
 
 /* Must export: Triangles, Vertices, Texcoords, and Normals */
-bool LoadOBJFileOLD1(FILE *file, std::unique_ptr<float[]>& ret_vertices, std::unique_ptr<float[]>& ret_texcoords, std::unique_ptr<float[]>& ret_normals, uint& vertexCount) {
+bool LoadOBJFileOLD1(FILE *file, std::unique_ptr<float[]>& ret_vertices, std::unique_ptr<float[]>& ret_texcoords, std::unique_ptr<float[]>& ret_normals, unsigned int& vertexCount) {
     auto tempVertices = std::vector<std::array<float, 3>>();
     auto tempTexcoords = std::vector<std::array<float, 2>>();
     auto tempNormals = std::vector<std::array<float, 3>>();
 
-    auto vertexIndices = std::vector<uint>();
-    auto texcoordIndices = std::vector<uint>();
-    auto normalIndices = std::vector<uint>();
+    auto vertexIndices = std::vector<unsigned int>();
+    auto texcoordIndices = std::vector<unsigned int>();
+    auto normalIndices = std::vector<unsigned int>();
 
     // Error handling related stuff
     int currentLine = 1;
@@ -298,7 +298,7 @@ bool LoadOBJFileOLD1(FILE *file, std::unique_ptr<float[]>& ret_vertices, std::un
 
             tempNormals.push_back({ x, y, z });
         } else if(!strcmp(header, "f")) {
-            uint vi0, ti0, ni0, vi1, ti1, ni1, vi2, ti2, ni2;
+            unsigned int vi0, ti0, ni0, vi1, ti1, ni1, vi2, ti2, ni2;
             int res = fscanf(file, "%u/%u/%u %u/%u/%u %u/%u/%u\n", &vi0, &ti0, &ni0, &vi1, &ti1, &ni1, &vi2, &ti2, &ni2);
             if (res == EOF) {
                 CPPML_ERROR("In method \"LoadOBJFile\". Reached end-of-file while attempting to read body of line {} with header \"{}\"", currentLine, header);

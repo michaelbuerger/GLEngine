@@ -6,6 +6,7 @@ bin/
 .vscode/
 .idea/
 cmake-build-debug/
+.vs/*
 
 ### Linux ###
 *~

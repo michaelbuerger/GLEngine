@@ -107,7 +107,7 @@ GLuint CreateShaderFromAddress(const char *address, const GLuint &shaderType)
         return -1; // TODO: Update to use logging
     }
 
-    GLchar shaderSource[len + 1];
+    GLchar* shaderSource = new GLchar[len + 1];
     shaderSource[len] = 0;
 
     size_t i = 0;
@@ -126,6 +126,7 @@ GLuint CreateShaderFromAddress(const char *address, const GLuint &shaderType)
     file.close();
 
     const GLchar *shaderSourcePointer = shaderSource;
+    delete[] shaderSource;
 
     return CreateShader(&shaderSourcePointer, shaderType);
 }

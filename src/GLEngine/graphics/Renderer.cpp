@@ -35,7 +35,7 @@ namespace GLEngine
         glDrawElements(GL_TRIANGLES, gameObject.model->GetIndicesCount(), GL_UNSIGNED_INT, nullptr);
     } 
 
-    void Renderer::RenderInstanced(GameObject& gameObject, const glm::mat4* transformationMatricesArrayPtr, const uint& instances)
+    void Renderer::RenderInstanced(GameObject& gameObject, const glm::mat4* transformationMatricesArrayPtr, const unsigned int& instances)
     {
         if(instances > 0)
         {

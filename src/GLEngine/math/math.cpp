@@ -15,12 +15,12 @@ float degreeClamp(const float &x)
 {
     if(x < 0) // only calculate clamped value if needed
     {
-        return 360 - fmodf32(-x, 360);
+        return 360 - fmodf(-x, 360);
     }
 
     if(x > 360)  // only calculate clamped value if needed
     {
-        return 0 + fmodf32(x, 360);
+        return 0 + fmodf(x, 360);
     }
 
     return x;

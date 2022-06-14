@@ -26,9 +26,9 @@
 
 #include "stb/stb_image.h"
 
-#include "CPPML/logging/Log.hpp"
 #include "CPPML/loading/loading.hpp"
 #include "CPPML/loading/OBJ.hpp"
+#include "CPPML/logging/Log.hpp"
 
 #include <imgui/imgui.h> // the GLEngine way of including things, #include "imgui.h" works too for compatibility with the lib
 
@@ -89,7 +89,7 @@ int main()
     WindowHandler windowHandler = WindowHandler();
     // WindowHandler windowHandler(); <-- does not call default constructor for some reason
 
-    GLFWwindow *window;
+    GLFWwindow* window;
 
     std::vector<int> windowHintNames = std::vector<int>();
     std::vector<int> windowHintValues = std::vector<int>();
@@ -106,7 +106,7 @@ int main()
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
 
-    window = windowHandler.CreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "GLEngine", nullptr, nullptr, windowHintNames, windowHintValues);
+    window = windowHandler.ConstructWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "GLEngine", nullptr, nullptr, windowHintNames, windowHintValues);
 
     /* Initialize GLEW */
     GLenum err = glewInit();
@@ -197,7 +197,7 @@ int main()
 
     GameObject bouncyBallInstance = GameObject(cube, shinyPurpleMaterial, Transform());
 
-    uint bouncyBallsCount = 512;
+    unsigned int bouncyBallsCount = 512;
     std::vector<Transform> bouncyBallTransforms(bouncyBallsCount);
     std::vector<glm::mat4> bouncyBallTransformationMatrices(bouncyBallsCount);
     std::vector<glm::vec3> bouncyBallVelocities(bouncyBallsCount);
@@ -220,7 +220,7 @@ int main()
     GameObject testCube1 = GameObject(cube, shinyPurpleMaterial, Transform());
     testCube1.transform.SetPositionY(3.0f);
 
-    for(uint i=0; i<bouncyBallsCount; i++)
+    for(unsigned int i=0; i<bouncyBallsCount; i++)
     {
         glm::vec3 ballPosition = glm::vec3((float)randomRange(minX, maxX), (float)randomRange(minY, maxY), (float)randomRange(minZ, maxZ));
         glm::vec3 ballRotation = glm::vec3((float)randomRange(0, 360), (float)randomRange(0, 360), (float)randomRange(0, 360));
@@ -268,9 +268,9 @@ int main()
     int cursorPositionRequestThreshold = 2; // 2 == ignore first two calls
 
     /* SHADOW STUFF SETUP */
-    const uint SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+    const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
 
-    uint depthmapTextureID;
+    unsigned int depthmapTextureID;
     glGenTextures(1, &depthmapTextureID);
     glBindTexture(GL_TEXTURE_2D, depthmapTextureID);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
@@ -281,7 +281,7 @@ int main()
     float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-    uint depthmapFBO;
+    unsigned int depthmapFBO;
     glGenFramebuffers(1, &depthmapFBO);
 
     glBindFramebuffer(GL_FRAMEBUFFER, depthmapFBO);

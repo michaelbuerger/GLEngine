@@ -16,7 +16,7 @@ public:
 
     /* Creates GLFW window with default version of OpenGL 3.3, Initializes GLEW.
             If window hint vectors are not null this can be overriden */
-    GLFWwindow *CreateWindow(const int &width, const int &height, const char *title, GLFWmonitor *monitor, GLFWwindow *share, const std::vector<int> &windowHintNames, const std::vector<int> &windowHintValues);
+    GLFWwindow* ConstructWindow(const int &width, const int &height, const char *title, GLFWmonitor *monitor, GLFWwindow *share, const std::vector<int> &windowHintNames, const std::vector<int> &windowHintValues);
     bool ShouldAnyWindowClose();
     void DestroyWindow(GLFWwindow *window);
 

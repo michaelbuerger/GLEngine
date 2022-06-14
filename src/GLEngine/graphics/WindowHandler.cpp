@@ -20,7 +20,7 @@ WindowHandler::WindowHandler()
     }
 }
 
-GLFWwindow *WindowHandler::CreateWindow(const int &width, const int &height, const char *title, GLFWmonitor *monitor, GLFWwindow *share, const std::vector<int> &windowHintNames, const std::vector<int> &windowHintValues)
+GLFWwindow* WindowHandler::ConstructWindow(const int &width, const int &height, const char *title, GLFWmonitor *monitor, GLFWwindow *share, const std::vector<int> &windowHintNames, const std::vector<int> &windowHintValues)
 {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLE_OPENGL_VERSION_MAJOR);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLE_OPENGL_VERSION_MINOR);

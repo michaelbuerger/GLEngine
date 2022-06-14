@@ -216,7 +216,7 @@ std::string Transform::DebugStr() const
     return this->DebugStr(2);
 }
 
-std::string Transform::DebugStr(uint precision) const
+std::string Transform::DebugStr(unsigned int precision) const
 {
     std::stringstream strStream;
 
