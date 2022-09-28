@@ -10,5 +10,3 @@ All documentation has moved over to [GitHub Pages](https://popwser.github.io/GLE
 **Documentation** <https://michaelbuerger.github.io/GLEngine/>  
 **Trello**: <https://trello.com/b/Pl9kCp8s/glengine>  
 **GitHub**: <https://github.com/popwser/GLEngine>
-
-I am currently working on a new version of this project, starting from scratch. See it [here](https://github.com/michaelbuerger/Pyrex).

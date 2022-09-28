@@ -62,12 +62,15 @@ std::string GetShaderTypeName(const GLuint &shaderType)
 }
 
 /* Create shader from pre-loaded source */
-GLuint CreateShader(const GLchar **shaderSource, const GLuint &shaderType)
+GLuint CreateShader(const GLchar *shaderSource, const GLuint &shaderType, bool deleteShaderSource)
 {
     GLuint shader;
 
     shader = glCreateShader(shaderType);
-    glShaderSource(shader, 1, shaderSource, NULL);
+    glShaderSource(shader, 1, &shaderSource, NULL);
+
+    if(deleteShaderSource)
+        delete[] shaderSource;
 
     int success;
     char infoLog[512];
@@ -125,10 +128,7 @@ GLuint CreateShaderFromAddress(const char *address, const GLuint &shaderType)
 
     file.close();
 
-    const GLchar *shaderSourcePointer = shaderSource;
-    delete[] shaderSource;
-
-    return CreateShader(&shaderSourcePointer, shaderType);
+    return CreateShader(shaderSource, shaderType, true);
 }
 
 /* Creates a shader program with the option to bind attribute locations */ // Look into adding other shader type support

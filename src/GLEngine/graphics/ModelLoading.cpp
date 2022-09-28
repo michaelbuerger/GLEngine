@@ -10,8 +10,8 @@
 #include "GLEngine/exceptions.hpp"
 #include "GLEngine/io/io.hpp"
 
-#include "CPPML/loading/loading.hpp"
-#include "CPPML/loading/OBJ.hpp"
+#include "CPPML/Loading.hpp"
+#include "CPPML/OBJ.hpp"
 
 #include <memory>
 #include <string>
