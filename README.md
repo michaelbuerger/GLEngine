@@ -1,9 +1,8 @@
 ## GLEngine
 
-A complete game engine developed by Michael Buerger
-
-All documentation has moved over to [GitHub Pages](https://popwser.github.io/GLEngine/)  
-[![Build Status](https://travis-ci.org/popwser/GLEngine.svg?branch=transfer1)](https://travis-ci.org/popwser/GLEngine)
+My first-attempt at writing a graphics engine and simulation toolkit using C++ and OpenGL.
+This project is no longer under development! I am currently working on a successor project using Rust: 
+**titanium-engine**: <https://github.com/popwser/titanium-engine>
 
 ## Links
 
