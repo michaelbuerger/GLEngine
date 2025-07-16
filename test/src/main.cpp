@@ -251,7 +251,7 @@ int main()
     glDrawBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    float shadowBounds = 20.0f;
+    float shadowBounds = 30.0f;
     float near_plane = -shadowBounds, far_plane = shadowBounds;
     glm::mat4 lightProjection = glm::ortho(-shadowBounds, shadowBounds, -shadowBounds, shadowBounds, near_plane, far_plane);
     glm::mat4 lightView = glm::lookAt(-directionalLight0.direction, VEC3F_ZERO, VEC3F_UP);
