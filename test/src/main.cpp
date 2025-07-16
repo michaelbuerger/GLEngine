@@ -43,44 +43,6 @@
 
 using namespace GLEngine;
 
-/* Useful Links:
-http://www.opengl-tutorial.org/
-http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-9-vbo-indexing/
-http://www.khronos.org/
-http://www.learnopengl.com/
-http://www.glfw.org/
-https://www.glfw.org/docs/3.0/window.html
-
-https://github.com/nothings/single_file_libs
-https://github.com/nothings/stb
-https://stackoverflow.com/questions/23150123/loading-png-with-stb-image-for-opengl-texture-gives-wrong-colors
-
-https://mbevin.wordpress.com/2012/11/18/smart-pointers/
-http://www.cplusplus.com/reference/memory/shared_ptr/~shared_ptr/ // Shared pointer destructor details
-
-http://paulbourke.net/dataformats/obj/
-https://en.wikipedia.org/wiki/Wavefront_.obj_file
-
-https://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues
-
-3rd Party GUI:
-https://github.com/ocornut/imgui
-*/
-
-/*
-REFACTOR:
-- [X] Texture --> material
-- [X] Get rid of references to texture in model
-- [X] GameObject --> model + material + Transform
-- [ ] Renderer --> Takes in list of GameObjects
-*/
-
-/*
-- [X] Time.deltaTime equivalent
-- [X] Bouncy ball
-- [ ] Batched/indexed (better) rendering
-*/
-
 int main()
 {
     Log::Init(spdlog::level::trace);
@@ -195,14 +157,14 @@ int main()
                            90.0f, 16.0f / 9.0f, 100000000.0f, GLE_CAMERA_MODE_PERSPECTIVE); // scale doesn't affect the camera
 
 
-    GameObject bouncyBallInstance = GameObject(cube, shinyPurpleMaterial, Transform());
+    GameObject bouncyBallInstance = GameObject(sphere, concreteMaterial, Transform());
 
-    unsigned int bouncyBallsCount = 512;
+    unsigned int bouncyBallsCount = 256;
     std::vector<Transform> bouncyBallTransforms(bouncyBallsCount);
     std::vector<glm::mat4> bouncyBallTransformationMatrices(bouncyBallsCount);
     std::vector<glm::vec3> bouncyBallVelocities(bouncyBallsCount);
 
-    float boundsDist = 15.0f;
+    float boundsDist = 10.0f;
 
     std::shared_ptr<ShaderProgram> shaderProgramDispShadowMap = std::make_shared<ShaderProgram>(ResPathRelative("shaders/disp-shadowmap/vert1.vert").c_str(), ResPathRelative("shaders/disp-shadowmap/frag1.frag").c_str());
     auto transformDispShadowMap = Transform();
@@ -239,7 +201,7 @@ int main()
     PointLight pointLight3 = PointLight(glm::vec3(-5.0f, 8.0f, -5.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
 
     // Directional lights initialization
-    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(-10.0f, -10.0f, -10.0f), glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.7f, 0.7f, 0.7f), glm::vec3(0.9f, 0.9f, 0.9f));
+    DirectionalLight directionalLight0 = DirectionalLight(glm::vec3(-10.0f, -10.0f, -10.0f), glm::vec3(0.01f, 0.01f, 0.01f), glm::vec3(0.07f, 0.07f, 0.07f), glm::vec3(0.09f, 0.09f, 0.09f));
 
     // Spot lights initialization
     SpotLight spotLight0 = SpotLight(camera.transform.GetPosition(), camera.transform.GetForward(), 12.5f, 25.5f, glm::vec3(0.1f, 0.1f, 0.1f), glm::vec3(0.8f, 0.8f, 0.8f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f, 0.09f, 0.032f);
@@ -255,7 +217,7 @@ int main()
 
     float playerTranslateSpeed = 10.0f;
     float playerRollSpeed = 120.0f;
-    float playerSensitivity = 10.0f;
+    float playerSensitivity = 0.0f;
 
     /* 6DOF CAMERA */
     SetCursorMode(window, GLE_CURSOR_MODE_WRAP);
@@ -289,7 +251,7 @@ int main()
     glDrawBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    float shadowBounds = 30.0f;
+    float shadowBounds = 20.0f;
     float near_plane = -shadowBounds, far_plane = shadowBounds;
     glm::mat4 lightProjection = glm::ortho(-shadowBounds, shadowBounds, -shadowBounds, shadowBounds, near_plane, far_plane);
     glm::mat4 lightView = glm::lookAt(-directionalLight0.direction, VEC3F_ZERO, VEC3F_UP);
@@ -365,8 +327,8 @@ int main()
 
         // Lights generic
         shaderProgram->UniformInt("directionalLightCount", 1);
-        shaderProgram->UniformInt("pointLightCount", 0);
-        shaderProgram->UniformInt("spotLightCount", 0);
+        shaderProgram->UniformInt("pointLightCount", 3);
+        shaderProgram->UniformInt("spotLightCount", 1);
 
         // Point lights uniform
         pointLight0.Uniform(*shaderProgram, 0);

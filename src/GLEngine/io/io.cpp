@@ -125,10 +125,11 @@ GLuint CreateShaderFromAddress(const char *address, const GLuint &shaderType)
 
     file.close();
 
-    const GLchar *shaderSourcePointer = shaderSource;
-    delete[] shaderSource;
+    const GLchar* shaderSourcePointer = shaderSource; // declare source data (chars themselves, not pointer) to be constant
+    GLuint res = CreateShader(&shaderSourcePointer, shaderType); // pass pointer to pointer to const chars to OpenGL
+    delete[] shaderSource; // delete shaderSource data AFTER giving it to OpenGL
 
-    return CreateShader(&shaderSourcePointer, shaderType);
+    return res;
 }
 
 /* Creates a shader program with the option to bind attribute locations */ // Look into adding other shader type support

@@ -16,7 +16,7 @@ ShaderProgram::ShaderProgram(const GLuint &vertexShaderID, const GLuint &fragmen
 {
     m_ID = CreateShaderProgram(vertexShaderID, fragmentShaderID, shouldDeleteShaders);
 }
-ShaderProgram::ShaderProgram(const GLchar *vertexShaderAddress, const char *fragmentShaderAddress)
+ShaderProgram::ShaderProgram(const GLchar *vertexShaderAddress, const GLchar *fragmentShaderAddress)
 {
     m_ID = CreateShaderProgramFromAddresses(vertexShaderAddress, fragmentShaderAddress);
 }

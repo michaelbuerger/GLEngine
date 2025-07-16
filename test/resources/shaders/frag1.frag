@@ -252,3 +252,5 @@ vec3 CalcSpotLight(SpotLight light, vec3 ambientColor, vec3 diffuseColor, vec3 s
 
   return ambient + (diffuse + specular);
 }
+
+
